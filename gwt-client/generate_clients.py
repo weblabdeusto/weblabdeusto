@@ -16,15 +16,75 @@ os.system("java -classpath %s es.deusto.weblab.server.ClientSummaryGenerator" % 
 pending_lines = []
 
 experiment_clients = OrderedDict()
-    # 'client_id' : {
-    #   'parameters' : {
-    #      'parameter1' : {
-    #          'type' : 'str',
-    #          'description' : 'Foo bar',
-    #      }
-    #   }
-    # }
+# 'client_id' : {
+#   'parameters' : {
+#      'parameter1' : {
+#          'type' : 'str',
+#          'description' : 'Foo bar',
+#      }
+#   }
+# }
 
+experiment_clients['blank'] = {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "html": {
+                "type": "string", 
+                "description": "HTML contents"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }
+
+# Backwards compatibility
+experiment_clients['blank-no-mobile'] = experiment_clients['blank-limited-mobile'] = experiment_clients['blank']
+
+experiment_clients['redirect'] = {
+        "parameters": {
+            "external.width": {
+                "type": "string", 
+                "description": "If popup or iframe,  width"
+            }, 
+            "external.height": {
+                "type": "string", 
+                "description": "If popup or iframe,  height"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "link.presentation": {
+                "type": "string", 
+                "description": "Link presentation (redirection, iframe, popup)"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }
+        }
+    }
 
 def process_last_type():
     if pending_lines:

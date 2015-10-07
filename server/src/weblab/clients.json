@@ -9,29 +9,9 @@
                 "type": "string", 
                 "description": "HTML contents"
             }, 
-            "experiment.info.link": {
-                "type": "string", 
-                "description": "Link to point in the information"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
-            }, 
             "experiment.picture": {
                 "type": "string", 
                 "description": "Path to the experiment pictures"
-            }
-        }
-    }, 
-    "blank-limited-mobile": {
-        "parameters": {
-            "experiment.info.description": {
-                "type": "string", 
-                "description": "Description message"
-            }, 
-            "html": {
-                "type": "string", 
-                "description": "HTML contents"
             }, 
             "experiment.info.link": {
                 "type": "string", 
@@ -40,10 +20,6 @@
             "experiment.reserve.button.shown": {
                 "type": "bool", 
                 "description": "Show the reserve button or not"
-            }, 
-            "experiment.picture": {
-                "type": "string", 
-                "description": "Path to the experiment pictures"
             }
         }
     }, 
@@ -57,6 +33,10 @@
                 "type": "string", 
                 "description": "HTML contents"
             }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }, 
             "experiment.info.link": {
                 "type": "string", 
                 "description": "Link to point in the information"
@@ -64,6 +44,58 @@
             "experiment.reserve.button.shown": {
                 "type": "bool", 
                 "description": "Show the reserve button or not"
+            }
+        }
+    }, 
+    "blank-limited-mobile": {
+        "parameters": {
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "html": {
+                "type": "string", 
+                "description": "HTML contents"
+            }, 
+            "experiment.picture": {
+                "type": "string", 
+                "description": "Path to the experiment pictures"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }
+        }
+    }, 
+    "redirect": {
+        "parameters": {
+            "external.width": {
+                "type": "string", 
+                "description": "If popup or iframe,  width"
+            }, 
+            "external.height": {
+                "type": "string", 
+                "description": "If popup or iframe,  height"
+            }, 
+            "experiment.reserve.button.shown": {
+                "type": "bool", 
+                "description": "Show the reserve button or not"
+            }, 
+            "experiment.info.description": {
+                "type": "string", 
+                "description": "Description message"
+            }, 
+            "link.presentation": {
+                "type": "string", 
+                "description": "Link presentation (redirection, iframe, popup)"
+            }, 
+            "experiment.info.link": {
+                "type": "string", 
+                "description": "Link to point in the information"
             }, 
             "experiment.picture": {
                 "type": "string", 
@@ -651,38 +683,6 @@
             }
         }
     }, 
-    "control-app": {
-        "parameters": {
-            "external.width": {
-                "type": "string", 
-                "description": "If popup or iframe,  width"
-            }, 
-            "external.height": {
-                "type": "string", 
-                "description": "If popup or iframe,  height"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
-            }, 
-            "experiment.info.description": {
-                "type": "string", 
-                "description": "Description message"
-            }, 
-            "link.presentation": {
-                "type": "string", 
-                "description": "Link presentation (redirection, iframe, popup)"
-            }, 
-            "experiment.info.link": {
-                "type": "string", 
-                "description": "Link to point in the information"
-            }, 
-            "experiment.picture": {
-                "type": "string", 
-                "description": "Path to the experiment pictures"
-            }
-        }
-    }, 
     "incubator": {
         "parameters": {
             "experiment.info.description": {
@@ -744,70 +744,6 @@
             "experiment.reserve.button.shown": {
                 "type": "bool", 
                 "description": "Show the reserve button or not"
-            }, 
-            "experiment.picture": {
-                "type": "string", 
-                "description": "Path to the experiment pictures"
-            }
-        }
-    }, 
-    "redirect": {
-        "parameters": {
-            "external.width": {
-                "type": "string", 
-                "description": "If popup or iframe,  width"
-            }, 
-            "external.height": {
-                "type": "string", 
-                "description": "If popup or iframe,  height"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
-            }, 
-            "experiment.info.description": {
-                "type": "string", 
-                "description": "Description message"
-            }, 
-            "link.presentation": {
-                "type": "string", 
-                "description": "Link presentation (redirection, iframe, popup)"
-            }, 
-            "experiment.info.link": {
-                "type": "string", 
-                "description": "Link to point in the information"
-            }, 
-            "experiment.picture": {
-                "type": "string", 
-                "description": "Path to the experiment pictures"
-            }
-        }
-    }, 
-    "purejs": {
-        "parameters": {
-            "load.on.init": {
-                "type": "bool", 
-                "description": "Load the HTML"
-            }, 
-            "html.file": {
-                "type": "string", 
-                "description": "HTML file to redirect the user"
-            }, 
-            "experiment.reserve.button.shown": {
-                "type": "bool", 
-                "description": "Show the reserve button or not"
-            }, 
-            "experiment.info.description": {
-                "type": "string", 
-                "description": "Description message"
-            }, 
-            "base.url": {
-                "type": "string", 
-                "description": "Base URL before the HTML file. By default, it's experiments/"
-            }, 
-            "experiment.info.link": {
-                "type": "string", 
-                "description": "Link to point in the information"
             }, 
             "experiment.picture": {
                 "type": "string", 

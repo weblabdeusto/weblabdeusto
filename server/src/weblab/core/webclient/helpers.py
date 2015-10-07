@@ -86,7 +86,7 @@ def _hook_native_experiments(experiment):
     if experiment.client.client_id == 'redirect':
         experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/redirect.html')
         experiment.client.client_id = 'js'
-    elif experiment.client.client_id in ('blank', 'blank-mobile', 'blank-limited'):
+    elif experiment.client.client_id in ('blank', 'blank-no-mobile', 'blank-limited'):
         experiment.client.configuration['html.file'] = url_for('.static', filename='nativelabs/blank.html')
         experiment.client.client_id = 'js'
 
