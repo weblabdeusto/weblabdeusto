@@ -154,6 +154,7 @@
         {# Put here all the global variables of those things that will later be accessed by the static JS files #}
         var WL_JSON_URL = "{{ url_for('json.service_url') }}";
         var WL_LAB_URL = "{{ url_for('.static', filename='') }}";
+        var WL_PUB_URL = "{{ url_for('core_web.pub_index') }}";
         var WL_LOGIN_URL = "{{ url_for('.login') }}";
         var LOCALES_URL = "{{ url_for('.locales') }}";
         var LATEST_USES_URL = "{{ url_for('.latest_uses', experiment_name=experiment['name'], category_name=experiment['category']) }}";
