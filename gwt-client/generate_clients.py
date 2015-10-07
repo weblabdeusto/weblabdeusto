@@ -91,9 +91,9 @@ experiment_clients['redirect'] = {
 
 experiment_clients['js'] = {
         "parameters": {
-            "html.dir": {
-                "type": "string", 
-                "description": "'native' means that it comes with WebLab-Deusto; otherwise it takes the HTML file from the 'pub' directory"
+            "builtin": {
+                "type": "bool", 
+                "description": "If active, it means that it comes with WebLab-Deusto; otherwise it takes the HTML file from the 'pub' directory"
             }, 
             "provide.file.upload": {
                 "type": "bool", 

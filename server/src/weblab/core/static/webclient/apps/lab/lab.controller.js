@@ -55,7 +55,7 @@ function LabController($scope, $injector, $http) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
             // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'builtin'. Otherwise, use the public dir.
-            if (EXPERIMENT_DATA['config']['html.dir'] == 'builtin') {
+            if (EXPERIMENT_DATA['config']['builtin'] === true) {
                 $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
             } else {
                 $scope.experiment_iframe.iframe_url = WL_PUB_URL + EXPERIMENT_DATA['config']['html.file'];
