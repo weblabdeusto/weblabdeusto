@@ -1721,6 +1721,8 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """            )\n""")
 
 
+    pub_dir = os.path.join(directory, 'pub')
+
     httpd_dir = os.path.join(directory, 'httpd')
     local_simple_server_conf_path = os.path.join('httpd', 'simple_server_config.py')
     simple_server_conf_path = os.path.join(httpd_dir, 'simple_server_config.py')
@@ -1823,6 +1825,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     #
 
     if verbose: print("Creating apache configuration files...", end="", file=stdout); stdout.flush()
+
+    if not os.path.exists(pub_dir):
+        os.mkdir(pub_dir)
 
     if not os.path.exists(httpd_dir):
         os.mkdir(httpd_dir)

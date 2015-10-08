@@ -305,7 +305,7 @@ def deploy_testdb(options):
 
         t = time.time()
 
-        error_message = 'Could not create database. This may happen if the admin db credentials are wrong.'
+        error_message = 'Could not create database. This may happen if the admin db credentials are wrong. Try --db-ask-admin-passwd'
 
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLab",              weblab_db_username, weblab_db_password, db_dir = db_dir)
         create_database(error_message, weblab_admin_db_username, weblab_admin_db_password, "WebLabTests",         weblab_db_username, weblab_db_password, db_dir = db_dir)

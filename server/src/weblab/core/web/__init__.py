@@ -68,3 +68,9 @@ assert logo is not None # avoid warnings
 import avatar
 assert avatar is not None # avoid warnings
 
+import pub
+assert pub is not None # avoid warnings
+
+import compiserv
+assert compiserv is not None # avoid warnings
+
