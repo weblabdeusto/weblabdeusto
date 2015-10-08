@@ -312,7 +312,11 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/xilinx.jpg"
     },
     "ud-dummy-batch@Dummy experiments": {},
-    "ud-dummy@Dummy experiments": {},
+    "ud-dummy@Dummy experiments": {
+        "html.file": "nativelabs/dummy.html",
+        "builtin" : True,
+        "message": "(This message comes from the admin panel)"
+    },
     "ud-fpga@FPGA experiments": {
         "experiment.info.description": "description",
         "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#fpga",
@@ -741,7 +745,7 @@ def populate_weblab_tests(engine, tests):
         ('ud-demo-fpga',            'FPGA experiments')      : 'xilinx',
         ('ud-demo-pld',             'PLD experiments')       : 'xilinx',
         ('ud-demo-xilinx',          'Xilinx experiments')    : 'xilinx',
-        ('ud-dummy',                'Dummy experiments')     : 'dummy',
+        ('ud-dummy',                'Dummy experiments')     : 'js',
         ('ud-dummy-batch',          'Dummy experiments')     : 'dummybatch',
         ('ud-fpga',                 'FPGA experiments')      : 'xilinx',
         ('ud-gpib',                 'GPIB experiments')      : 'gpib',

@@ -10,7 +10,6 @@
 
     <title>Dummy Experiment</title>
 
-    <!-- Include the scripts: standard jQuery + weblab.v1.js -->
     <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
     <style>
         /* We'll use this class to hide some contents */
@@ -34,16 +33,21 @@
                 "initial_message" : "Welcome to the experiment!!!",
                 "queue_message" : "We are showing this block when the user presses on reserve and until the user. You might want to show a carousel of pictures of the lab they will see or simply hide the initial block.",
                 "queue_header" : "Queue block"
+            },
+            "es" : {
+                "initial_message" : "Bienvenido al experimento!",
             }
         };
 
         function getMessage(key) {
-            var message = MESSAGES[weblab.locale][key];
-            if (message === undefined) {
+            var languageMessages = MESSAGES[weblab.locale]
+            if (languageMessages === undefined || languageMessages[key] === undefined) {
                 message = MESSAGES["en"][key];
                 if (message === undefined) {
                     message = "Message '" + key + "' not found";
                 } 
+            } else {
+                message = languageMessages[key];
             }
             return message;
         };
@@ -68,10 +72,10 @@
         // does, certain adaptations, etc.
         // 
         weblab.onConfigLoad(function () {
+            $("#initial_message").text(getMessage("initial_message"));
             // weblab.config is a simple JavaScript object (e.g., {})
             var message = weblab.config['message'];
             if (message !== undefined) {
-                $("#initial_message").text(getMessage("initial_message"));
                 $("#welcome_message").text(message);
             }
         });
@@ -115,7 +119,7 @@
         // that whenever the experiment is assigned, the following method (start)
         // will be called.
         // 
-        weblab.onQueued(function () {
+        weblab.onQueue(function () {
             $("#welcome_message").hide();
             $("#queue_message").text(getMessage("queue_message"));
             $("#queue_header").text(getMessage("queue_header"));
@@ -200,22 +204,26 @@
     they are used in the JavaScript code above (e.g., $("#initial_block").hide(); 
     and so on).
     -->
-    <div id="initial_block">
-        <h3 id="initial_message"></h3>
-        <p id="welcome_message"></p>
-        <input type="text" id="initial_input">
-    </div>
+    <div class="row">
+        <div class="container">
+            <div id="initial_block" class="text-center">
+                <h3 id="initial_message"></h3>
+                <p id="welcome_message"></p>
+                <input type="text" id="initial_input"></input>
+                <input type="file" id="initial_file"></input>
+            </div>
 
-    <div id="queued_block" class="hidden">
-        <h3 id="queue_header"></h3>
-        <p id="queue_message"></p>
-    </div>
+            <div id="queued_block" class="hidden">
+                <h3 id="queue_header"></h3>
+                <p id="queue_message"></p>
+            </div>
 
-    <div id="main_block" class="hidden">
-        <h3>Main block</h3>
-        <button class="btn btn-default" id="main_button"></button>
-        <p>Response: <span id="response"></span></p>
+            <div id="main_block" class="hidden">
+                <h3>Main block</h3>
+                <button class="btn btn-default" id="main_button"></button>
+                <p>Response: <span id="response"></span></p>
+            </div>
+        </div>
     </div>
-
 </body>
 </html>

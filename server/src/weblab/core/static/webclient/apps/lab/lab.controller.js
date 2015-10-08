@@ -34,6 +34,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment.data = EXPERIMENT_DATA;
     $scope.experiment.reserving = false;
     $scope.experiment.loading = true;
+    $scope.experiment.loadingFailed = false;
     $scope.experiment.reloading = false;
     $scope.experiment.active = false;
     $scope.experiment.federated = FEDERATED_MODE;
@@ -53,8 +54,8 @@ function LabController($scope, $injector, $http) {
         if (EXPERIMENT_DATA['config']['html.file'].indexOf('http://') == 0 || EXPERIMENT_DATA['config']['html.file'].indexOf('/') == 0) {
             $scope.experiment_iframe.iframe_url = EXPERIMENT_DATA['config']['html.file'];
         } else {
-            // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'local'. Otherwise, use the public dir.
-            if (EXPERIMENT_DATA['config']['html.dir'] == 'local') {
+            // TODO: make that all the currently supported labs: e.g., archimedes, and so on, have a html.dir property to 'builtin'. Otherwise, use the public dir.
+            if (EXPERIMENT_DATA['config']['builtin'] === true) {
                 $scope.experiment_iframe.iframe_url = WL_LAB_URL + EXPERIMENT_DATA['config']['html.file'];
             } else {
                 $scope.experiment_iframe.iframe_url = WL_PUB_URL + EXPERIMENT_DATA['config']['html.file'];
@@ -191,6 +192,7 @@ function LabController($scope, $injector, $http) {
     
     function markAsLoaded() {
         $scope.experiment.loading = false;
+        $scope.experiment.loadingFailed = false;
         $scope.experiment.reloading = false;
         mExperimentLoaded.resolve();
         $scope.$apply();
@@ -198,8 +200,8 @@ function LabController($scope, $injector, $http) {
     }
 
     function markAsLoadingFailed() {
-        // TODO: TO BE IMPLEMENTED
-        console.log("TODO: show a message like 'Waited for too long, experiment probably failed'");
+        $scope.experiment.loadingFailed = true;
+        $scope.$apply();
     }
 
     function onExperimentLoaded(callback) {
