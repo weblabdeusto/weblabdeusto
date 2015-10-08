@@ -92,6 +92,32 @@ img.wl-logo
     }
 }
 
+@keyframes rotate {
+    from{
+        transform: rotate(0deg);
+    }
+    to{
+        transform: rotate(360deg);
+    }
+}
+
+@-ms-keyframes rotate {
+    from{
+        -ms-transform: rotate(0deg);
+    }
+    to{
+        -ms-transform: rotate(360deg);
+    }
+}
+
+@-moz-keyframes rotate {
+    from{
+        -moz-transform: rotate(0deg);
+    }
+    to{
+        -moz-transform: rotate(360deg);
+    }
+}
 
 @-webkit-keyframes rotate {
     from{
@@ -124,4 +150,7 @@ img.wl-logo
     height:201px;
     opacity: 0.6;
     -webkit-animation: rotate 3s linear infinite;
+    -moz-animation: rotate 3s linear infinite;
+    -ms-animation: rotate 3s linear infinite;
+    animation: rotate 3s linear infinite;
 }
