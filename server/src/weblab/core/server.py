@@ -25,6 +25,7 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape
+from werkzeug.contrib.fixers import ProxyFix
 
 from functools import wraps
 
@@ -450,6 +451,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
 
         self.app = Flask('weblab.core.wl')
+        self.app.wsgi_app = ProxyFix(self.app.wsgi_app)
         self.app.config['SECRET_KEY'] = os.urandom(32)
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
