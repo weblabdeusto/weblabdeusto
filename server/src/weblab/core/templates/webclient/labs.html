@@ -36,10 +36,11 @@
                 <div class="col-xs-6 col-sm-4 col-md-2 col-wl-lg-1" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
                     <div class="lab-block-wrapper">
                         <div class="well lab-block text-center" ng-click="replacePath(experiment.lab_link)">
-                            <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%" class="text-center">
+                            <a ng-href="{{ experiment.lab_link }}" class="text-center lab-block-link">
                             <img style="height: 70px; width: 70px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
                             <br>
-                            <span style="font-size: 100%; font-weight: bold">{{ experiment.name }}</span></a>
+                            <span data-toggle="tooltip" data-placement="top" title="{{ experiment.name }}" class="lab-experiment-name">{{ experiment.name }}</span></a>
+                            <span class="lab-experiment-name-fade"></span>
                         </div>
                     </div>
                 </div>
@@ -48,11 +49,14 @@
             <div class="row" ng-if="experiment_list.order == 'category' && category_data.any_visible" ng-repeat="(category_name, category_data) in categories">
                  <h4 style="margin-left: 20px">{{ category_name }}</h4>
                  <div class="col-xs-6 col-sm-4 col-md-2 col-wl-lg-1" ng-repeat="experiment in category_data.experiments|orderBy:'name'" ng-show="experiment.visible">
-                    <div class="well lab-block text-center" ng-click="replacePath(experiment.lab_link)">
-                        <a ng-href="{{ experiment.lab_link }}" style="height: 100%; width: 100%" class="text-center">
-                        <img style="height: 70px; width: 70px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
-                        <br>
-                        <span style="font-size: 100%; font-weight: bold">{{ experiment.name }}</span></a>
+                    <div class="lab-block-wrapper">
+                        <div class="well lab-block text-center" ng-click="replacePath(experiment.lab_link)">
+                            <a ng-href="{{ experiment.lab_link }}" class="text-center lab-block-link">
+                            <img style="height: 70px; width: 70px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
+                            <br>
+                            <span data-toggle="tooltip" data-placement="top" title="{{ experiment.name }}" class="lab-experiment-name">{{ experiment.name }}</span></a>
+                            <span class="lab-experiment-name-fade"></span>
+                        </div>
                     </div>
                 </div>
             </div>

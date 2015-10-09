@@ -423,19 +423,6 @@ if (window.weblab === undefined) {
                     if (!mClosing) {
                         this.finishExperiment();
                     }
-                    /*
-                        Original code:
-
-                            if(e instanceof NoCurrentReservationException){ // "JSON:Client.NoCurrentReservation"
-                                LabController.this.finishReservation();
-                            } else if (e instanceof SessionNotFoundException) { // "JSON:Client.SessionNotFound"
-                                LabController.this.finishReservationAndLogout();
-                            } else {
-                                LabController.this.sessionVariables.hideExperiment();
-                                LabController.this.uimanager.onErrorAndFinishReservation(e.getMessage());
-                                LabController.this.cleanExperiment();
-                            }
-                    */
 
                     console.debug("POLL F: " + error);
                     // TODO: How are connection failures handled??? Do we consider the experiment finished?
