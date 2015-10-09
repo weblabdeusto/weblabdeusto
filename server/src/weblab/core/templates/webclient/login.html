@@ -150,7 +150,7 @@
                 $scope.error.message = undefined;
                 $scope.status.waiting = true;
 
-                $http.post("{{ url_for('.login_json', **url_kwargs) }}", $scope.credentials)
+                $http.post("{{ url_for('.login_service', **url_kwargs) }}", $scope.credentials)
                     .success(function(data) {
                         if (data.error) {
                             $scope.error.message = data.message;

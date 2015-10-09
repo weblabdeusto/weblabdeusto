@@ -22,9 +22,9 @@ def login():
 
     return handle_login_GET()
 
-@weblab_api.route_webclient("/login/json", methods=["POST"])
+@weblab_api.route_webclient("/login/service", methods=["POST"])
 @json_exc
-def login_json():
+def login_service():
     contents = request.get_json(force=True, silent=True)
     if contents == False or not isinstance(contents, dict):
         return weblab_api.jsonify(error = True, message = "Error reading username and password")
