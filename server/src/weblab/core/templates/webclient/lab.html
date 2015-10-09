@@ -76,6 +76,8 @@
 
             <div id="reserve-container">    
                 <div class="container-fluid">
+                    {% endraw %}
+                    {#
                     <div class="row" ng-show="!isExperimentActive()">
                         <!-- TODO: support pictures, videos, and so on. Use specification for experiment, not database for this. -->
                         <!-- TODO: should we support analytics? e.g., how many accesses have there been, etc. -->
@@ -89,7 +91,7 @@
                        
                         <!-- TODO: if no picture is shown, Bootstrap jQuery code is run before Angular.js, so it is downloaded once and fails. 
                         We should use an angularjs template or so, so only if there are images the component is called and instantiated -->
-                        <div class="col-md-6" ng-if="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
+                        <div class="col-md-6" ng-show="experiment_info.experiment.images && experiment_info.experiment.images.items.length > 0">
                             <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
                               <!-- Indicators -->
                               <ol class="carousel-indicators">
@@ -122,7 +124,8 @@
 
                         <br>
                     </div> <!-- Carrousel -->
-
+                    #}
+                    {% raw %}
 
                     <!-- Should be shown when: experimentIsActive. In the future it should be shown in other circumstances as well." -->
                     <wl-experiment-iframe ng-show="!isExperimentLoading() && experiment_iframe.shown" language="experiment_iframe.language" iframeurl="experiment_iframe.iframe_url" experiment="experiment_iframe.experiment"></wl-experiment-iframe>
@@ -134,10 +137,6 @@
                     <wl-exp-info ng-show="!isExperimentActive()" experiment="experiment_info.experiment" reserve="reserve(where)"
                                  reserve-message="reserveMessage" stats="lab_stats" latestuses="latest_uses"></wl-exp-info>
                 </div>
-            </div>
-
-            <div ng-show="!isExperimentActive()" class="container-fluid" id="file-upload-container" style="margin-top: 20px">
-                {{ upload.content() }}
             </div>
         </div>
     </div>
