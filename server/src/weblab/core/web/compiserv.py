@@ -12,9 +12,15 @@
 #
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
-import json
-from flask import make_response
+from flask import make_response, request
 from weblab.core.wl import weblab_api
+
+import uuid
+import json
+
+
+# TO-DO: Just a prototype.
+JOBS = {}
 
 
 @weblab_api.route_web('/compiserv/')
@@ -27,6 +33,100 @@ def compiserve():
     return response
 
 
-@weblab_api.route_web('/compiserv/vhdl')
-def compiserve_vhdl():
+@weblab_api.route_web('/compiserv/queue/vhdl', methods=["POST"])
+def compiserve_queue_vhdl_post():
+    """
+    Enqueues a VHDL synthesization job. This can be done by any client.
+    :return:
+    """
+    response = {
+        "result": ""  # accepted or denied
+    }
+
+    file_contents = None
+
+    if request.data is not None:
+        file_contents = request.data
+    elif request.files is not None and len(request.files) > 0:
+        file_contents = request.files['file']
+        # TO-DO
+
+    if file_contents is None:
+        response['result'] = 'denied'
+        response['reason'] = 'no_file_sent'
+
+    else:
+        # Send to AZURE SERVICE
+        response['result'] = 'accepted'
+        response['uid'] = uuid.uuid1()
+
+    contents = json.dumps(response, indent=4)
+    response = make_response(contents)
+    response.content_type = 'application/json'
+    return response
+
+
+@weblab_api.route_web('/compiserv/queue/<uid>', methods=["GET"])
+def compiserve_queue_get(uid):
+    """
+    Enquiries about the status of a specific job. This can be done by any client.
+    :return:
+    """
+    result = {
+        "result": ""
+    }
+
+    if uid not in JOBS:
+        result['state'] = 'not_found'
+
+    job = JOBS[uid]
+
+    if job['state'] == 'done':
+        result['state'] = 'done'
+
+    elif job['state'] == 'failed':
+        result['failed'] = 'failed'
+
+    else:
+        # TODO
+        result['state'] = 'queued'
+        result['position'] = 2
+
+    contents = json.dumps(result, indent=4)
+    response = make_response(contents)
+    response.content_type = 'application/json'
+    return response
+
+
+@weblab_api.route_web('/compiserv/result/<uid>/outputfile', methods=["GET"])
+def compiserve_result_outputfile(uid):
+    """
+    Requests the result (outputfile) of a job. This is only to be called INTERNALLY by the Experiment Servers
+    and is protected by a token.
+    :return:
+    """
+
+    if True:  # TODO: IF FILE IS INDEED READY
+        file_contents = """ TEST FILE """
+        response = make_response(file_contents)
+        response.headers["Content-Disposition"] = "attachment; filename=result.bin"
+        response.headers["Content-Type"] = "application/octet-stream"
+    else:  #
+        result = {
+            'result': 'error',
+            'msg': 'file not found'
+        }
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+
+    return response
+
+@weblab_api.route_web('/compiserv/result/<uid>/logfile', methods=["GET"])
+def compiserve_result_logfile(uid):
+    """
+    Requests the result (logfile) of a job. This is only to be called INTERNALLY by the Experiment Servers
+    and is protected by a token.
+    :param uid:
+    :return:
+    """
     pass
