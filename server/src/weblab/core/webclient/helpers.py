@@ -4,6 +4,7 @@ from functools import wraps
 import json
 import os
 import re
+import time
 import urlparse
 
 from weblab.core.wl import weblab_api
@@ -127,6 +128,17 @@ def _get_experiment(experiment_raw):
     """
     exp = _get_experiment_data(experiment_raw.experiment)
     exp['time'] = experiment_raw.time_allowed
+    if experiment_raw.time_allowed > 3600:
+        display_time = time.strftime("%H:%M:%S", time.gmtime(experiment_raw.time_allowed))
+    elif experiment_raw.time_allowed > 60:
+        display_time = time.strftime("%M:%S", time.gmtime(experiment_raw.time_allowed))
+    else:
+        display_time = unicode(experiment_raw.time_allowed)
+
+    if len(display_time) > 1 and display_time.startswith('0'):
+        display_time = display_time[1:]
+
+    exp['display_time'] = display_time 
     exp['latest_use_epoch'] = int(experiment_raw.latest_use.strftime("%s")) if experiment_raw.latest_use is not None else 0
     exp['user_uses'] = experiment_raw.total_uses
     return exp
