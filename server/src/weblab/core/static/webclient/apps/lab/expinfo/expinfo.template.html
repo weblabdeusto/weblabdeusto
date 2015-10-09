@@ -27,8 +27,8 @@
             </table>
         </div>
 
-        <div ng-show="latestuses.uses.length == 0">
-            <h5>{{ "HAVENT_USED_THE_LAB_BEFORE"|translate }}</h5>
+        <div ng-if="latestuses.uses.length == 0" class="well">
+            <h4>{{ "HAVENT_USED_THE_LAB_BEFORE"|translate }}</h4>
         </div>
     </div>
 

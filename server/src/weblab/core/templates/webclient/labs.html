@@ -36,10 +36,10 @@
                 <div class="col-xs-6 col-sm-4 col-md-2 col-wl-lg-1" ng-repeat="experiment in experiments|orderBy:experiment_list.order" ng-show="experiment.visible">
                     <div class="lab-block-wrapper">
                         <div class="well lab-block text-center" ng-click="replacePath(experiment.lab_link)">
-                            <a ng-href="{{ experiment.lab_link }}" class="text-center lab-block-link">
-                            <img style="height: 70px; width: 70px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
+                            <a ng-href="{{ ::experiment.lab_link }}" class="text-center lab-block-link">
+                            <img style="height: 70px; width: 70px" ng-src="{{ ::experiment.logo_link }}" alt="experiment_picture"/>
                             <br>
-                            <span data-toggle="tooltip" data-placement="top" title="{{ experiment.name }}" class="lab-experiment-name">{{ experiment.name }}</span></a>
+                            <span data-toggle="tooltip" data-placement="top" title="{{ ::experiment.name }}" class="lab-experiment-name">{{ ::experiment.name }}</span></a>
                             <span class="lab-experiment-name-fade"></span>
                         </div>
                     </div>
@@ -47,14 +47,14 @@
             </div>
             <!-- Categories -->
             <div class="row" ng-if="experiment_list.order == 'category' && category_data.any_visible" ng-repeat="(category_name, category_data) in categories">
-                 <h4 style="margin-left: 20px">{{ category_name }}</h4>
+                 <h4 style="margin-left: 20px">{{ ::category_name }}</h4>
                  <div class="col-xs-6 col-sm-4 col-md-2 col-wl-lg-1" ng-repeat="experiment in category_data.experiments|orderBy:'name'" ng-show="experiment.visible">
                     <div class="lab-block-wrapper">
                         <div class="well lab-block text-center" ng-click="replacePath(experiment.lab_link)">
-                            <a ng-href="{{ experiment.lab_link }}" class="text-center lab-block-link">
-                            <img style="height: 70px; width: 70px" ng-src="{{ experiment.logo_link }}" alt="experiment_picture"/>
+                            <a ng-href="{{ ::experiment.lab_link }}" class="text-center lab-block-link">
+                            <img style="height: 70px; width: 70px" ng-src="{{ ::experiment.logo_link }}" alt="experiment_picture"/>
                             <br>
-                            <span data-toggle="tooltip" data-placement="top" title="{{ experiment.name }}" class="lab-experiment-name">{{ experiment.name }}</span></a>
+                            <span data-toggle="tooltip" data-placement="top" title="{{ ::experiment.name }}" class="lab-experiment-name">{{ ::experiment.name }}</span></a>
                             <span class="lab-experiment-name-fade"></span>
                         </div>
                     </div>
@@ -91,21 +91,21 @@
                          class="experiment-description well" 
                          ng-repeat="experiment in experiments" 
                          ng-show="experiment.visible">
-                        <a ng-href="{{ experiment.lab_link }}"><h3>{{ experiment.name }}</h3></a>
-                        <h4>{{ experiment.category }}</h4>
+                        <a ng-href="{{ ::experiment.lab_link }}"><h3>{{ ::experiment.name }}</h3></a>
+                        <h4>{{ ::experiment.category }}</h4>
 
                         <div class="row">
                             <div class="col-sm-2" style="text-align: center">
-                                <a ng-href="{{ experiment.lab_link }}">
+                                <a ng-href="{{ ::experiment.lab_link }}">
                                 <img style="display: inline-block" class="img-responsive img-thumbnail"
-                                     ng-src="{{ experiment.logo_link }}"
+                                     ng-src="{{ ::experiment.logo_link }}"
                                      alt="experiment_picture" width="80" height="100"/>
                                 </a>
                             </div>
 
                             <div class="col-sm-10">
-                                <!--<p>{{ experiment.description }}</p>-->
-                                <a ng-href="{{ experiment.lab_link }}">
+                                <!--<p>{{ ::experiment.description }}</p>-->
+                                <a ng-href="{{ ::experiment.lab_link }}">
                                     {% endraw %} {# use gettext() using jinja #}
                                     <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
                                     {% raw %}
