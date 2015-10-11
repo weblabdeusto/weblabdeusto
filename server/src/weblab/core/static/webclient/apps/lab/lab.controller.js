@@ -454,8 +454,12 @@ function LabController($scope, $injector, $http) {
                     // Broadcast an event, in case some component needs to know.
                     // The iframe, for example, needs to be auto-restarted when this happens.
                     $rootScope.$broadcast("experimentFinished");
-
-                    $scope.$apply();
+                    
+                    try {
+                        $scope.$apply();
+                    } catch (E) {
+                        // If we're in an apply method, it is fine
+                    }
                 });
 
                 $scope.$apply();

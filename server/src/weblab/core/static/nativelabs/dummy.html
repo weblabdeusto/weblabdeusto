@@ -156,9 +156,16 @@
             $("#main_block").show();
             $("#main_block").removeClass("hidden");
             $("#main_button").click( function() {
+                var command = $("#command_input").val();
+                // Under any situation, you might call finishExperiment to force the experiment to finish
+                // Take into account that you can also do this on the server side (which is safer).
+                if (command == "exit") {
+                    weblab.finishExperiment();
+                }
+
                 // When you want to send messages to the Experiment server, use
                 // the sendCommand method. It returns a jQuery Deferred object
-                weblab.sendCommand("btn pressed")
+                weblab.sendCommand(command)
                     .done(function (response) {
                         // The response message is a regular string
                         $("#response").text(response);
@@ -190,7 +197,8 @@
         // returned by the experiment session. Here, endData is provided by
         // the dispose() method on the server side, and startData by the
         // startExperiment(). Both data are provided just in case a batch
-        // laboratory approach is implemented.
+        // laboratory approach is implemented. When using this method, calling
+        // Finish doesn't reload the page, but lets it show results.
         // 
         weblab.onProcessResults(function (initialData, endData) {
             
@@ -206,13 +214,6 @@
         // specification
         // 
         // weblab.disableFinishOnClose();
-
-       
-        $(document).ready(function() {
-            $("#finishButton").click(function () {
-                weblab.finishExperiment();
-            });
-        });
     </script>
 </head>
 <!-- -->
@@ -241,9 +242,8 @@
 
             <div id="main_block" class="hidden text-center">
                 <h3>Main block</h3>
-                <button class="btn btn-default" id="main_button">Send a command</button>
-                <p>Response: <span id="response"></span></p>
-                <button id="finishButton" class="btn btn-danger">Finish (called from experiment)</button>
+                <input type="text" id="command_input" value="Sample command"><button class="btn btn-primary" id="main_button">Send this message (or type 'exit' to exit)</button>
+                <p>Experiment server response: <pre><span id="response"></span></pre></p>
             </div>
         </div>
     </div>
