@@ -3,7 +3,7 @@ Blockly.Blocks['romie_move_forward'] = {
 		this.setHelpUrl(null);
 		this.setColour(65);
 		this.appendDummyInput()
-			.appendField("Ir recto");
+			.appendField(getMessage("go_forward"));
 		this.setPreviousStatement(true, "null");
 		this.setNextStatement(true, "null");
 		this.setTooltip('');
@@ -15,7 +15,7 @@ Blockly.Blocks['romie_turn_left'] = {
 		this.setHelpUrl(null);
 		this.setColour(65);
 		this.appendDummyInput()
-			.appendField("Girar a la izquierda");
+			.appendField(getMessage("turn_left"));
 		this.setPreviousStatement(true, "null");
 		this.setNextStatement(true, "null");
 		this.setTooltip('');
@@ -27,7 +27,7 @@ Blockly.Blocks['romie_turn_right'] = {
 		this.setHelpUrl(null);
 		this.setColour(65);
 		this.appendDummyInput()
-			.appendField("Girar a la derecha");
+			.appendField(getMessage("turn_right"));
 		this.setPreviousStatement(true, "null");
 		this.setNextStatement(true, "null");
 	}
@@ -36,7 +36,7 @@ Blockly.Blocks['romie_turn_right'] = {
 Blockly.Blocks['romie_wall'] = {
   init: function() {
     this.appendDummyInput()
-        .appendField("hay una pared");
+        .appendField(getMessage("wall_in_front"));
     this.setOutput(true, "Boolean");
     this.setColour(260);
   }
