@@ -158,7 +158,7 @@ Weblab.setOnStartInteractionCallback(function () {
 $(document).ready(function(){
     //dim_page();
 
-    rc = new RefreshingCameraWidget("video", "https://www.weblab.deusto.es/webcam/proxied.py/incubator1");
+    rc = new RefreshingCameraWidget("video", "https://cams.weblab.deusto.es/webcam/proxied.py/incubator1");
     rc.startRefreshing();
 
 
@@ -193,13 +193,13 @@ $(document).ready(function(){
     $( "#hosh" ).trigger( "click" );
 
     $("#cam1").click(function(){
-        rc.changeImg("video", "https://www.weblab.deusto.es/webcam/proxied.py/incubator1");
-        $("#video").attr("src","https://www.weblab.deusto.es/webcam/proxied.py/incubator1");
+        rc.changeImg("video", "https://cams.weblab.deusto.es/webcam/proxied.py/incubator1");
+        $("#video").attr("src","https://cams.weblab.deusto.es/webcam/proxied.py/incubator1");
 
     });
     $("#cam1").click(function(){
-        rc.changeImg("video", "https://www.weblab.deusto.es/webcam/proxied.py/incubator2");
-        $("#video").attr("src","https://www.weblab.deusto.es/webcam/proxied.py/incubator2");
+        rc.changeImg("video", "https://cams.weblab.deusto.es/webcam/proxied.py/incubator2");
+        $("#video").attr("src","https://cams.weblab.deusto.es/webcam/proxied.py/incubator2");
     });
 
 

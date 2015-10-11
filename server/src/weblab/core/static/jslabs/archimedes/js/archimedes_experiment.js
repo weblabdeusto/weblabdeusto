@@ -21,7 +21,7 @@ ArchimedesExperiment = function (registry, view) {
     this.initialize = function () {
 
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (!weblab.isDebuggingMode() && weblab.isFrameMode())
+        if (Weblab.checkOnline() == true)
             hideFrame();
 
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function (template) {
@@ -78,14 +78,16 @@ ArchimedesExperiment = function (registry, view) {
 //            });
 
 
+            console.log("Setting onStartInteractionCallback");
+
             // Declare onStartInteraction listener.
             // This is at times not getting called.
             // TODO: Fix this.
-            weblab.onStart().done(function (time, initial_config) {
-                showFrame();
+            Weblab.setOnStartInteractionCallback(function (initial_config) {
 
-                console.log("[DBG]: Time left: " + time);
-                this.setTimeToGo(time);
+                console.log("[OnStartInteractionCallback");
+
+                showFrame();
 
                 if(typeof(initial_config) === "string") {
                     var config = JSON.parse(initial_config);
@@ -100,6 +102,8 @@ ArchimedesExperiment = function (registry, view) {
                     this.updateView();
                 }
 
+                console.log("Starting refreshing data");
+
                 this.startRefreshingData();
 
                 $.each(this.instances, function (instanceid, instance) {
@@ -107,11 +111,14 @@ ArchimedesExperiment = function (registry, view) {
                     var data = Registry[instanceid];
                     instance.cameraRefresher.start(data.webcam);
                 }.bind(this));
+                //debugger;
+
+
             }.bind(this));
 
 
 
-            weblab.onEnd().done(function () {
+            Weblab.setOnEndCallback(function () {
 
                 this.stopRefreshingData();
 
@@ -144,43 +151,40 @@ ArchimedesExperiment = function (registry, view) {
             }
         });
 
-        weblab.dbgSetSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
-        weblab
-            .sendCommand(command)
-            .done(
-                function(data) {
-                    var response = JSON.parse(data);
+        Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
+        Weblab.sendCommand(command,
+            function(data) {
+                var response = JSON.parse(data);
 
-                    console.log("Refreshing data: ");
-                    console.log(response);
+                console.log("Refreshing data: ");
+                console.log(response);
 
-                    $.each(response, function(inst, data) {
+                $.each(response, function(inst, data) {
 
-                        if(!(inst in that.instances)) {
-                            console.error("ALLINFO: Reported instance is not registered. Ignoring it.");
-                            return true;
-                        }
-
-                        var instance = that.instances[inst];
-
-                        instance.sensors["liquid.level"] = data["level"];
-                        instance.sensors["ball.weight"] = data["load"];
-                        instance.updateBallStatus(data["ball_status"]);
-
-                        $("#" + inst + "-table-sensors").datatable("updateAll");
-
+                    if(!(inst in that.instances)) {
+                        console.error("ALLINFO: Reported instance is not registered. Ignoring it.");
                         return true;
-                    });
+                    }
 
-                    // Invoke a refresh again in some seconds.
-                    that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
-                })
-            .fail(
-                function() {
-                    // BUGFIX: In case of error, we will retry to refresh in twice the standard refresh data interval.
-                    console.error("[Error]: Refreshing data. Retrying soon.");
-                    that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL * 2);
+                    var instance = that.instances[inst];
+
+                    instance.sensors["liquid.level"] = data["level"];
+                    instance.sensors["ball.weight"] = data["load"];
+                    instance.updateBallStatus(data["ball_status"]);
+
+                    $("#" + inst + "-table-sensors").datatable("updateAll");
+
+                    return true;
                 });
+
+                // Invoke a refresh again in some seconds.
+                that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
+            },
+            function() {
+                // BUGFIX: In case of error, we will retry to refresh in twice the standard refresh data interval.
+                console.error("[Error]: Refreshing data. Retrying soon.");
+                that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL * 2);
+            });
     }.bind(this);
 
     // Stops querying the server for data.
@@ -248,5 +252,11 @@ ArchimedesExperiment = function (registry, view) {
     this.initialize();
 
     this.timerDisplayer = new TimerDisplayer("timer");
+
+    // Set the timer initialization handler.
+    Weblab.setOnTimeCallback(function (time) {
+        console.log("[DBG]: Time left: " + time);
+        this.setTimeToGo(time);
+    }.bind(this));
 
 }; //! End-of ArchimedesInstance

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<title>Romie Blockly</title>
+	<meta charset="UTF-8">
+
+	<link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+
+	<script src="bower_components/jquery/dist/jquery.min.js"></script>
+	<script src="../../jslib/weblabjs.js"></script>
+	<script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<script src="bower_components/js-interpreter/acorn_interpreter.js"></script>
+	<script src="bower_components/google-blockly/blockly_compressed.js"></script>
+	<script src="bower_components/google-blockly/blocks_compressed.js"></script>
+	<script src="bower_components/google-blockly/javascript_compressed.js"></script>
+	<script src="bower_components/google-blockly/msg/js/es.js"></script>
+	<script src="js/functions.js"></script>
+	<script src="js/blocks.js"></script>
+</head>
+<body>
+	<p style="text-align: center; margin: 0 2em 1em 1em">Aquí tienes un editor de código visual. Ahora puedes programar el robot y decidir qué hará en el laberinto. Cuando hayas acabado, reserva el robot para poder ver  cómo hace lo que le has programado hacer.</p>
+
+	<div id="blocklyDiv" class="col-md-offset-1 col-md-10" style="height: 34em;"></div>
+
+	<xml id="toolbox" style="display: none">
+		<block type="controls_if"></block>
+		<!-- <block type="logic_compare"></block> -->
+		<block type="controls_repeat_ext"></block>
+		<block type="controls_whileUntil"></block>
+		<block type="math_number"></block>
+		<block type="romie_move_forward"></block>
+		<block type="romie_turn_left"></block>
+		<block type="romie_turn_right"></block>
+		<block type="romie_wall"></block>
+		<!-- <block type="get_tag"></block> -->
+	</xml>
+
+	<section id="cams" class="col-md-5 container" style="display: none">
+		<section id="topCam" class="col-md-offset-2 col-md-8" style="text-align: center">
+			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_top" alt="Cámara del robot">
+		</section>
+
+		<section id="onboardCam" class="col-md-offset-2 col-md-8" style="margin-top: 2em; text-align: center">
+			<img style="width: 100%" src="https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard" alt="Cámara del robot">
+		</section>
+	</section>
+
+	<script>
+		var workspace = Blockly.inject('blocklyDiv',
+			{media: 'bower_components/google-blockly/media/',
+			toolbox: document.getElementById('toolbox'),
+			scrollbars: true});
+
+		var url = window.location.href.split('#')[0];
+		if ('localStorage' in window && window.localStorage[url]) {
+			var xml = Blockly.Xml.textToDom(window.localStorage[url]);
+			Blockly.Xml.domToWorkspace(workspace, xml);
+		}
+
+		function test(response) {
+			if ('localStorage' in window) {
+				var xml = Blockly.Xml.workspaceToDom(workspace);
+				// Gets the current URL, not including the hash.
+				var url = window.location.href.split('#')[0];
+				window.localStorage.setItem(url, Blockly.Xml.domToText(xml));
+			}
+			response = JSON.parse(response);
+
+			$('#blocklyDiv').empty();
+			$('#toolbox').remove();
+			$('#blocklyDiv').removeClass('col-md-10');
+			$('#blocklyDiv').addClass('col-md-6');
+
+			workspace = Blockly.inject('blocklyDiv',
+			{media: 'bower_components/google-blockly/media/', readOnly: true, scrollbars: true});
+			Blockly.Xml.domToWorkspace(workspace, Blockly.Xml.textToDom(response['blocks']));
+			showCameras();
+
+			// Interpreter
+			function initApi(interpreter, scope) {
+				var romie = new Romie();
+
+				// Add Romie movement checker to the context
+				var wrapper = function() {
+					return interpreter.createPrimitive(romie.isMoving());
+				};
+				this.setProperty(scope, 'isMoving',
+					this.createNativeFunction(wrapper));
+
+				// Add an API function for the forward() block.
+				wrapper = function() {
+					romie.forward();
+				};
+				interpreter.setProperty(scope, 'forward',
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the left() block.
+				wrapper = function() {
+					romie.left();
+				};
+				interpreter.setProperty(scope, 'left',
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the right() block.
+				wrapper = function() {
+					romie.right();
+				};
+				interpreter.setProperty(scope, 'right',
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for the checkWall() block.
+				wrapper = function() {
+					romie.checkWall();
+				};
+				interpreter.setProperty(scope, 'checkWall',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					return interpreter.createPrimitive(romie.isLastWallCheck());
+				};
+				interpreter.setProperty(scope, 'lastWallCheck',
+					interpreter.createNativeFunction(wrapper));
+				wrapper = function() {
+					return interpreter.createPrimitive(romie.isCheckingWall());
+				};
+				interpreter.setProperty(scope, 'isCheckingWall',
+					interpreter.createNativeFunction(wrapper));
+
+				// Add an API function for highlighting blocks.
+				wrapper = function(id) {
+					id = id ? id.toString() : '';
+					return interpreter.createPrimitive(workspace.highlightBlock(id));
+				};
+				interpreter.setProperty(scope, 'highlightBlock',
+					interpreter.createNativeFunction(wrapper));
+			}
+			Blockly.JavaScript.STATEMENT_PREFIX = 'highlightBlock(%1);\n';
+			Blockly.JavaScript.addReservedWords('highlightBlock');
+			var myInterpreter = new Interpreter(Blockly.JavaScript.workspaceToCode(workspace), initApi);
+
+			function nextStep() {
+				if (myInterpreter.step()) {
+					window.setTimeout(nextStep, 40);
+				} else {
+					Weblab.clean();
+				}
+			}
+
+			workspace.traceOn(true);
+			workspace.highlightBlock(null);
+			nextStep();
+		}
+
+		Weblab.setOnGetInitialDataCallback(function() {
+			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
+		});
+
+		Weblab.setOnStartInteractionCallback(test);
+	</script>
+</body>
+</html>
