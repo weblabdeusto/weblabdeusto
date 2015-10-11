@@ -61,7 +61,7 @@
         // *none* of the methods below are required. If you do nothing, 
         // everything will work, but of course, nothing will be displayed.
         // 
-        
+
         // 
         // onConfigLoad receives a function whenever the configuration 
         // has been loaded. From this point (and not before), you may access
@@ -72,6 +72,15 @@
         // does, certain adaptations, etc.
         // 
         weblab.onConfigLoad(function () {
+            // If you want to see in the web browser console the exchanged messages, 
+            // just set debug to true:
+            weblab.debug = true;
+
+            // You can set weblab.debug_poll to true if you want to see all the 
+            // messages submitted to the server, but it's mainly noise.
+            // weblab.debug_poll = true
+
+            // Show some text
             $("#initial_message").text(getMessage("initial_message"));
             // weblab.config is a simple JavaScript object (e.g., {})
             var message = weblab.config['message'];
@@ -120,10 +129,11 @@
         // will be called.
         // 
         weblab.onQueue(function () {
-            $("#welcome_message").hide();
+            $("#initial_block").hide();
             $("#queue_message").text(getMessage("queue_message"));
             $("#queue_header").text(getMessage("queue_header"));
             $("#queued_block").show();
+            $("#queued_block").removeClass("hidden");
         });
 
         //
@@ -140,8 +150,11 @@
         // From this point, methods such as weblab.sendCommand() are available
         // 
         weblab.onStart(function (time, initialConfig) {
+            // onQueue is not always called. Therefore, make sure in onStart to clean the initial block, if any.
+            $("#initial_block").hide();
             $("#queued_block").hide();
             $("#main_block").show();
+            $("#main_block").removeClass("hidden");
             $("#main_button").click( function() {
                 // When you want to send messages to the Experiment server, use
                 // the sendCommand method. It returns a jQuery Deferred object
@@ -193,8 +206,16 @@
         // specification
         // 
         // weblab.disableFinishOnClose();
+
+       
+        $(document).ready(function() {
+            $("#finishButton").click(function () {
+                weblab.finishExperiment();
+            });
+        });
     </script>
 </head>
+<!-- -->
 <body>
     <!-- 
     For the sake of simplicity, we are going to load different blocks, most of 
@@ -213,15 +234,16 @@
                 <input type="file" id="initial_file"></input>
             </div>
 
-            <div id="queued_block" class="hidden">
+            <div id="queued_block" class="hidden text-center">
                 <h3 id="queue_header"></h3>
                 <p id="queue_message"></p>
             </div>
 
-            <div id="main_block" class="hidden">
+            <div id="main_block" class="hidden text-center">
                 <h3>Main block</h3>
-                <button class="btn btn-default" id="main_button"></button>
+                <button class="btn btn-default" id="main_button">Send a command</button>
                 <p>Response: <span id="response"></span></p>
+                <button id="finishButton" class="btn btn-danger">Finish (called from experiment)</button>
             </div>
         </div>
     </div>

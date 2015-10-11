@@ -1,7 +1,5 @@
 // Make sure to avoid problems if included twice
 if (window.weblab === undefined) {
-    WEBLABEXP_DEBUG = false;
-
     // From StackOverflow. To extract parameters from the URL (not the hash)
     (function ($) {
         $.QueryString = (function (a) {
@@ -72,6 +70,8 @@ if (window.weblab === undefined) {
 
         this.config = {}; // Will be initialized on the start using the ?c=url argument
         this.locale = "en"; // Will be initialized on the start using the ?c=url argument
+        this.debug = false;
+        this.debug_poll = false;
 
         var mReservation; // Must be set through setReservation()
 
@@ -382,13 +382,8 @@ if (window.weblab === undefined) {
 
                 this._send(request)
                     .done(function (success) {
-
-                        if(WEBLABEXP_DEBUG) {
-                            console.debug("Data received: " + success);
-                            console.debug(success);
-                        }
                         promise.resolve(success);
-                    })
+                    }.bind(this))
                     .fail(function (error) {
                         promise.reject(error);
                     });
@@ -411,7 +406,6 @@ if (window.weblab === undefined) {
                 .done(function (result) {
                     if (mPolling) {
                         mPollingTimer = setTimeout(this._startPolling.bind(this), frequency);
-                        console.debug("POLL: " + result);
                     }
                 }.bind(this))
                 .fail(function (error) {
@@ -424,7 +418,6 @@ if (window.weblab === undefined) {
                         this.finishExperiment();
                     }
 
-                    console.debug("POLL F: " + error);
                     // TODO: How are connection failures handled??? Do we consider the experiment finished?
                 }.bind(this));
 
@@ -444,6 +437,11 @@ if (window.weblab === undefined) {
          *
          */
         this._send = function (request) {
+            if (this.debug) {
+                if (request.method != "poll" || this.debug_poll) {
+                    console.log("Requesting: ", request);
+                }
+            }
 
             var promise = $.Deferred();
 
@@ -461,6 +459,11 @@ if (window.weblab === undefined) {
             })
                 .done(function (success, status, jqXHR) {
                     // Example of a response: {"params":{"session_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
+                    if (this.debug) {
+                        if (request.method != "poll" || this.debug_poll) {
+                            console.log("Response to: ", request, " => ", success);
+                        }
+                    }
 
                     // Check that the internal is_exception is set to false.
                     if (success["is_exception"] === true) {
@@ -485,13 +488,17 @@ if (window.weblab === undefined) {
                     // The request, whatever it contains, was apparently successful. We call the success handler, passing
                     // the result field.
                     promise.resolve(result, status, jqXHR);
-                })
+                }.bind(this))
                 .fail(function (fail) {
+                    if (this.debug) {
+                        console.log("Response to: ", request, " => ", fail);
+                    }
+
                     console.error("[ERROR][_send]: Could not carry out the POST request to the target URL: " + this.CORE_URL);
                     console.error(fail);
 
                     promise.reject(fail);
-                });
+                }.bind(this));
 
             return promise;
 
@@ -633,6 +640,7 @@ if (window.weblab === undefined) {
                 }).done(function (success, status, jqXHR) {
                     that._setTargetURL(success.targetURL);
                     that.locale = success.locale;
+                    weblab.debug = success.debug || false;
                     that._setCurrentURL(success.currentURL);
                     that._setConfiguration(success.config);
                     $.each(success.scripts, function(i, scriptURL) {
@@ -854,10 +862,10 @@ if (window.weblab === undefined) {
             this._finishedExperiment(true)
                 .done(function (success) {
                     promise.resolve(success);
-                })
+                }.bind(this))
                 .fail(function (error) {
                     promise.reject(error);
-                });
+                }.bind(this));
             return promise.promise();
         };
 
@@ -866,10 +874,10 @@ if (window.weblab === undefined) {
             this._finishedExperiment(false)
                 .done(function (success) {
                     promise.resolve(success)
-                })
+                }.bind(this))
                 .fail(function (error) {
                     promise.reject(error);
-                });
+                }.bind(this));
             return promise.promise();
         };
 
