@@ -1,5 +1,5 @@
 //! This script contains several stand-alone widgets (not directly
-//! dependant on Weblab) and some general-purpose utility functions,
+//! dependant on weblab) and some general-purpose utility functions,
 //! which can probably be used for several different JSXILINX-based
 //! experiments.
 
@@ -126,11 +126,11 @@ SwitchWidget = function (id, elemento, text) {
         command = "ChangeSwitch " + (state ? "on" : "off") + " " + this.getId();
 
         // Set debugging response for when running stand-alone
-        Weblab.dbgSetOfflineSendCommandResponse("ok", true);
+        // TODO
+        // weblab.dbgSetOfflineSendCommandResponse("ok", true);
 
-        Weblab.sendCommand(command,
-
-            function (response) {
+        weblab.sendCommand(command)
+            .done(function (response) {
                 // On success
                 console.log("[DBG]: Command: " + command + " Reply: " + response);
                 mState = state;
@@ -138,15 +138,11 @@ SwitchWidget = function (id, elemento, text) {
                     this.changeImage(mOnImg);
                 else
                     this.changeImage(mOffImg);
-            }.bind(this),
-
-            function (response) {
+            }.bind(this))
+            .fail(function (response) {
                 // On failure
                 console.error("ChangeSwitch failed: " + response);
-            }.bind(this)
-
-            );
-
+            }.bind(this));
     }
 
 

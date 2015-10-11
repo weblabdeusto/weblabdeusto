@@ -59,7 +59,8 @@ CONFIG_JS = {
     "aquarium@Aquatic experiments": {
         "experiment.info.description": "description",
         "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
-        "experiment.picture": "/img/experiments/aquarium.png"
+        "experiment.picture": "/img/experiments/aquarium.png",
+        "builtin": True
     },
     "aquariumjs@Aquatic experiments": {
         "height": 1000,
@@ -67,13 +68,15 @@ CONFIG_JS = {
         "html.file": "jslabs/aquarium/aquarium.html",
         "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#aquarium",
         "experiment.info.description": "description",
-        "experiment.picture": "/img/experiments/aquarium.png"
+        "experiment.picture": "/img/experiments/aquarium.png",
+        "builtin": True
     },
     "archimedes@Aquatic experiments": {
         "html.file": "jslabs/archimedes/archimedes.html",
         "cssHeight": "1000",
         "cssWidth": "1024",
-        "experiment.picture": "/img/experiments/aquarium.png"
+        "experiment.picture": "/img/experiments/aquarium.png",
+        "builtin": True
     },
     "binary@Games": {
         "experiment.picture": "/img/experiments/binary.jpg"
@@ -96,7 +99,8 @@ CONFIG_JS = {
         "html.file": "jslabs/elevator/dist/index.html",
         "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#elevator",
         "experiment.info.description": "Experiment with an elevator",
-        "experiment.picture": "/img/experiments/elevator.png"
+        "experiment.picture": "/img/experiments/elevator.png",
+        "builtin": True
     },
     "external-robot-movement@Robot experiments": {
         "html": "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client.",
@@ -245,28 +249,32 @@ CONFIG_JS = {
         "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
-        "html.file": "jslabs/romie/romie.html"
+        "html.file": "jslabs/romie/romie.html",
+        "builtin": True
     },
     "romie_labpsico@Robot experiments": {
         "cssWidth": "1200",
         "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
-        "html.file": "jslabs/romie/romie.html"
+        "html.file": "jslabs/romie/romie.html",
+        "builtin": True
     },
     "romie_demo@Robot experiments": {
         "cssWidth": "1200",
         "cssHeight": "700",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
-        "html.file": "jslabs/romie/romie.html"
+        "html.file": "jslabs/romie/romie.html",
+        "builtin": True
     },
     "romie_blockly@Robot experiments": {
         "cssWidth": "1200",
         "cssHeight": "540",
         "provide.file.upload": False,
         "experiment.picture": "/img/experiments/romie.png",
-        "html.file": "jslabs/romieblocks/index.html"
+        "html.file": "jslabs/romieblocks/index.html",
+        "builtin": True
     },
     "submarine@Aquatic experiments": {
         "experiment.info.description": "description",

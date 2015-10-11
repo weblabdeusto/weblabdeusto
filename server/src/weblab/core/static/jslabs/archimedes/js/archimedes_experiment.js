@@ -20,8 +20,9 @@ ArchimedesExperiment = function (registry, view) {
     // Most of the initialization is done asynchronously.
     this.initialize = function () {
 
+        // TODO
         // If we are running in the WEBLAB mode and not stand-alone, we hide the frame.
-        if (Weblab.checkOnline() == true)
+        // if (Weblab.checkOnline() == true)
             hideFrame();
 
         var archimedes_instance_tpl = $.get("archimedes_instance_tpl.html", function (template) {
@@ -83,7 +84,10 @@ ArchimedesExperiment = function (registry, view) {
             // Declare onStartInteraction listener.
             // This is at times not getting called.
             // TODO: Fix this.
-            Weblab.setOnStartInteractionCallback(function (initial_config) {
+            weblab.onStart(function (time, initial_config) {
+                $("body").show();
+                console.log("[DBG]: Time left: " + time);
+                this.setTimeToGo(time);
 
                 console.log("[OnStartInteractionCallback");
 
@@ -118,7 +122,7 @@ ArchimedesExperiment = function (registry, view) {
 
 
 
-            Weblab.setOnEndCallback(function () {
+            weblab.onFinish(function () {
 
                 this.stopRefreshingData();
 
@@ -151,9 +155,9 @@ ArchimedesExperiment = function (registry, view) {
             }
         });
 
-        Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
-        Weblab.sendCommand(command,
-            function(data) {
+        // Weblab.dbgSetOfflineSendCommandResponse('{"archimedes1":{"level":2000, "load":3000}}');
+        weblab.sendCommand(command)
+            .done(function(data) {
                 var response = JSON.parse(data);
 
                 console.log("Refreshing data: ");
@@ -179,8 +183,8 @@ ArchimedesExperiment = function (registry, view) {
 
                 // Invoke a refresh again in some seconds.
                 that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL);
-            },
-            function() {
+            })
+            .fail(function() {
                 // BUGFIX: In case of error, we will retry to refresh in twice the standard refresh data interval.
                 console.error("[Error]: Refreshing data. Retrying soon.");
                 that._refresh_timer = setTimeout(that.startRefreshingData, REFRESH_DATA_INTERVAL * 2);
@@ -252,11 +256,4 @@ ArchimedesExperiment = function (registry, view) {
     this.initialize();
 
     this.timerDisplayer = new TimerDisplayer("timer");
-
-    // Set the timer initialization handler.
-    Weblab.setOnTimeCallback(function (time) {
-        console.log("[DBG]: Time left: " + time);
-        this.setTimeToGo(time);
-    }.bind(this));
-
 }; //! End-of ArchimedesInstance
