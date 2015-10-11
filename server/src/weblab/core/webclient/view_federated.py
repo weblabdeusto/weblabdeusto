@@ -4,7 +4,7 @@ import datetime
 from flask import render_template, request, flash, redirect, url_for, jsonify, session
 
 from weblab.core.wl import weblab_api
-from weblab.core.babel import gettext
+from weblab.core.i18n import gettext
 from weblab.core.exc import SessionNotFoundError
 
 # ../../client/index.html%(localization)s#reservation_id=%(reservation_id)s&back_url=%(back_url)s&widget=%(widget)s

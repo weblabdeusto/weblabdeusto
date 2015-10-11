@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals
+from babel import Locale
 from flask import request, session
 import traceback
 
@@ -54,11 +55,21 @@ def initialize_i18n(app):
         supported_languages = ['en']
         supported_languages.extend([translation.language for translation in babel.list_translations()])
 
+        def check_locale(locale):
+            if locale:
+                try:
+                    Locale.parse(locale)
+                except ValueError:
+                    return None
+                else:
+                    return locale
+            return None
+
         @babel.localeselector
         def get_locale():
-            locale = request.args.get('locale', None)
+            locale = check_locale(request.args.get('locale', None))
             if locale is None:
-                locale = session.get('locale', None)
+                locale = check_locale(session.get('locale', None))
             if locale is None:
                 locale = request.accept_languages.best_match(supported_languages)
             if locale is None:

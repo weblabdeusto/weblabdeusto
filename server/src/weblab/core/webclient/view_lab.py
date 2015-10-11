@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 import os
 from flask import render_template, url_for, request, flash, redirect, session
 
-from weblab.core.babel import gettext, get_locale
+from weblab.core.i18n import gettext, get_locale
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data, _hook_native_experiments
 from weblab.core.wl import weblab_api

@@ -9,6 +9,7 @@ import datetime
 import traceback
 import threading
 
+from babel import Locale
 from functools import wraps, partial
 from collections import OrderedDict
 
@@ -359,7 +360,8 @@ class WebLabAPI(object):
     def languages(self):
         if self.server_instance.babel is None:
             return []
-        return sorted(self.server_instance.babel.list_translations(), key=lambda locale: locale.display_name.capitalize())
+        translations = [Locale('en')] + list(self.server_instance.babel.list_translations())
+        return sorted(translations, key=lambda locale: locale.display_name.capitalize())
 
     @property
     def language_links(self):

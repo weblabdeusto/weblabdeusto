@@ -35,7 +35,7 @@ import voodoo.log as log
 import voodoo.counter as counter
 from voodoo.sessions.session_id import SessionId
 from voodoo.resources_manager import is_testing
-from weblab.core.babel import initialize_i18n, get_locale
+from weblab.core.i18n import initialize_i18n, get_locale
 from weblab.data.experiments import ExperimentId
 from weblab.data.command import Command
 

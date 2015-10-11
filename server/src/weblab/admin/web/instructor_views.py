@@ -17,7 +17,7 @@ from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView, WebLabMo
 
 from sqlalchemy import sql, func as sa_func, distinct, not_, outerjoin
 
-from weblab.core.babel import gettext, lazy_gettext
+from weblab.core.i18n import gettext, lazy_gettext
 import weblab.permissions as permissions
 import weblab.db.model as model
 from .community import best_partition

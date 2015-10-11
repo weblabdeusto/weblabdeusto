@@ -17,7 +17,7 @@ import collections
 import six
 
 from weblab.core.web.logo import logo_impl
-from weblab.core.babel import gettext, lazy_gettext
+from weblab.core.i18n import gettext, lazy_gettext
 from weblab.admin.util import password2sha, display_date
 from weblab.util import data_filename
 

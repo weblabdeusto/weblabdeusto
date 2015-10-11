@@ -15,7 +15,7 @@ from wtforms.validators import NumberRange
 from flask.ext.wtf import Form
 from weblab.admin.web.fields import DisabledTextField
 
-from weblab.core.babel import gettext, lazy_gettext
+from weblab.core.i18n import gettext, lazy_gettext
 import weblab.permissions as permissions
 
 

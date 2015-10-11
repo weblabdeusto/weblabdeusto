@@ -18,7 +18,7 @@ if __name__ == '__main__':
 from weblab.core.exc import SessionNotFoundError
 
 import weblab.core.server 
-from weblab.core.babel import lazy_gettext
+from weblab.core.i18n import lazy_gettext
 import weblab.configuration_doc as configuration_doc
 from weblab.data import ValidDatabaseSessionId
 from weblab.db import db
@@ -291,7 +291,7 @@ class AdministrationApplication(object):
 if __name__ == '__main__':
     from voodoo.configuration import ConfigurationManager
     from weblab.core.server import UserProcessingServer
-    from weblab.core.babel import initialize_i18n
+    from weblab.core.i18n import initialize_i18n
     from flask_debugtoolbar import DebugToolbarExtension
 
     cfg_manager = ConfigurationManager()
