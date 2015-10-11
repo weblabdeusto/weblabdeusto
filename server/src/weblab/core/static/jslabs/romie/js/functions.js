@@ -11,25 +11,27 @@ function getAge(milliseconds) {
     return age;
 }
 
-function start() {
-	Weblab.sendCommand("CHECK_REGISTER", function(response) {
-		response = JSON.parse(response)
-		if (response['register']) register(response['psycho']);
-		else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
-		else init(response['time'], response['points']);
+function start(time, initialConfig) {
+	weblab.sendCommand("CHECK_REGISTER")
+        .done(function(response) {
+            response = JSON.parse(response)
+            if (response['register']) register(response['psycho']);
+            else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
+            else init(response['time'], response['points']);
 
-		$(parent.document).find('iframe[name=wlframe]').show();
-		$(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
-	});
+            $(parent.document).find('iframe[name=wlframe]').show();
+            $(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
+        });
 }
 
 function psycho(gender, birthday, grade, user) {
 	$('#labpsico').modal('show');
 	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
-		Weblab.sendCommand("PSYCHO "+points, function(response) {
-			response = JSON.parse(response);
-			init(response['time'], response['points']);
-		});
+		weblab.sendCommand("PSYCHO "+points)
+            .done(function(response) {
+                response = JSON.parse(response);
+                init(response['time'], response['points']);
+            });
 		$('#labpsico').modal('hide');
 	}, (gender ? "H" : "M"), getAge(birthday), grade, user);
 }
@@ -88,21 +90,22 @@ function register(do_psycho) {
 				data = {"name":name, "surname":surname, "school":school, "bdate":unix, "email":email, "gender": gender, "grade": grade};
 
 				command = "REGISTER " + JSON.stringify(data);
-				Weblab.sendCommand(command, function(response) {
-					response = JSON.parse(response);
-					if (response['error'] == "email") {
-						$('#email-group').addClass('has-error');
-						registering = false;
-					} else {
-						$('#register').modal('hide');
-						registering = false;
-						if (do_psycho) {
-							psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
-						} else {
-							init(response['time'], response['points']);
-						}
-					}
-				});
+				weblab.sendCommand(command)
+                    .done(function(response) {
+                        response = JSON.parse(response);
+                        if (response['error'] == "email") {
+                            $('#email-group').addClass('has-error');
+                            registering = false;
+                        } else {
+                            $('#register').modal('hide');
+                            registering = false;
+                            if (do_psycho) {
+                                psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
+                            } else {
+                                init(response['time'], response['points']);
+                            }
+                        }
+                    });
 			} else {
 				registering = false;
 			}
@@ -118,7 +121,7 @@ function register(do_psycho) {
 	$('#email').focusin(function(){$('#email-group').removeClass('has-error');});
 
 	$('#register').modal('show');
-	setTimeout(function(){if ($('#register').is(':visible')) Weblab.clean();}, 120000); // 2*60*1000
+	setTimeout(function(){if ($('#register').is(':visible')) weblab.cleanExperiment();}, 120000); // 2*60*1000
 }
 
 function init(time, points) {
@@ -134,7 +137,7 @@ function init(time, points) {
 	$('#response_ok .modal-footer button').click(function(){$('#response_ok').modal('hide')});
 	$('#game_end .modal-footer button').click(function(){$('#game_end').modal('hide')});
 
-	$('#game_end').on('hidden.bs.modal', function(){Weblab.clean()});
+	$('#game_end').on('hidden.bs.modal', function(){weblab.cleanExperiment()});
 
 	updateCam1 = function() {
 		d = new Date();

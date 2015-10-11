@@ -8,10 +8,11 @@ Romie.prototype.forward = function(callback)
 	if ( ! this.moving)
 	{
 		this.moving = true;
-		Weblab.sendCommand("F", function(response) {
-			if (response != 'OK') callback(JSON.parse(response));
-			this.moving = false;
-		}.bind(this));
+		weblab.sendCommand("F")
+            .done(function(response) {
+                if (response != 'OK') callback(JSON.parse(response));
+                this.moving = false;
+            }.bind(this));
 	}
 }
 
@@ -20,9 +21,10 @@ Romie.prototype.left = function()
 	if ( ! this.moving)
 	{
 		this.moving = true;
-		Weblab.sendCommand("L", function(response) {
-			this.moving = false;
-		}.bind(this));
+		weblab.sendCommand("L")
+            .done(function(response) {
+                this.moving = false;
+            }.bind(this));
 	}
 }
 
@@ -31,9 +33,10 @@ Romie.prototype.right = function()
 	if ( ! this.moving)
 	{
 		this.moving = true;
-		Weblab.sendCommand("R", function(response) {
-			this.moving = false;
-		}.bind(this));
+		weblab.sendCommand("R")
+            .done(function(response) {
+                this.moving = false;
+            }.bind(this));
 	}
 }
 

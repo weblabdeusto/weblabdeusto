@@ -57,7 +57,7 @@
 			Blockly.Xml.domToWorkspace(workspace, xml);
 		}
 
-		function test(response) {
+		function test(time, response) {
 			if ('localStorage' in window) {
 				var xml = Blockly.Xml.workspaceToDom(workspace);
 				// Gets the current URL, not including the hash.
@@ -141,7 +141,7 @@
 				if (myInterpreter.step()) {
 					window.setTimeout(nextStep, 40);
 				} else {
-					Weblab.clean();
+					weblab.cleanExperiment();
 				}
 			}
 
@@ -150,11 +150,11 @@
 			nextStep();
 		}
 
-		Weblab.setOnGetInitialDataCallback(function() {
+		weblab.setOnGetInitialDataCallback(function() {
 			return {"blocks": Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(workspace))};
 		});
 
-		Weblab.setOnStartInteractionCallback(test);
+		weblab.onStart(test);
 	</script>
 </body>
 </html>

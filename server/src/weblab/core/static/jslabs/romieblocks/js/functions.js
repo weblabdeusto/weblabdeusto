@@ -7,35 +7,39 @@ Romie = function() {
 Romie.prototype.forward = function() {
 	this.moving = true;
 	this.lastWallCheck = null;
-	Weblab.sendCommand('{"command":"F"}', function(response) {
-		response = JSON.parse(response); // TODO set tag
-		this.moving = false;
-	}.bind(this));
+	weblab.sendCommand('{"command":"F"}')
+        .done(function(response) {
+            response = JSON.parse(response); // TODO set tag
+            this.moving = false;
+        }.bind(this));
 }
 
 Romie.prototype.left = function() {
 	this.moving = true;
 	this.lastWallCheck = null;
-	Weblab.sendCommand('{"command":"L"}', function(response) {
-		this.moving = false;
-	}.bind(this));
+	weblab.sendCommand('{"command":"L"}')
+        .done(function(response) {
+    		this.moving = false;
+	    }.bind(this));
 }
 
 Romie.prototype.right = function() {
 	this.moving = true;
 	this.lastWallCheck = null;
-	Weblab.sendCommand('{"command":"R"}', function(response) {
-		this.moving = false;
-	}.bind(this));
+	weblab.sendCommand('{"command":"R"}')
+        .done(function(response) {
+		    this.moving = false;
+    	}.bind(this));
 }
 
 Romie.prototype.checkWall = function() {
 	this.checking = true;
-	Weblab.sendCommand('{"command":"S"}', function(response) {
-		response = JSON.parse(response);
-		this.lastWallCheck = response['response'];
-		this.checking = false;
-	}.bind(this));
+	weblab.sendCommand('{"command":"S"}')
+        .done(function(response) {
+            response = JSON.parse(response);
+            this.lastWallCheck = response['response'];
+            this.checking = false;
+        }.bind(this));
 }
 
 Romie.prototype.isMoving = function() {
