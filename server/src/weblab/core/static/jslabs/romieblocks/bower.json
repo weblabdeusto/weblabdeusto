@@ -22,8 +22,8 @@
   ],
   "dependencies": {
     "bootstrap": "~3.3.5",
-    "google-blockly": "https://github.com/google/blockly.git#master",
+    "google-blockly": "https://github.com/google/blockly.git#879cacbb8d2be161b74f47e2aa846b3274dde27f",
     "jquery": "~2.1.4",
-    "js-interpreter": "https://github.com/NeilFraser/JS-Interpreter.git#master"
+    "js-interpreter": "https://github.com/NeilFraser/JS-Interpreter.git#c82c57f0100807a8e75b5580b8fe6c09c8bd99f3"
   }
 }
