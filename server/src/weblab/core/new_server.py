@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals
+import os
 import sys
 import json
 import types
@@ -355,6 +356,10 @@ class WebLabAPI(object):
     @property
     def core_server_url(self):
         return self.context.config.get_value('core_server_url', None)
+
+    @property
+    def deployment_dir(self):
+        return os.path.abspath(self.context.config.get_value('deployment_dir', '.'))
 
     @property
     def languages(self):
