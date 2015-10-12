@@ -52,7 +52,10 @@ def _generate_file(current_path, value):
         current_path = current_path[1:]
     fname = os.path.join(where, current_path)
     if os.path.exists(fname):
-        return send_file(fname, as_attachment = False, conditional = True)
+        if os.path.isdir(fname):
+            return abort(403)
+        else:
+            return send_file(fname, as_attachment = False, conditional = True)
     else:
         return abort(404)
 
