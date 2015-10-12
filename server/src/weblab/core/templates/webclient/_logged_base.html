@@ -14,9 +14,10 @@
                 <!-- pull-right not used because we're just aligning right -->
                 <p style="white-space: nowrap"> <!-- The nowrap is so that the log-out doesnt get a line-break -->
 
-                    <a href="{{ url_for('profile.index') }}"><img style="display:inline-block"
+                    <!-- Duplicated height and width in style and tag to avoid problems in IE10 -->
+                    <a href="{{ url_for('profile.index') }}"><img style="display:inline-block; height: 30px; width: 30px"
                                                               class="img-responsive img-rounded"
-                                                              src="{{ weblab_api.gravatar_url }}" width="30px"/></a>
+                                                              src="{{ weblab_api.gravatar_url }}" height="30px" width="30px"/></a>
                     <a href="{{ url_for('profile.index') }}">{{ weblab_api.current_user.full_name }}</a>{% if weblab_api.is_admin %} | <a
                             href="{{ url_for("admin.index") }}"><img
                             src="{{ url_for(".static", filename="img/ui/administration.png") }}"/></a>{% endif %} | <a
