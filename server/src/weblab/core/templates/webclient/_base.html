@@ -12,6 +12,20 @@
     <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
     <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
 
+    <script>
+        if (console === undefined) {
+            console = {};
+        }
+        if (console.log === undefined) {
+            console.log = function(){};
+        }
+        if (console.debug === undefined) {
+            console.debug = console.log;
+        }
+        if (console.info === undefined) {
+            console.info = console.log;
+        }
+    </script>
     {% block styles %}{% endblock %}
     {% block header %}{% endblock %}
 </head>

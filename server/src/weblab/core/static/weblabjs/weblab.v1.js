@@ -1,5 +1,17 @@
 // Make sure to avoid problems if included twice
 if (window.weblab === undefined) {
+    if (console === undefined) 
+        console = {};
+
+    if (console.log === undefined)
+        console.log = function() {};
+
+    if (console.debug === undefined)
+        console.debug = console.log;
+
+    if (console.info === undefined)
+        console.info = console.log;
+
     // From StackOverflow. To extract parameters from the URL (not the hash)
     (function ($) {
         $.QueryString = (function (a) {
