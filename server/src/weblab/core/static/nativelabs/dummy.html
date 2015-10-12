@@ -183,10 +183,11 @@
             // was a file, store it in disk, and so on).
             weblab.sendFile($("#initial_file"), "file.txt")
                 .done(function(response) {
-                    console.log("File sent", response);
+                    $("#fileResponse").text(response);
                 })
                 .fail(function (error) {
                     console.log("File sent failed!", error);
+                    $("#fileResponse").text("FAILED: " + error);
                 });
         });
 
@@ -257,7 +258,8 @@
             <div id="main_block" class="hidden text-center">
                 <h3>Main block</h3>
                 <input type="text" id="command_input" value="Sample command"><button class="btn btn-primary" id="main_button">Send this message (or type 'exit' to exit)</button>
-                <p>Experiment server response: <pre><span id="response"></span></pre></p>
+                <p>Experiment server response to command: <pre><span id="response"></span></pre></p>
+                <p>Experiment server response to file: <pre><span id="fileResponse"></span></pre></p>
             </div>
         </div>
     </div>
