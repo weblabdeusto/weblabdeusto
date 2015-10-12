@@ -16,7 +16,7 @@
 from __future__ import print_function, unicode_literals
 
 import StringIO
-from flask import request
+from flask import request, jsonify
 
 from weblab.core.web import weblab_api, get_argument
 from weblab.core.codes import WEBLAB_GENERAL_EXCEPTION_CODE, PYTHON_GENERAL_EXCEPTION_CODE
@@ -54,6 +54,7 @@ def upload():
     send_async_file depending on this last one.
     @return HTML defined above, with the success or failure response.
     """
+    response_format = request.args.get('format', 'html').lower()
     try:
         file_info, file_sent, reservation_id, is_async = _check_arguments()
         file_content = Util.serialize(file_sent)
@@ -67,13 +68,20 @@ def upload():
 
     except FileUploadError as fue:
         code, message = fue.args
-        return FAULT_HTML_TEMPLATE % {
+
+        if response_format == 'json':
+            return jsonify(is_exception=True, message = message, code = code)
+        else:
+            return FAULT_HTML_TEMPLATE % {
                     'THE_FAULT_CODE' : code,
                     'THE_FAULT_MESSAGE' : message
                 }
     except Exception as e:
         message = e.args[0]
-        return FAULT_HTML_TEMPLATE % {
+        if response_format == 'json':
+            return jsonify(is_exception=True, message = message, code = PYTHON_GENERAL_EXCEPTION_CODE)
+        else:
+            return FAULT_HTML_TEMPLATE % {
                     'THE_FAULT_CODE' : PYTHON_GENERAL_EXCEPTION_CODE,
                     'THE_FAULT_MESSAGE' : message
                 }
@@ -86,7 +94,10 @@ def upload():
 
         print("[DBG] Returning result from file upload:", resultstr)
 
-        return SUCCESS_HTML_TEMPLATE % {
+        if response_format == 'json':
+            return jsonify(is_exception=False, result={ 'commandstring' : resultstr })
+        else:
+            return SUCCESS_HTML_TEMPLATE % {
                         'RESULT' : resultstr
                 }
 
@@ -102,7 +113,9 @@ def _check_arguments():
         raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_INFO)
     file_sent = request.files.get(FILE_SENT)
     if file_sent is None:
-        raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_SENT)
+        file_sent = get_argument(FILE_SENT)
+        if file_sent is None:
+            raise FileUploadError(WEBLAB_GENERAL_EXCEPTION_CODE, "%s argument not provided!" % FILE_SENT)
     else:
         sio = StringIO.StringIO()
         file_sent.save(sio)

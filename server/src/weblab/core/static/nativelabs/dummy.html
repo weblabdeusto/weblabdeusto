@@ -174,6 +174,20 @@
                         $("#response").text("There was an error: " + error);
                     });
             });
+
+            // Send the file as soon as we can. This is a typical behaviour (e.g., 
+            // user selects a file and it is sent when the user can use it). 
+            // sendFile works like sendCommand, but the first argument must be a
+            // <input type="file"> object (or using jQuery). It also accepts a 
+            // string you might get (and will be treated by the server as if it
+            // was a file, store it in disk, and so on).
+            weblab.sendFile($("#initial_file"), "file.txt")
+                .done(function(response) {
+                    console.log("File sent", response);
+                })
+                .fail(function (error) {
+                    console.log("File sent failed!", error);
+                });
         });
 
         //
@@ -200,9 +214,9 @@
         // laboratory approach is implemented. When using this method, calling
         // Finish doesn't reload the page, but lets it show results.
         // 
-        weblab.onProcessResults(function (initialData, endData) {
-            
-        });
+        // weblab.onProcessResults(function (initialData, endData) {
+        //     
+        // });
 
         // 
         // If, for any reason, you would like to manage the polling by your 

@@ -799,6 +799,74 @@ if (window.weblab === undefined) {
          * @param {str} response: Response to the command
          */
 
+        /**
+         * sendFile
+         */
+        this.sendFile = function(inputObject, fileInfo) {
+            if (fileInfo === undefined)
+                fileInfo = "";
+
+            var input = null;
+            if (typeof(inputObject) == "string") { // A string message
+                input = $("<input type='hidden' name='file_sent'></input>");
+                input.val(inputObject);
+            } else {
+                // A file object
+                if(inputObject instanceof $) { // a jQuery selector
+                    input = $(inputObject[0]);
+                } else { // Regular <input> element
+                    input = $(inputObject);
+                }
+                input.attr('name', 'file_sent');
+            }
+
+            var uniqueId = "form_id_" + new Date().getTime() + "_" + Math.random();
+
+            var $form = $("<form src='" + this.getFileUploadUrl() + "' id='" + uniqueId + "' style='display: none'></form>");
+            $form.append("<input type='hidden' name='reservation_id' value='" + mReservation + "'></input>");
+            var $fileInfo = $("<input type='hidden' name='file_info'></input>");
+            $fileInfo.val(fileInfo);
+            $form.append($fileInfo);
+            $form.append(input);
+            $("body").append($form);
+
+            var promise = $.Deferred();
+            var fileUploadUrl = this.getFileUploadUrl();
+            $form.submit(function(e) {
+                if (weblab.debug) {
+                    console.log("Submitting file with fileInfo", fileInfo);
+                }
+                $.ajax({
+                      url: fileUploadUrl + "?format=json",
+                      type: 'POST',
+                      data: new FormData( this ),
+                      processData: false,
+                      dataType: "json",
+                      contentType: false
+                    })
+                    .done(function (response) {
+                        if (weblab.debug) {
+                            console.log("File submitted with fileInfo", fileInfo, "returned", response);
+                        }
+
+                        if (response.is_exception) {
+                            promise.reject(response.message);
+                        } else {
+                            promise.resolve(response.result.commandstring);
+                        }
+                    })
+                    .fail(function (error) {
+                        if (weblab.debug) {
+                            console.log("File submitted with fileInfo", fileInfo, "failed with:", error);
+                        }
+
+                        promise.reject(error);
+                    });
+                e.preventDefault();
+            });
+            $form.trigger("submit");
+            return promise.promise();
+        };
 
         /**
          * Sends a command to the experiment server and prints the result to the console.
