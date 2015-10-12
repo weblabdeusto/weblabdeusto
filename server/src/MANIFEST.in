@@ -1,13 +1,9 @@
-recursive-include weblab/admin/web/templates *
 recursive-include weblab/core/templates *
 recursive-include weblab/core/translations *
 recursive-include weblab/admin/web/static *
 recursive-include voodoo/gen/templates *
-recursive-include weblab/login/comm *
 recursive-include weblab/admin *
-recursive-include weblab/admin/web/templates *
 recursive-include weblab/admin/config_templates *
-recursive-include weblab/core/comm *
 recursive-include weblab/db/upgrade/scheduling *
 recursive-include weblab/db/upgrade/regular *
 recursive-include weblab *
