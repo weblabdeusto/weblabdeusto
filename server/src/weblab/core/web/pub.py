@@ -24,7 +24,6 @@ def pub_index():
 
 @weblab_api.route_web('/pub/<path:path>')
 def pub(path = ''):
-    deployment_dir = os.path.abspath(weblab_api.config.get('deployment_dir'))
-    base_directory = os.path.join(deployment_dir, 'pub')
+    base_directory = os.path.join(weblab_api.deployment_dir, 'pub')
     return send_from_directory(base_directory, path)
 
