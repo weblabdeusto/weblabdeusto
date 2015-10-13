@@ -19,6 +19,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 import re
+import subprocess
 import sys
 import abc
 import json
@@ -41,6 +42,8 @@ from weblab.admin.script.utils import run_with_config, ordered_dump
 import xml.dom.minidom as minidom
 
 from weblab.db.upgrade import DbUpgrader
+
+import re
 
 #########################################################################################
 # 
@@ -155,6 +158,72 @@ class DatabaseUpgrader(Upgrader):
         sys.stdout.flush()
         self.upgrader.upgrade()
         print("Upgrade completed.")
+
+class JSClientUpgrader(Upgrader):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(JSClientUpgrader, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
+        self.config_file = os.path.join(directory, 'httpd', 'simple_server_config.py')
+        self.db_conf = DbConfiguration(configuration_files, configuration_values)
+
+    def check_updated(self):
+        """
+        Check whether we need to apply this updater.
+        :return:
+        """
+        # We need to update if the simple_server_config.py has a Redirect from /weblab to /weblab/client (which was done for GWT
+        # but which should not be done anymore).
+        contents = open(self.config_file, "r").read()
+        result = re.search(r"u'\$', u'redirect:/weblab/client", contents)
+
+        return result is not None
+
+    def upgrade(self):
+
+        print("[Upgrader]: Starting update: Changing from GWT to new Non-GWT client")
+
+        # UPGRADE ACTION 1: Call httpd-config-generate script.
+        command = ["weblab-admin http-config-generate"]
+        result = subprocess.check_call(command)
+        if result is not 0:
+            raise Exception("Upgrade attempt failed: weblab-admin http-config-generate did not report success. Reported {0} instead.".format(result))
+        print("[Upgrader]: DONE: Called weblab-admin http-config-generate to upgrade Apache configuration files")
+
+        # UPGRADE ACTION 2: Old 'dummy' type experiments are now 'js' experiments.
+        connection_url = self.db_conf.build_url()
+        engine = create_engine(connection_url, echo=False, convert_unicode=True)
+
+        Session = sessionmaker(bind=engine)
+        session = Session()
+        try:
+            db_experiments = session.query(model.DbExperiment).filter_by(client='dummy').all()
+            for db_exp in db_experiments:
+                db_exp.client = 'js'
+                session.add(db_exp)
+                print("Experiment {0} had client 'dummy' and now has client 'js'".format(db_exp.name))
+            session.commit()
+        finally:
+            session.close()
+        print("[Upgrader]: DONE: Changed Dummy experiments to type JS")
+
+        # UPGRADE ACTION 3: JS experiments should have builtin set to true (all of them are builtin for now).
+
+        session = Session()
+        try:
+            db_experiments = session.query(model.DbExperiment).all()
+            for db_exp in db_experiments:
+                db_builtin_param = session.query(model.DbExperimentClientParameter).filter_by(experiment_id = db_exp.id, parameter_name = 'builtin').first()
+                if db_builtin_param is None:
+                    db_builtin_param = model.DbExperimentClientParameter()
+                    db_builtin_param.experiment = db_exp
+                    db_builtin_param.parameter_name = 'builtin'
+                db_builtin_param.value = True
+                session.add(db_builtin_param)
+            session.commit()
+        finally:
+            session.close()
+        print("[Upgrader]: DONE: All JS experiments now have a builtin parameter set to True")
+
+        print("[Upgrader]: UPGRADE FINISHED.")
 
 class ConfigurationExperiments2db(Upgrader):
     def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
