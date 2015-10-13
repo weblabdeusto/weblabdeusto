@@ -76,7 +76,7 @@ def lab_config(category_name, experiment_name):
         url_for('.static', filename='js/iframeResizer.contentWindow.min.js', _external=True)
     ]
     locale = get_locale().language
-    return weblab_api.jsonify(locale=locale, targetURL=url_for('json.service_url'), scripts=scripts, config=experiment_config, currentURL = weblab_api.core_server_url)
+    return weblab_api.jsonify(locale=locale, targetURL=url_for('json.service_url'), fileUploadURL=url_for('core_web.upload'), scripts=scripts, config=experiment_config, currentURL = weblab_api.core_server_url)
 
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/latest_uses.json")
