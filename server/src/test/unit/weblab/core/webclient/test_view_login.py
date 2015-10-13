@@ -59,7 +59,7 @@ class TestViewLogin(unittest.TestCase):
         """ :type: flask.wrappers.Response """
 
         self.assertEqual(rv.status_code, 302, "Login POST with wrong pass does not return 302")
-        self.assertTrue(rv.location.endswith("/web/webclient/login"), "Redirection does not lead to index")
+        self.assertTrue(rv.location.endswith("/weblab/login"), "Redirection does not lead to index")
 
         rv = self.app.get(rv.location)
         self.assertIn("Invalid username or password", rv.data, "After wrong password login 'Invalid username...' does not appear")
@@ -72,7 +72,7 @@ class TestViewLogin(unittest.TestCase):
         """ :type: flask.wrappers.Response """
 
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
-        self.assertTrue(rv.location.endswith("/web/webclient/"), "Redirection does not lead to the labs page")
+        self.assertTrue(rv.location.endswith("/weblab/"), "Redirection does not lead to the labs page")
 
         with self.app as c:
             # Just so the context is set, to be able to read cookies.
