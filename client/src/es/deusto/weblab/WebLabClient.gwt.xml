@@ -24,7 +24,7 @@
 	<extend-property name="locale" values="ru"/>
 	<extend-property name="locale" values="sk"/>
 	<extend-property name="locale" values="ar"/>
-	
+
 	<source path="client">
 		<exclude name="admin/**java" />
 	</source>
@@ -54,7 +54,7 @@
 	
 	<public path="public"></public>
 	
-	<entry-point class='es.deusto.weblab.client.WebLabClientLab'/>
+	<entry-point class='es.deusto.weblab.client.WebLabClient'/>
 	
 	<!-- REMOVE ME
 	<add-linker name="xsiframe" />

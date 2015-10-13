@@ -10,7 +10,7 @@
 	<property name="testreportdir_dev"     value="build/test-results-hosted/"/>
 	<property name="testreportdir_prod"    value="build/test-results-web/"/>
 
-    <property name="gwt.style" value="OBFUSCATED"/>
+    <property name="gwt.style" value="OBF"/>
 
 	<property name="lab.module.name" value="es.deusto.weblab.WebLabClient"/>
 	

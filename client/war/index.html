@@ -1,33 +1,50 @@
-<?xml version="1.0"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html>
-	<head>
-		<title>WebLab-Deusto</title>
-		<!--  <link rel="stylesheet" type="text/css" href="weblab_style.css" />  -->
-		<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" /> 
-		<meta name="handheldfriendly" content="true" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
 
-        <!-- So as to call internal frames -->
-        <script type="text/javascript" language="javascript" src="weblabclientlab/jslib/weblab_iframeResizer.min.js"></script>
-        <!-- So as to have it if it's embedded somewhere else -->
-        <script type="text/javascript" language="javascript" src="iframeResizer.contentWindow.min.js"></script>
+<script type="text/javascript">
 
-		<script type="text/javascript" language="javascript" src="weblabclientlab/weblabclientlab.nocache.js"></script>
-        <script type="text/javascript" language="javascript" src="../web/language/"></script>
-        <script type="text/javascript" language="javascript" src="../web/version.js"></script>
-	</head>
+    // From StackOverflow.
+    function getHashParams() {
 
-	<body>
-        
-		<iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
-		<div class="main_weblab" id="weblab_slot"></div>
-	    <div id="hiddenLoginDiv" style="display:none" >
-        	<form id="hiddenLoginForm"  method="post" action="dummy.html" onsubmit="javascript:return false;">
-                <input id="hiddenUsername" name="username" type="text" size="20" maxlength="100" />
-                <input id="hiddenPassword" name="password" type="password" size="20" maxlength="100" />
-                <input id="hiddenLoginFormSubmitButton" type="submit" />
-        	</form>
-    	</div>
-	</body>
+        var hashParams = {};
+        var e,
+                a = /\+/g,  // Regex for replacing addition symbol with a space
+                r = /([^&;=]+)=?([^&;]*)/g,
+                d = function (s) {
+                    return decodeURIComponent(s.replace(a, " "));
+                },
+                q = window.location.hash.substring(1);
+
+        while (e = r.exec(q))
+            hashParams[d(e[1])] = d(e[2]);
+
+        return hashParams;
+    }
+
+    var params = getHashParams();
+
+    if(params['page']) {
+        if(params['page'] == 'home') {
+            // Redirect to main page.
+            window.location.replace("/weblab");
+        }
+        else if(params['page'] == 'experiment') {
+            // Redirect to experiment page.
+            var cat = params['exp.category'];
+            var exp = params['exp.name'];
+
+            if(cat && exp) {
+                window.location.replace("/weblab/labs/" + cat + "/" + exp + "/");
+            }
+        }
+    }
+
+</script>
+
+</body>
 </html>
