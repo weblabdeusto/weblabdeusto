@@ -63,6 +63,7 @@ public class WebLabClient implements EntryPoint {
 				final IExperimentCreatorFactory experimentCreatorFactory = getExperimentFactory(clientCodeName);
 				if (experimentCreatorFactory == null) {
 					showError("client code name " + clientCodeName + " not implemented in GWT");
+                    JSBoardBaseController.experimentLoaded();
 					return;
 				}
 				
@@ -72,6 +73,7 @@ public class WebLabClient implements EntryPoint {
 				} catch (ExperimentCreatorInstanciationException e1) {
 					showError("Could not instantiate experiment: " + e1.getMessage());
 					e1.printStackTrace();
+                    JSBoardBaseController.experimentLoaded();
 					return;
 				}
 
@@ -81,6 +83,7 @@ public class WebLabClient implements EntryPoint {
 					public void onFailure(Throwable e) {
 						JSBoardBaseController.log("Client code name " + clientCodeName + " not working: " + e.getMessage());
 						showError("client code name " + clientCodeName + " not implemented in GWT");
+                        JSBoardBaseController.experimentLoaded();
 					}
 					
 					@Override

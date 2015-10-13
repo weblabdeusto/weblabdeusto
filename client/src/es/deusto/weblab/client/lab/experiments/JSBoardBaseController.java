@@ -256,11 +256,11 @@ public class JSBoardBaseController implements IBoardBaseController {
 		}
 	}-*/;
 
-    static native void experimentLoaded() /*-{
+    public static native void experimentLoaded() /*-{
         $wnd.experimentLoadedPromise.resolve();
     }-*/;
 
-    static native void experimentLoadedFailed(String message) /*-{
+    public static native void experimentLoadedFailed(String message) /*-{
         $wnd.experimentLoadedPromise.reject({ error: message });
     }-*/;
 
