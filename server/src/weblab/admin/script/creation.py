@@ -2030,7 +2030,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 def show_gwt_required_error(experiment, stdout):
     print("", file=stdout)
     print("*******IMPORTANT*******", file=stdout)
-    print("So as to work with {0}, right now you need to compile also the WebLab-Deusto GWT client. Go to weblabdeusto/server/src and run: 'python develop.py --compile-gwt' and then run 'python setup.py install'. If you have already done this in the past, you can skip this message.".format(experiment), file=stdout)
+    print("So as to work with {0}, right now you need to compile also the WebLab-Deusto GWT client. Go to weblabdeusto/server/src and run: 'python develop.py --compile-gwt-client' and then run 'python setup.py install'. If you have already done this in the past, you can skip this message.".format(experiment), file=stdout)
     print("*******IMPORTANT*******", file=stdout)
     print("", file=stdout)
 

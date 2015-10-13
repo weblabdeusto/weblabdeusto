@@ -42,8 +42,6 @@ def _build_requirements():
 
     CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','client'))
     WAR_LOCATION = os.path.join(CLIENT_LOCATION,'war')
-    from weblab.admin.client_deploy import compile_client
-    compile_client(WAR_LOCATION, CLIENT_LOCATION)
 
     # In any case, the client was compiled in the past or just now. Let's copy it here.
     print "Copying...",
