@@ -15,7 +15,7 @@
 #
 from __future__ import print_function, unicode_literals
 
-from flask import request, render_template, make_response
+from flask import request, render_template, make_response, redirect, url_for
 from weblab.core.wl import weblab_api
 
 import urllib
@@ -92,20 +92,11 @@ def client():
         response.response = render_template('core_web/client_error.html', reservation_id = reservation_id)
         return response
 
-    client_address = "../../client/index.html%(localization)s#exp.name=%(exp_name)s&exp.category=%(exp_cat)s&reservation_id=%(reservation_id)s&header.visible=false&page=experiment&back_url=%(back_url)s&widget=%(widget)s" % {
-        'localization'   : ('?locale=%s' % locale) if locale else '',
-        'reservation_id' : reservation_id,
-        'exp_name'       : experiment_id.exp_name,
-        'exp_cat'        : experiment_id.cat_name,
-        'back_url'       : back_url,
-        'widget'         : widget,
-    }
-
+    client_address = url_for('core_webclient.federated', locale=locale, reservation_id=reservation_id, back_url=back_url, widget=widget)
     format_parameter = request.form.get(FORMAT_PARAMETER)
     if format_parameter is not None and format_parameter == 'text':
         response.response = client_address
         return response
 
-    response.response = render_template('core_web/client_final_redirect.html', url = client_address)
-    return response
+    return redirect(client_address)
 

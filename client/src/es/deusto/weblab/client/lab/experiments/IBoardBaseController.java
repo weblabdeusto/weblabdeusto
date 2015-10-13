@@ -14,9 +14,7 @@
 
 package es.deusto.weblab.client.lab.experiments;
 
-import es.deusto.weblab.client.dto.SessionID;
 import es.deusto.weblab.client.dto.experiments.Command;
-import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.lab.comm.UploadStructure;
 import es.deusto.weblab.client.lab.comm.callbacks.IResponseCommandCallback;
 
@@ -32,21 +30,6 @@ public interface IBoardBaseController{
 	 */
 	public boolean isFacebook();
 	
-	/**
-	 * What is the session id of the user? It is useful when using other type of communications, such
-	 * as iframes in the LabVIEW experiment.
-	 */
-	public SessionID getSessionId();
-	
-	/**
-	 * What is the reservation id of the user? 
-	 */
-	public SessionID getReservationId();
-	
-	/**
-	 * What is the experiment id of this experiment?
-	 */
-	public ExperimentID getExperimentId();
 	
 	////////////////////////////////////
 	// 
@@ -83,6 +66,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * don't care the result.
 	 */
+	@Deprecated
 	public void sendAsyncCommand(Command command);
 	
 	/**
@@ -90,6 +74,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(Command command, IResponseCommandCallback callback);
 	
 	/**
@@ -97,6 +82,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * don't care about the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(String command);
 	
 	/**
@@ -104,6 +90,7 @@ public interface IBoardBaseController{
 	 * until the command is finish; this is intended for long running commands), 
 	 * notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncCommand(String command, IResponseCommandCallback callback);
 	
 	////////////////////////////////////
@@ -118,6 +105,7 @@ public interface IBoardBaseController{
 	/**
 	 * Send a file asynchronously, notify me with the result
 	 */
+	@Deprecated
 	public void sendAsyncFile(UploadStructure uploadStructure, IResponseCommandCallback callback);
 	
 	////////////////////////////////////

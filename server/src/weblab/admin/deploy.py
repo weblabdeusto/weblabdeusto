@@ -31,8 +31,11 @@ import weblab.permissions as permissions
 
 
 
-def _add_params(session, experiment):
-    experiment_config = CONFIG_JS[experiment.name + '@' + experiment.category.name]
+def _add_params(session, experiment, params = None):
+    if params is None:
+        experiment_config = CONFIG_JS[experiment.name + '@' + experiment.category.name]
+    else:
+        experiment_config = params
 
     for key, value in experiment_config.iteritems():
         if key in ("experiment.name", "experiment.category"):
@@ -384,7 +387,9 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
     },
     "unr-physics@Physics experiments": {
-        "experiment.picture": "/img/experiments/unr.jpg"
+        "experiment.picture": "/img/experiments/unr.jpg",
+        "builtin": True,
+        "html.file": "jslabs/unr_physics.html"
     },
     "visir-fed-balance-multiple@Visir experiments": {
         "experiment.info.description": "description",
@@ -760,7 +765,7 @@ def populate_weblab_tests(engine, tests):
         ('ud-logic',                'PIC experiments')       : 'logic',
         ('ud-pld',                  'PLD experiments')       : 'xilinx',
         ('ud-pic18',                'PIC experiments')       : 'pic18',
-        ('unr-physics',             'Physics experiments')   : 'unr-physics',
+        ('unr-physics',             'Physics experiments')   : 'js',
         ('visir',                   'Visir experiments')     : 'visir',
         ('visir-html5',             'Visir experiments')     : 'js',
         ('visirtest',               'Dummy experiments')     : 'visir',
@@ -992,7 +997,7 @@ def add_users_to_group(sessionmaker, group_name, *user_logins):
     session.commit()
     session.close()
 
-def add_experiment(sessionmaker, category_name, experiment_name, client):
+def add_experiment(sessionmaker, category_name, experiment_name, client, params = None):
     sessionmaker._model_changes = {}  # flask-sqlalchemy bug bypass
     session = sessionmaker()
     existing_category = session.query(model.DbExperimentCategory).filter_by(name = category_name).first()
@@ -1007,7 +1012,7 @@ def add_experiment(sessionmaker, category_name, experiment_name, client):
     end_date = start_date.replace(year=start_date.year+12)
 
     experiment = model.DbExperiment(experiment_name, category, start_date, end_date, client)
-    _add_params(session, experiment)
+    _add_params(session, experiment, params)
     session.add(experiment)
     session.commit()
     session.close()
@@ -1065,8 +1070,8 @@ def grant_admin_panel_on_group(sessionmaker, group_name):
     session.close()
 
 
-def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, client, group_name, time_allowed):
-    add_experiment(sessionmaker, category_name, experiment_name, client)
+def add_experiment_and_grant_on_group(sessionmaker, category_name, experiment_name, client, group_name, time_allowed, params = None):
+    add_experiment(sessionmaker, category_name, experiment_name, client, params)
     grant_experiment_on_group(sessionmaker, category_name, experiment_name, group_name, time_allowed)
 
 def add_client_config(sessionmaker, configuration_js):

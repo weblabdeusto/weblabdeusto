@@ -74,8 +74,9 @@ def safe_redirect(redir):
     """
     try:
         redirurl = urlparse.urlparse(redir)
-        current_url = urlparse.urlparse(weblab_api.ctx.core_server_url)
-        if redirurl.netloc not in (None, '', current_url.netloc):
+        theoretic_url = urlparse.urlparse(weblab_api.ctx.core_server_url)
+        current_url = urlparse.urlparse(request.url)
+        if redirurl.netloc not in (None, '', current_url.netloc, theoretic_url.netloc):
             return None
         redir = redirurl.geturl()
         return redir

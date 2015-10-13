@@ -427,7 +427,7 @@ if __name__ == '__main__':
     parser.add_option('--coverage-report',         dest='coverage_report', default = 'report',  choices = ('report', 'xml', 'html'),
                                                    help = "Coverage report style (report, xml, html)", metavar = 'REPORT_STYLE')
 
-    parser.add_option('--compile-client',          dest='compile_client', action='store_true', default=False,
+    parser.add_option('--compile-gwt-client',      dest='compile_client', action='store_true', default=False,
                                                    help = "Compiles the client.")
 
     parser.add_option('--dont-disable-proxies',    dest='dont_disable_proxies', action='store_true', default=False,

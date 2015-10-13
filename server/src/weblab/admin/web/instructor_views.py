@@ -55,7 +55,7 @@ class InstructorAuthnMixIn(object):
         if not self.is_accessible():
             if self.app_instance.get_user_information() is not None:
                 return redirect(url_for('not_allowed'))
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
+            return redirect(url_for('core_webclient.login', next=request.url))
 
         return super(InstructorAuthnMixIn, self)._handle_view(name, **kwargs)
 

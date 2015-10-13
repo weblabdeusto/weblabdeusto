@@ -15,10 +15,8 @@ package es.deusto.weblab.client.lab.experiments;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Cookies;
 
 import es.deusto.weblab.client.configuration.IConfigurationRetriever;
-import es.deusto.weblab.client.dto.experiments.ExperimentID;
 import es.deusto.weblab.client.i18n.IWebLabI18N;
 import es.deusto.weblab.client.ui.widgets.IWlWidget;
 
@@ -107,35 +105,6 @@ public abstract class ExperimentBase implements IWlWidget{
 		if (!this.endCalled) {
 			this.endCalled = true;
 			this.end();
-			final String experimentSurveyUrl = this.configurationRetriever.getProperty("experiment.survey.url", null);
-			final String cookieName = "survey.experiments";
-			if (experimentSurveyUrl != null) {
-				final String surveyExperiments = Cookies.getCookie(cookieName);
-				boolean requestSurvey = false;
-				if (surveyExperiments == null) {
-					requestSurvey = true;
-				} else {
-					final String [] experiments = surveyExperiments.split(";");
-					for (String experimentName : experiments) {
-						final String [] experimentNameComponents = experimentName.split("@");
-						final ExperimentID experimentId = new ExperimentID(experimentNameComponents[1], experimentNameComponents[0]);
-						if (experimentId.equals(this.boardController.getExperimentId())) {
-							requestSurvey = false;
-							break;
-						}
-					}
-				}
-				
-				if (requestSurvey) {
-					final ExperimentID currentExperimentId = this.boardController.getExperimentId();
-					String cookieValue = currentExperimentId.getExperimentName() + "@" + currentExperimentId.getCategoryName();
-					if (surveyExperiments != null) {
-						 cookieValue += ";" + surveyExperiments;
-					} 
-					Cookies.setCookie(cookieName, cookieValue);
-					// TODO: show poll
-				}
-			}
 			return true;
 		} else {
 			return false;

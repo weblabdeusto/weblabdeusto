@@ -24,7 +24,7 @@ import urlparse
 
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, Blueprint, request, escape
+from flask import Flask, Blueprint, request, escape, url_for
 from werkzeug.contrib.fixers import ProxyFix
 
 from functools import wraps
@@ -200,21 +200,12 @@ def get_user_information():
     """
     user_information = weblab_api.ctx.user_processor.get_user_information()
     if weblab_api.ctx.user_processor.is_admin():
-        admin_url = weblab_api.ctx.core_server_url + "administration/admin/"
-
-        try:
-            user_information.admin_url = urlparse.urlparse(admin_url).path
-        except:
-            user_information.admin_url = admin_url
+        user_information.admin_url = url_for('admin.index')
     else:
         user_information.admin_url = ""
 
     if weblab_api.ctx.user_processor.is_instructor():
-        instructor_url = weblab_api.ctx.core_server_url + "administration/instructor/"
-        try:
-            user_information.instructor_url = urlparse.urlparse(instructor_url).path
-        except:
-            user_information.instructor_url = instructor_url
+        user_information.instructor_url = url_for('instructor.index')
     else:
         user_information.instructor_url = ""
 
@@ -252,6 +243,12 @@ def get_user_permissions():
 @load_user_processor
 def is_admin():
     return weblab_api.ctx.user_processor.is_admin()
+
+@weblab_api.route_api('/user/is_instructor/')
+@load_user_processor
+def is_instructor():
+    return weblab_api.ctx.user_processor.is_instructor()
+
 
 @weblab_api.route_api('/user/reservations/', methods = [ 'POST' ])
 @load_user_processor
@@ -513,13 +510,11 @@ class WebLabFlaskServer(WebLabWsgiServer):
         # Attempt at setting the right static folder.
         core_webclient = Blueprint('core_webclient', __name__, static_folder=static_folder)
         weblab_api.apply_routes_webclient(core_webclient, server)
-        # TODO: when in production!
-        # self.app.register_blueprint(core_webclient, url_prefix = '/weblab')
-        self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
+        self.app.register_blueprint(core_webclient, url_prefix = '/weblab')
 
         @self.app.context_processor
         def inject_weblab_api():
-            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale)
+            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale, wl_config=cfg_manager)
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 

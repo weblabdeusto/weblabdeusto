@@ -112,7 +112,7 @@ class ProfileEditView(WebLabBaseView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
+            return redirect(url_for('core_webclient.login', next=request.url))
 
         return super(ProfileEditView, self)._handle_view(name, **kwargs)
 
@@ -171,7 +171,7 @@ class ProfileHomeView(WebLabAdminIndexView):
 
     def _handle_view(self, name, **kwargs):
         if not self.is_accessible():
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client/#redirect={0}'.format(request.url))
+            return redirect(url_for('core_webclient.login', next=request.url))
 
         return super(ProfileHomeView, self)._handle_view(name, **kwargs)
 

@@ -8,7 +8,7 @@ import traceback
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 import flask
-from flask import Flask, request, redirect, escape
+from flask import Flask, request, redirect, escape, url_for
 from flask.ext.admin import Admin
 from flask.ext.admin.menu import MenuLink
 
@@ -87,14 +87,14 @@ class AdministrationApplication(object):
         static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
         # Not allowed
-        @app.route('/weblab/administration/not_allowed')
+        @app.route('/weblab/not_allowed')
         def not_allowed():
             return "You are logged in, but not allowed to see this content. Please log in with a proper account"
 
         # Back
-        @app.route('/weblab/administration/back')
-        def back_to_client(): # TODO: in the future this will be the client endpoint
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+        @app.route('/weblab/back')
+        def back_to_client():
+            return redirect(url_for('core_webclient.labs'))
    
         ################################################
         # 
@@ -102,7 +102,7 @@ class AdministrationApplication(object):
         # 
         # 
 
-        admin_url = '/weblab/administration/admin'
+        admin_url = '/weblab/admin'
         category_system = lazy_gettext("System")
         category_users = lazy_gettext("Users")
         category_logs = lazy_gettext("Logs")
@@ -111,21 +111,21 @@ class AdministrationApplication(object):
         self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = lazy_gettext('WebLab-Deusto Admin'), url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
         self.admin.weblab_admin_app = self
 
-        self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings'))
-        self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth'))
+        self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings', url='settings'))
+        self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth', url='auth'))
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_users, name = lazy_gettext('Add multiple users'),  endpoint = 'users/multiple'))
-        self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users'))
-        self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_users, name = lazy_gettext('Groups'), endpoint = 'users/groups'))
+        self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users', url='users'))
+        self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_users, name = lazy_gettext('Groups'), endpoint = 'users/groups', url='groups'))
 
-        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users'))
+        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users', url='logs'))
 
-        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = category_experiments, name = lazy_gettext('Categories'),  endpoint = 'experiments/categories'))
-        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = category_experiments, name = lazy_gettext('Experiments'), endpoint = 'experiments/experiments'))
+        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = category_experiments, name = lazy_gettext('Categories'),  endpoint = 'experiments/categories', url='experiments/categories'))
+        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = category_experiments, name = lazy_gettext('Experiments'), endpoint = 'experiments/experiments', url='experiments'))
         # TODO: Until finished, do not display
         # self.admin.add_view(admin_views.SchedulerPanel(db_session,         category = category_experiments, name = lazy_gettext('Schedulers'), endpoint = 'experiments/schedulers'))
 
-        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = category_permissions, name = lazy_gettext('Create'), endpoint = 'permissions/create'))
+        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = category_permissions, name = lazy_gettext('Create'), endpoint = 'permissions/create', url='permissions'))
         self.admin.add_view(admin_views.UserPermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('User'),   endpoint = 'permissions/user'))
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = category_permissions, name = lazy_gettext('Group'),  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('Roles'),  endpoint = 'permissions/role'))
@@ -143,7 +143,7 @@ class AdministrationApplication(object):
         #  Profile panel
         # 
 
-        profile_url = '/weblab/administration/profile'
+        profile_url = '/weblab/profile'
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = lazy_gettext('WebLab-Deusto profile'), url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
         self.profile.weblab_admin_app = self
 
@@ -172,7 +172,7 @@ class AdministrationApplication(object):
         # g) See the logs of their own students
         # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
 
-        instructor_url = '/weblab/administration/instructor'
+        instructor_url = '/weblab/instructor'
         instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
         instructor_home.static_folder = static_folder
         self.instructor = Admin(index_view = instructor_home, name = lazy_gettext("Weblab-Deusto instructor"), url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
@@ -318,13 +318,13 @@ if __name__ == '__main__':
 
     @admin_app.app.route('/')
     def index():
-        return redirect('/weblab/administration/admin')
+        return redirect('/weblab/admin')
     
     initialize_i18n(app)
 
     toolbar = DebugToolbarExtension()
     toolbar.init_app(app)
 
-    print("Open: http://localhost:5000/weblab/administration/admin/")
+    print("Open: http://localhost:5000/weblab/admin/")
     app.run(debug=True, host='0.0.0.0')
 

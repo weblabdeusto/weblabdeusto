@@ -3,31 +3,22 @@
 <html>
 	<head>
 		<title>WebLab-Deusto</title>
-		<!--  <link rel="stylesheet" type="text/css" href="weblab_style.css" />  -->
 		<meta name="viewport" content="width=320; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" /> 
 		<meta name="handheldfriendly" content="true" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
+		<script type="text/javascript" language="javascript" src="../static/js/jquery.js"></script>
+		<script type="text/javascript" language="javascript" src="../static/weblabjs/weblab.v1.js"></script>
+		
         <!-- So as to call internal frames -->
         <script type="text/javascript" language="javascript" src="weblabclientlab/jslib/weblab_iframeResizer.min.js"></script>
         <!-- So as to have it if it's embedded somewhere else -->
         <script type="text/javascript" language="javascript" src="iframeResizer.contentWindow.min.js"></script>
-
 		<script type="text/javascript" language="javascript" src="weblabclientlab/weblabclientlab.nocache.js"></script>
-        <script type="text/javascript" language="javascript" src="../web/language/"></script>
-        <script type="text/javascript" language="javascript" src="../web/version.js"></script>
 	</head>
 
 	<body>
-        
 		<iframe id="__gwt_historyFrame" style="width:0;height:0;border:0"></iframe>
 		<div class="main_weblab" id="weblab_slot"></div>
-	    <div id="hiddenLoginDiv" style="display:none" >
-        	<form id="hiddenLoginForm"  method="post" action="dummy.html" onsubmit="javascript:return false;">
-                <input id="hiddenUsername" name="username" type="text" size="20" maxlength="100" />
-                <input id="hiddenPassword" name="password" type="password" size="20" maxlength="100" />
-                <input id="hiddenLoginFormSubmitButton" type="submit" />
-        	</form>
-    	</div>
 	</body>
 </html>

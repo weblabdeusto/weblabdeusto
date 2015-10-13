@@ -115,6 +115,9 @@ def _generate_proxy(current_path, value):
     MAX_RETRIES = 5
     retry = 0
     full_url = chosen_url + current_path
+    if request.args:
+        full_url += '?' + '&'.join([ '%s=%s' % (key, requests.utils.quote(value, '')) for key, value in request.args.items() ])
+
     while True:
         try:
             req = method(full_url, **kwargs)

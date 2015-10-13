@@ -93,6 +93,10 @@ public class VisirExperiment extends FlashExperiment {
 			this.cookie            = initialConfig.getCookie();
 			this.savedata          = initialConfig.getSaveData();
 			this.url               = initialConfig.getURL();
+			
+			// In the new WebLab Client, we need this change:
+			// ../../weblab/web/ => ../../
+			this.url = this.url.replaceAll("../../weblab/web/", "../../");
 			this.teacher           = initialConfig.isTeacher();
 			this.circuitsAvailable = initialConfig.getCircuitsAvailable();
 						

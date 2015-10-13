@@ -14,8 +14,16 @@
 # 
 from __future__ import print_function, unicode_literals
 import os
+import time
 from collections import OrderedDict
 from weblab.util import data_filename
+import flask_admin
+
+def weblab_httpd_config_generate(directory):
+    print("Generating HTTPd configuration files... ", end='')
+    result = httpd_config_generate(directory)
+    print("[done]")
+    return result
 
 def httpd_config_generate(directory):
     debugging_variables = {}
@@ -28,21 +36,36 @@ def httpd_config_generate(directory):
     static_directories = OrderedDict() #{
         # url path : disk path
     # }
-    static_directories[base_url + '/weblab/client/'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
+    static_directories[base_url + '/weblab/client'] =                            data_filename('weblab/core/static/oldclient').replace('\\','/') # \ => / for Windows
+    flask_admin_static = os.path.join(os.path.dirname(flask_admin.__file__), 'static')
+    static_directories[base_url + '/weblab/admin/static'] =                      flask_admin_static.replace('\\','/')
     # TODO: Avoid repeated paths
-    # Not adding static folder support for flask-admin since it depends from version to version (requiring the user to re-deploy the http config when
-    # upgrading the apache config)
-    # static_directories[base_url + '/weblab/administration/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/administration/instructor/static/'] =  data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/administration/profile/static/'] =     data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/static/'] =                        data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/webclient/static/'] =              data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab/'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
-    static_directories[base_url + '/weblab/web/pub/'] =                           os.path.join(directory, 'pub').replace('\\','/')
+    static_directories[base_url + '/weblab/instructor/static'] =                 data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/profile/static'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/web/static'] =                        data_filename('weblab/core/static').replace('\\','/')
+    static_directories[base_url + '/weblab/static'] =                            data_filename('weblab/core/static').replace('\\','/')
+    static_directories[base_url + '/weblab/gwt/weblabclientlab'] =               data_filename('war/weblabclientlab').replace('\\','/')
+    static_directories[base_url + '/weblab/web/pub'] =                           os.path.abspath(os.path.join(directory, 'pub')).replace('\\','/')
 
-    # TODO: override the existing files with the result of these ones
-    print(_apache_generation(directory, base_url, ports, static_directories))
-    print(_simple_httpd_generation(directory, base_url, ports, static_directories))
+    files = {}
+    apache_contents = _apache_generation(directory, base_url, ports, static_directories)
+    files['apache'] = _set_contents(directory, 'httpd/apache_weblab_generic.conf', apache_contents)
+    simple_httpd_contents = _simple_httpd_generation(directory, base_url, ports, static_directories)
+    files['simple'] = _set_contents(directory, 'httpd/simple_server_config.py', simple_httpd_contents)
+    
+    # TODO: support nginx
+
+    return files
+
+def _set_contents(directory, filename, new_contents):
+    original_path = os.path.join(directory, filename)
+    destination_path = os.path.join(directory, filename + "-backup-" + time.strftime("%Y-%m-%d_%H-%M-%S"))
+    if os.path.exists(original_path):
+        original_contents = open(original_path).read()
+        open(destination_path, 'w').write(original_contents)
+    open(original_path, 'w').write(new_contents)
+    return os.path.abspath(original_path)
+
 
 def _apache_generation(directory, base_url, ports, static_directories):
     apache_conf = (
@@ -56,9 +79,9 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """</Files>\n"""
     """\n"""
     """# Apache redirects the regular paths to the particular directories \n"""
-    """RedirectMatch ^%(root)s$ %(root)s/weblab/client\n"""
-    """RedirectMatch ^%(root)s/$ %(root)s/weblab/client\n"""
-    """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
+    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
+    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
+    """RedirectMatch ^%(root)s/weblab$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
     """\n""")
     
@@ -115,6 +138,12 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
     """ProxyPreserveHost On\n"""
     """ProxyVia On\n"""
+    """\n""")
+
+    for static_url, static_directory in static_directories.items():
+        apache_conf += """ProxyPass %(static_url)s !\n""" % dict(static_url=static_url)
+
+    apache_conf += (
     """\n"""
     """ProxyPass                       %(root)s/weblab/                 balancer://%(root-no-slash)s_weblab_cluster/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
     """ProxyPassReverse                %(root)s/weblab/                 balancer://%(root-no-slash)s_weblab_cluster/           stickysession=weblabsessionid\n"""
@@ -124,7 +153,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
 
     for pos, port in enumerate(ports):
         d = { 'port' : port, 'route' : 'route%s' % (pos+1), 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/ route=%(route)s\n""" % d
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab route=%(route)s\n""" % d
 
     apache_conf += """</Proxy>\n"""
     apache_img_dir = '/client/images'
@@ -142,9 +171,8 @@ def _apache_generation(directory, base_url, ports, static_directories):
 
 def _simple_httpd_generation(directory, base_url, ports, static_directories):
     proxy_paths = [
-        ('%(root)s$',                    'redirect:%(root)s/weblab/client'),
-        ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
-        ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
+        ('%(root)s$',                    'redirect:%(root)s/weblab/'),
+        ('%(root)s/$',                   'redirect:%(root)s/weblab/'),
         ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
     ]
     for key, directory in static_directories.items():
@@ -156,7 +184,8 @@ def _simple_httpd_generation(directory, base_url, ports, static_directories):
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/,' % d
     proxy_paths.append(('%(root)s/weblab/', proxy_path))
 
-    proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
+    proxy_paths.append(('%(root)s/weblab',              'redirect:%(root)s/weblab/'))
+    proxy_paths.append(('',                            'redirect:%(root)s/weblab/'))
 
     if base_url in ('','/'):
         root    = ''
