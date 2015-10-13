@@ -44,7 +44,7 @@ class TestViewLabs(unittest.TestCase):
         """ :type: flask.testing.FlaskClient """
 
         # Login.
-        rv = self.app.post('weblab/web/webclient/login', data=dict(username='any', password='password'))
+        rv = self.app.post('weblab/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST for any / password does not return 302")
 
     def test_nothing(self):
@@ -54,7 +54,7 @@ class TestViewLabs(unittest.TestCase):
         """
         Ensure that the labs page seems to load.
         """
-        rv = self.app.get('/weblab/web/webclient/')
+        rv = self.app.get('/weblab/')
         self.assertEqual(rv.status_code, 200, "Labs page does not return 200")
         self.assertIn("My Experiments", rv.data, "Labs page does not contain the expected 'My Experiments' text")
         self.assertIn("Name of any", rv.data, "Labs page does not contain the expected 'Name of any' text")
@@ -65,7 +65,7 @@ class TestViewLabs(unittest.TestCase):
         """
         Shutdown the WebLab instance that we have started for the test.
         """
-        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='password'))
+        rv = self.app.post('/weblab/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()

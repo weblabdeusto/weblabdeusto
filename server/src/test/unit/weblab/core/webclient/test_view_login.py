@@ -37,7 +37,6 @@ class TestViewLogin(unittest.TestCase):
         # start listening on the port, but let us use the Flask test methods instead.
         self.handler = self.global_config.load_process('myhost', 'myprocess')
 
-
         self.core_server = GLOBAL_REGISTRY['mycore:myprocess@myhost']
 
         self.app = self.core_server.app.test_client()
@@ -47,7 +46,7 @@ class TestViewLogin(unittest.TestCase):
         """
         Ensure that the login screen seems to load.
         """
-        rv = self.app.get('/weblab/web/webclient/login')
+        rv = self.app.get('/weblab/login')
         self.assertEqual(rv.status_code, 200, "Login page does not return 200")
         self.assertIn("Remote Laboratory", rv.data, "Login page does not contain the expected 'Remote Laboratory' text")
         self.assertIn("Support", rv.data, "Login page does not contain the expected 'Support' text")
@@ -56,7 +55,7 @@ class TestViewLogin(unittest.TestCase):
         """
         Ensure that a login POST with a wrong password results in an 'Invalid username or password' message.
         """
-        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='wrongpassword'))
+        rv = self.app.post('/weblab/login', data=dict(username='any', password='wrongpassword'))
         """ :type: flask.wrappers.Response """
 
         self.assertEqual(rv.status_code, 302, "Login POST with wrong pass does not return 302")
@@ -69,7 +68,7 @@ class TestViewLogin(unittest.TestCase):
         """
         Ensure that a login POST with a right password results in a redirection to the labs page.
         """
-        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='password'))
+        rv = self.app.post('/weblab/login', data=dict(username='any', password='password'))
         """ :type: flask.wrappers.Response """
 
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
@@ -81,12 +80,11 @@ class TestViewLogin(unittest.TestCase):
             self.assertIn("weblabsessionid", request.cookies, "Cookie weblabsessionid was not set")
             self.assertIn("loginweblabsessionid", request.cookies, "Cookie loginweblabsessionid was not set")
 
-
     def tearDown(self):
         """
         Shutdown the WebLab instance that we have started for the test.
         """
-        rv = self.app.post('/weblab/web/webclient/login', data=dict(username='any', password='password'))
+        rv = self.app.post('/weblab/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()
