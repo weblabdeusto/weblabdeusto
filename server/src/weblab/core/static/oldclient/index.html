@@ -31,7 +31,7 @@
     if(params['page']) {
         if(params['page'] == 'home') {
             // Redirect to main page.
-            window.location.replace("/weblab");
+            window.location.replace("../");
         }
         else if(params['page'] == 'experiment') {
             // Redirect to experiment page.
@@ -39,9 +39,13 @@
             var exp = params['exp.name'];
 
             if(cat && exp) {
-                window.location.replace("/weblab/labs/" + cat + "/" + exp + "/");
+                window.location.replace("../labs/" + cat + "/" + exp + "/");
+            } else {
+                window.location.replace("../")
             }
         }
+    } else {
+        window.location.replace("../")
     }
 
 </script>
