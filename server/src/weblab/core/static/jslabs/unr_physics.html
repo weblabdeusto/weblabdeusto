@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <title>UNR Physics Experiment</title>
+
+    <!-- Include the scripts: standard jQuery + weblab.v1.js -->
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../weblabjs/weblab.v1.js"></script>
+    <script type="text/javascript">
+        weblab.disableFinishOnClose();
+        weblab.onProcessResults(function (initialData, endData) {
+            var finalUrl = JSON.parse(endData);
+            parent.location.replace(finalUrl);
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>

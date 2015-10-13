@@ -1175,8 +1175,17 @@ if (window.weblab === undefined) {
                         var time = result["time"];
                         var startingconfig = result["initial_configuration"];
                         promise.resolve(reservationID, time, startingconfig, result);
-                    }
-                    else {
+                    } else if (status === "Reservation::post_reservation"){
+                        if (result['finished']) {
+                            var initialData = result['initial_data'];
+                            var endData = result['end_data'];
+                            mOnProcessResultsPromise.resolve(initialData, endData);
+                        } else {
+                            setTimeout(function () {
+                                this._pollForPostReservation();
+                            }, 400);
+                        }
+                    } else {
                         var frequency = 2 * 1000; // 2 seconds
                         var MAX_POLLING = 10 * 1000; // 10 seconds
                         var MIN_POLLING = 1 * 1000; // 1 second
