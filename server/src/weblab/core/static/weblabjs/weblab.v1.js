@@ -1185,7 +1185,7 @@ if (window.weblab === undefined) {
                         } else {
                             setTimeout(function () {
                                 this._pollForPostReservation();
-                            }, 400);
+                            }.bind(this), 400);
                         }
                     } else {
                         var frequency = 2 * 1000; // 2 seconds
