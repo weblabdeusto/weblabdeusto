@@ -111,21 +111,21 @@ class AdministrationApplication(object):
         self.admin = Admin(index_view = admin_views.HomeView(db_session, url = admin_url),name = lazy_gettext('WebLab-Deusto Admin'), url = admin_url, endpoint = admin_url, base_template = 'weblab-master.html', template_mode = 'bootstrap3')
         self.admin.weblab_admin_app = self
 
-        self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings'))
-        self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth'))
+        self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings', url='settings'))
+        self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth', url='auth'))
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_users, name = lazy_gettext('Add multiple users'),  endpoint = 'users/multiple'))
-        self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users'))
-        self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_users, name = lazy_gettext('Groups'), endpoint = 'users/groups'))
+        self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users', url='users'))
+        self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_users, name = lazy_gettext('Groups'), endpoint = 'users/groups', url='groups'))
 
-        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users'))
+        self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users', url='logs'))
 
-        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = category_experiments, name = lazy_gettext('Categories'),  endpoint = 'experiments/categories'))
-        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = category_experiments, name = lazy_gettext('Experiments'), endpoint = 'experiments/experiments'))
+        self.admin.add_view(admin_views.ExperimentCategoryPanel(db_session, category = category_experiments, name = lazy_gettext('Categories'),  endpoint = 'experiments/categories', url='experiments/categories'))
+        self.admin.add_view(admin_views.ExperimentPanel(db_session,         category = category_experiments, name = lazy_gettext('Experiments'), endpoint = 'experiments/experiments', url='experiments'))
         # TODO: Until finished, do not display
         # self.admin.add_view(admin_views.SchedulerPanel(db_session,         category = category_experiments, name = lazy_gettext('Schedulers'), endpoint = 'experiments/schedulers'))
 
-        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = category_permissions, name = lazy_gettext('Create'), endpoint = 'permissions/create'))
+        self.admin.add_view(admin_views.PermissionsAddingView(db_session,  category = category_permissions, name = lazy_gettext('Create'), endpoint = 'permissions/create', url='permissions'))
         self.admin.add_view(admin_views.UserPermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('User'),   endpoint = 'permissions/user'))
         self.admin.add_view(admin_views.GroupPermissionPanel(db_session, category = category_permissions, name = lazy_gettext('Group'),  endpoint = 'permissions/group'))
         self.admin.add_view(admin_views.RolePermissionPanel(db_session,  category = category_permissions, name = lazy_gettext('Roles'),  endpoint = 'permissions/role'))
