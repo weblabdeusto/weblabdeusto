@@ -2056,10 +2056,13 @@ class HomeView(AdminAuthnMixIn, WebLabAdminIndexView):
         last_year_uses = db.frontend_admin_uses_last_year()
         geo_month = db.frontend_admin_uses_geographical_month()
         latest_uses = db.frontend_admin_latest_uses()
+        local_dir = self.app_instance.config.get_value('deployment_dir', '.')
+        directory = os.path.basename(os.path.abspath(local_dir))
         return self.render("admin/admin-index.html",
                 latest_uses=latest_uses, geo_month=geo_month,
                 last_week_uses=self._to_nvd3(last_week_uses), 
-                last_year_uses=self._to_nvd3(last_year_uses))
+                last_year_uses=self._to_nvd3(last_year_uses),
+                directory = directory)
 
     def _to_nvd3(self, data):
         formatted = [

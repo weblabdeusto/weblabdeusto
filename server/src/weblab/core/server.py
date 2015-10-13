@@ -517,7 +517,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         @self.app.context_processor
         def inject_weblab_api():
-            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale)
+            return dict(weblab_api=weblab_api, display_date=display_date, get_locale=get_locale, wl_config=cfg_manager)
 
         self.admin_app = AdministrationApplication(self.app, cfg_manager, server)
 

@@ -56,9 +56,8 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """</Files>\n"""
     """\n"""
     """# Apache redirects the regular paths to the particular directories \n"""
-    """RedirectMatch ^%(root)s$ %(root)s/weblab/client\n"""
-    """RedirectMatch ^%(root)s/$ %(root)s/weblab/client\n"""
-    """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
+    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
+    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
     """\n""")
     
@@ -142,9 +141,8 @@ def _apache_generation(directory, base_url, ports, static_directories):
 
 def _simple_httpd_generation(directory, base_url, ports, static_directories):
     proxy_paths = [
-        ('%(root)s$',                    'redirect:%(root)s/weblab/client'),
-        ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
-        ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
+        ('%(root)s$',                    'redirect:%(root)s/weblab/'),
+        ('%(root)s/$',                   'redirect:%(root)s/weblab/'),
         ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
     ]
     for key, directory in static_directories.items():
@@ -156,7 +154,7 @@ def _simple_httpd_generation(directory, base_url, ports, static_directories):
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/,' % d
     proxy_paths.append(('%(root)s/weblab/', proxy_path))
 
-    proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
+    proxy_paths.append(('',                            'redirect:%(root)s/weblab/'))
 
     if base_url in ('','/'):
         root    = ''
