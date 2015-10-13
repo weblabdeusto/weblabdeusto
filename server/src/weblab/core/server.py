@@ -24,7 +24,7 @@ import urlparse
 
 import logging
 from logging.handlers import RotatingFileHandler
-from flask import Flask, Blueprint, request, escape
+from flask import Flask, Blueprint, request, escape, url_for
 from werkzeug.contrib.fixers import ProxyFix
 
 from functools import wraps
@@ -200,21 +200,12 @@ def get_user_information():
     """
     user_information = weblab_api.ctx.user_processor.get_user_information()
     if weblab_api.ctx.user_processor.is_admin():
-        admin_url = weblab_api.ctx.core_server_url + "administration/admin/"
-
-        try:
-            user_information.admin_url = urlparse.urlparse(admin_url).path
-        except:
-            user_information.admin_url = admin_url
+        user_information.admin_url = url_for('admin.index')
     else:
         user_information.admin_url = ""
 
     if weblab_api.ctx.user_processor.is_instructor():
-        instructor_url = weblab_api.ctx.core_server_url + "administration/instructor/"
-        try:
-            user_information.instructor_url = urlparse.urlparse(instructor_url).path
-        except:
-            user_information.instructor_url = instructor_url
+        user_information.instructor_url = url_for('instructor.index')
     else:
         user_information.instructor_url = ""
 

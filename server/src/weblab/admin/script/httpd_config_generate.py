@@ -32,9 +32,9 @@ def httpd_config_generate(directory):
     # TODO: Avoid repeated paths
     # Not adding static folder support for flask-admin since it depends from version to version (requiring the user to re-deploy the http config when
     # upgrading the apache config)
-    # static_directories[base_url + '/weblab/administration/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/administration/instructor/static/'] =  data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/administration/profile/static/'] =     data_filename('weblab/admin/web/static').replace('\\','/')
+    # static_directories[base_url + '/weblab/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/instructor/static/'] =  data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/profile/static/'] =     data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/static/'] =                        data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/webclient/static/'] =              data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab/'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')

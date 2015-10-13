@@ -87,12 +87,12 @@ class AdministrationApplication(object):
         static_folder = os.path.abspath(os.path.join(os.path.dirname(web.__file__), 'static'))
 
         # Not allowed
-        @app.route('/weblab/administration/not_allowed')
+        @app.route('/weblab/not_allowed')
         def not_allowed():
             return "You are logged in, but not allowed to see this content. Please log in with a proper account"
 
         # Back
-        @app.route('/weblab/administration/back')
+        @app.route('/weblab/back')
         def back_to_client():
             return redirect(url_for('core_webclient.labs'))
    
@@ -102,7 +102,7 @@ class AdministrationApplication(object):
         # 
         # 
 
-        admin_url = '/weblab/administration/admin'
+        admin_url = '/weblab/admin'
         category_system = lazy_gettext("System")
         category_users = lazy_gettext("Users")
         category_logs = lazy_gettext("Logs")
@@ -143,7 +143,7 @@ class AdministrationApplication(object):
         #  Profile panel
         # 
 
-        profile_url = '/weblab/administration/profile'
+        profile_url = '/weblab/profile'
         self.profile = Admin(index_view = profile_views.ProfileHomeView(db_session, url = profile_url, endpoint = 'profile'),name = lazy_gettext('WebLab-Deusto profile'), url = profile_url, endpoint = profile_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
         self.profile.weblab_admin_app = self
 
@@ -172,7 +172,7 @@ class AdministrationApplication(object):
         # g) See the logs of their own students
         # h) See a panel with analytics of each of these groups (this panel is common to the administrator, and has not been implemented)
 
-        instructor_url = '/weblab/administration/instructor'
+        instructor_url = '/weblab/instructor'
         instructor_home = instructor_views.InstructorHomeView(db_session, url = instructor_url, endpoint = 'instructor')
         instructor_home.static_folder = static_folder
         self.instructor = Admin(index_view = instructor_home, name = lazy_gettext("Weblab-Deusto instructor"), url = instructor_url, endpoint = instructor_url, base_template = 'weblab-master.html', template_mode='bootstrap3')
@@ -318,13 +318,13 @@ if __name__ == '__main__':
 
     @admin_app.app.route('/')
     def index():
-        return redirect('/weblab/administration/admin')
+        return redirect('/weblab/admin')
     
     initialize_i18n(app)
 
     toolbar = DebugToolbarExtension()
     toolbar.init_app(app)
 
-    print("Open: http://localhost:5000/weblab/administration/admin/")
+    print("Open: http://localhost:5000/weblab/admin/")
     app.run(debug=True, host='0.0.0.0')
 
