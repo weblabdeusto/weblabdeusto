@@ -114,7 +114,7 @@ def compiserve_result_outputfile(uid):
     else:  #
         result = {
             'result': 'error',
-            'msg': 'file not found'
+            'msg': 'result not found'
         }
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
@@ -129,4 +129,18 @@ def compiserve_result_logfile(uid):
     :param uid:
     :return:
     """
-    pass
+
+    if True:  # TODO: IF FILE IS INDEED READY
+        file_contents = """ TEST LOG FILE """
+        response = make_response(file_contents)
+        response.headers["Content-Disposition"] = "attachment; filename=result.log"
+        response.headers["Content-Type"] = "application/octet-stream"
+    else:  #
+        result = {
+            'result': 'error',
+            'msg': 'result not found'
+        }
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+
+    return response
