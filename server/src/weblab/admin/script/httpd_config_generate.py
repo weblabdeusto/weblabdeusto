@@ -14,8 +14,10 @@
 # 
 from __future__ import print_function, unicode_literals
 import os
+import time
 from collections import OrderedDict
 from weblab.util import data_filename
+import flask_admin
 
 def weblab_httpd_config_generate(directory):
     return httpd_config_generate(directory)
@@ -42,9 +44,18 @@ def httpd_config_generate(directory):
     static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab/'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
     static_directories[base_url + '/weblab/web/pub/'] =                           os.path.join(directory, 'pub').replace('\\','/')
 
-    # TODO: override the existing files with the result of these ones
     apache_contents = _apache_generation(directory, base_url, ports, static_directories)
+    _set_contents(directory, 'httpd/apache_weblab_generic.conf', apache_contents)
     simple_httpd_contents = _simple_httpd_generation(directory, base_url, ports, static_directories)
+    _set_contents(directory, 'httpd/simple_server_config.py', simple_httpd_contents)
+
+def _set_contents(directory, filename, new_contents):
+    original_path = os.path.join(directory, filename)
+    destination_path = os.path.join(directory, filename + "-backup-" + time.strftime("%Y-%m-%d_%H-%M-%S"))
+    original_contents = open(original_path).read()
+    open(destination_path, 'w').write(original_contents)
+    open(original_path, 'w').write(new_contents)
+
 
 def _apache_generation(directory, base_url, ports, static_directories):
     apache_conf = (
