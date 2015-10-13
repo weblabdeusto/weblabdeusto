@@ -38,26 +38,21 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	
 	protected final Map<String, JSONValue> configurationMap;
 	
-	protected final ConfigurationRetriever parent;
-	
 	/**
 	 * Creates a ConfigurationRetriever.
 	 * @param configurationMap Map of JSON values which can be retrieved.
-	 * @param parent Parant retriever that this retriever belongs to. If items
-	 * are not found on this retriever's dictionary, the parents' will be checked.
 	 */
-	public ConfigurationRetriever(Map<String, JSONValue> configurationMap, ConfigurationRetriever parent){
+	public ConfigurationRetriever(Map<String, JSONValue> configurationMap){
 		this.configurationMap = configurationMap;
-		this.parent = parent;
 		
 		basicGwtInitialization();
 	}
 	
 	/**
-	 * Constructs an empty configuration retriever, with no parent.
+	 * Constructs an empty configuration retriever
 	 */
 	public ConfigurationRetriever(){
-		 this(new HashMap<String, JSONValue>(), null);
+		 this(new HashMap<String, JSONValue>());
 	}
 	
 	/**
@@ -79,17 +74,8 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	 * "this" retriever nor its parents contain such key.
 	 */
 	private JSONValue getJSONProperty(String key) {
-		
-		// Find the first Retriever to have the key, considering that the "this"
-		// retriever is potentially the first.
-		final ConfigurationRetriever owner = getPropertyFirstOwner(key);
-		
-		// If no retriever has the key, just return null
-		if(owner == null)
-			return null;
-		
 		// We found a retriever with the key, return that key
-		return owner.configurationMap.get(key);
+		return this.configurationMap.get(key);
 	}
 	
 	
@@ -105,15 +91,7 @@ public class ConfigurationRetriever implements IConfigurationRetriever {
 	 * such property.
 	 */
 	private ConfigurationRetriever getPropertyFirstOwner(String key) {
-		ConfigurationRetriever retr = this;
-		
-		// Go through the list of retrievers upwards, until we find one which
-		// has a key with the specified name
-		while(retr != null && retr.configurationMap.get(key) == null ) 
-			retr = retr.parent;
-		
-		// Return the retriever we found
-		return retr;
+		return this;
 	}
 
 	/**

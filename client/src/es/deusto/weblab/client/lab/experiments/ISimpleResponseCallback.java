@@ -12,17 +12,9 @@
 *
 */
 
-package es.deusto.weblab.client.dto;
+package es.deusto.weblab.client.lab.experiments;
 
-public class NullSessionID extends SessionID {
-
-	public NullSessionID() {
-		super("");
-	}
-
-	@Override
-	public boolean isNull() {
-		return true;
-	}
-
+public interface ISimpleResponseCallback {
+	public void onSuccess(String responseCommand);
+	public void onFailure(String errorMessage);
 }

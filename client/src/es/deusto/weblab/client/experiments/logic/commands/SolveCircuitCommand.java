@@ -27,20 +27,20 @@ public class SolveCircuitCommand extends Command {
     private final Operation [] operations;
     
     public SolveCircuitCommand(Circuit circuit) {
-	final List<Operation> lOperations = new Vector<Operation>();
-	for(final Gate gate : circuit.getUnknownOperations())
-	    lOperations.add(gate.getOperation());
-	
-	this.operations = lOperations.toArray(new Operation[]{});
+		final List<Operation> lOperations = new Vector<Operation>();
+		for(final Gate gate : circuit.getUnknownOperations())
+		    lOperations.add(gate.getOperation());
+		
+		this.operations = lOperations.toArray(new Operation[]{});
     }
 
     @Override
     public String getCommandString() {
-	String name = "SOLVE ";
-	for(final Operation operation : this.operations){
-	    name += operation.getName() + " ";
-	}
-	return name;
+		String name = "SOLVE ";
+		for(final Operation operation : this.operations){
+		    name += operation.getName() + " ";
+		}
+		return name;
     }
 
 }
