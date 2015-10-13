@@ -244,6 +244,12 @@ def get_user_permissions():
 def is_admin():
     return weblab_api.ctx.user_processor.is_admin()
 
+@weblab_api.route_api('/user/is_instructor/')
+@load_user_processor
+def is_instructor():
+    return weblab_api.ctx.user_processor.is_instructor()
+
+
 @weblab_api.route_api('/user/reservations/', methods = [ 'POST' ])
 @load_user_processor
 def reserve_experiment(experiment_id = None, client_initial_data = None, consumer_data = None):
