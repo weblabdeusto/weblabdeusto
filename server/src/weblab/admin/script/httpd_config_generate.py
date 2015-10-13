@@ -33,16 +33,16 @@ def httpd_config_generate(directory):
     static_directories = OrderedDict() #{
         # url path : disk path
     # }
-    static_directories[base_url + '/weblab/client/'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
+    static_directories[base_url + '/weblab/client'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
     flask_admin_static = os.path.join(os.path.dirname(flask_admin.__file__), 'static')
-    static_directories[base_url + '/weblab/admin/static/'] =                      flask_admin_static.replace('\\','/')
+    static_directories[base_url + '/weblab/admin/static'] =                      flask_admin_static.replace('\\','/')
     # TODO: Avoid repeated paths
-    static_directories[base_url + '/weblab/instructor/static/'] =                 data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/profile/static/'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/static/'] =                        data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/webclient/static/'] =              data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab/'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
-    static_directories[base_url + '/weblab/web/pub/'] =                           os.path.join(directory, 'pub').replace('\\','/')
+    static_directories[base_url + '/weblab/instructor/static'] =                 data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/profile/static'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/web/static'] =                        data_filename('weblab/core/static').replace('\\','/')
+    static_directories[base_url + '/weblab/web/webclient/static'] =              data_filename('weblab/core/static').replace('\\','/')
+    static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
+    static_directories[base_url + '/weblab/web/pub'] =                           os.path.abspath(os.path.join(directory, 'pub')).replace('\\','/')
 
     apache_contents = _apache_generation(directory, base_url, ports, static_directories)
     _set_contents(directory, 'httpd/apache_weblab_generic.conf', apache_contents)
@@ -71,6 +71,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """# Apache redirects the regular paths to the particular directories \n"""
     """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
+    """RedirectMatch ^%(root)s/weblab$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
     """\n""")
     
@@ -127,6 +128,12 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
     """ProxyPreserveHost On\n"""
     """ProxyVia On\n"""
+    """\n""")
+
+    for static_url, static_directory in static_directories.items():
+        apache_conf += """ProxyPass %(static_url)s !\n""" % dict(static_url=static_url)
+
+    apache_conf += (
     """\n"""
     """ProxyPass                       %(root)s/weblab/                 balancer://%(root-no-slash)s_weblab_cluster/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
     """ProxyPassReverse                %(root)s/weblab/                 balancer://%(root-no-slash)s_weblab_cluster/           stickysession=weblabsessionid\n"""
@@ -136,7 +143,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
 
     for pos, port in enumerate(ports):
         d = { 'port' : port, 'route' : 'route%s' % (pos+1), 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/ route=%(route)s\n""" % d
+        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab route=%(route)s\n""" % d
 
     apache_conf += """</Proxy>\n"""
     apache_img_dir = '/client/images'
@@ -167,6 +174,7 @@ def _simple_httpd_generation(directory, base_url, ports, static_directories):
         proxy_path += '%(route)s=http://localhost:%(port)s/weblab/,' % d
     proxy_paths.append(('%(root)s/weblab/', proxy_path))
 
+    proxy_paths.append(('%(root)s/weblab',              'redirect:%(root)s/weblab/'))
     proxy_paths.append(('',                            'redirect:%(root)s/weblab/'))
 
     if base_url in ('','/'):

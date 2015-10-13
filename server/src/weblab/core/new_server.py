@@ -310,6 +310,19 @@ class WebLabAPI(object):
         return self.context.is_admin
 
     @property
+    def is_instructor(self):
+        if hasattr(self.context, 'is_instructor'):
+            return self.context.is_instructor
+        
+        try:
+            is_instructor = self.api.is_instructor()
+        except coreExc.SessionNotFoundError:
+            is_instructor = False
+        self.context.is_instructor = is_instructor
+        return self.context.is_instructor
+
+
+    @property
     def user_agent(self):
         return getattr(self.context, 'user_agent', '<user agent not found>')
 

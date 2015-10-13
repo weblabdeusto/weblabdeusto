@@ -146,6 +146,8 @@ if (window.weblab === undefined) {
         var mDbgSendCommandResponse;
         var mDbgSendCommandResult = true; // True success, false error.
 
+        var mFileUploadURL = "";
+
         /**
          * Enables the debugging mode, in which commands do not really send anything to the server.
          * This is similar to the local-test mode.
@@ -653,6 +655,7 @@ if (window.weblab === undefined) {
                     that._setTargetURL(success.targetURL);
                     that.locale = success.locale;
                     weblab.debug = success.debug || false;
+                    mFileUploadURL = success.fileUploadURL;
                     that._setCurrentURL(success.currentURL);
                     that._setConfiguration(success.config);
                     $.each(success.scripts, function(i, scriptURL) {
@@ -919,8 +922,7 @@ if (window.weblab === undefined) {
         * get reservation identifier. Used in GWT for example for sending files.
         */
         this.getFileUploadUrl = function () {
-            var baseUrl = this.CORE_URL.substring(0, this.CORE_URL.length - "json/".length);
-            return baseUrl + "/web/upload/";
+            return mFileUploadURL;
         };
 
         /**
