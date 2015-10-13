@@ -8,7 +8,7 @@ import traceback
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 import flask
-from flask import Flask, request, redirect, escape
+from flask import Flask, request, redirect, escape, url_for
 from flask.ext.admin import Admin
 from flask.ext.admin.menu import MenuLink
 
@@ -93,8 +93,8 @@ class AdministrationApplication(object):
 
         # Back
         @app.route('/weblab/administration/back')
-        def back_to_client(): # TODO: in the future this will be the client endpoint
-            return redirect(request.url.split('/weblab/administration')[0] + '/weblab/client')
+        def back_to_client():
+            return redirect(url_for('core_webclient.labs'))
    
         ################################################
         # 
