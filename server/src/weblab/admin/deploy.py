@@ -384,7 +384,9 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/virtualbox.jpg"
     },
     "unr-physics@Physics experiments": {
-        "experiment.picture": "/img/experiments/unr.jpg"
+        "experiment.picture": "/img/experiments/unr.jpg",
+        "builtin": True,
+        "html.file": "jslabs/unr_physics.html"
     },
     "visir-fed-balance-multiple@Visir experiments": {
         "experiment.info.description": "description",
@@ -760,7 +762,7 @@ def populate_weblab_tests(engine, tests):
         ('ud-logic',                'PIC experiments')       : 'logic',
         ('ud-pld',                  'PLD experiments')       : 'xilinx',
         ('ud-pic18',                'PIC experiments')       : 'pic18',
-        ('unr-physics',             'Physics experiments')   : 'unr-physics',
+        ('unr-physics',             'Physics experiments')   : 'js',
         ('visir',                   'Visir experiments')     : 'visir',
         ('visir-html5',             'Visir experiments')     : 'js',
         ('visirtest',               'Dummy experiments')     : 'visir',
