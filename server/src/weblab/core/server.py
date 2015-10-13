@@ -513,9 +513,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         # Attempt at setting the right static folder.
         core_webclient = Blueprint('core_webclient', __name__, static_folder=static_folder)
         weblab_api.apply_routes_webclient(core_webclient, server)
-        # TODO: when in production!
-        # self.app.register_blueprint(core_webclient, url_prefix = '/weblab')
-        self.app.register_blueprint(core_webclient, url_prefix = '/weblab/web/webclient')
+        self.app.register_blueprint(core_webclient, url_prefix = '/weblab')
 
         @self.app.context_processor
         def inject_weblab_api():
