@@ -179,9 +179,9 @@ class JSClientUpgrader(Upgrader):
         # We need to update if the simple_server_config.py has a Redirect from /weblab to /weblab/client (which was done for GWT
         # but which should not be done anymore).
         contents = open(self.config_file, "r").read()
-        result = re.search(r"u'\$', u'redirect:/weblab/client", contents)
+        result = re.search(r"u'.*\$', u'redirect:.*/weblab/client'", contents)
 
-        return result is not None
+        return result is None
 
     def upgrade(self):
 
@@ -204,7 +204,8 @@ class JSClientUpgrader(Upgrader):
                 db_param = model.DbExperimentClientParameter()
                 db_param.experiment_id = db_exp.id
                 db_param.parameter_name = 'html.file'
-                db_param.parameter_value = 'native/dummy.html'
+                db_param.value = 'nativelabs/dummy.html'
+                db_param.parameter_type = 'string'
 
                 session.add(db_exp)
                 session.add(db_param)
@@ -227,7 +228,8 @@ class JSClientUpgrader(Upgrader):
                     db_builtin_param = model.DbExperimentClientParameter()
                     db_builtin_param.experiment = db_exp
                     db_builtin_param.parameter_name = 'builtin'
-                db_builtin_param.value = True
+                    db_builtin_param.parameter_type = 'bool'
+                db_builtin_param.value = "True"
                 session.add(db_builtin_param)
             session.commit()
         finally:
