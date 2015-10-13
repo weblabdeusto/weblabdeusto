@@ -30,7 +30,9 @@ def httpd_config_generate(directory):
     # }
     static_directories[base_url + '/weblab/client/'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
     # TODO: Avoid repeated paths
-    static_directories[base_url + '/weblab/administration/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
+    # Not adding static folder support for flask-admin since it depends from version to version (requiring the user to re-deploy the http config when
+    # upgrading the apache config)
+    # static_directories[base_url + '/weblab/administration/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/administration/instructor/static/'] =  data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/administration/profile/static/'] =     data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/static/'] =                        data_filename('weblab/core/static').replace('\\','/')

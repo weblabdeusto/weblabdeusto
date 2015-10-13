@@ -104,7 +104,7 @@ def _get_experiment_data(experiment_raw):
     exp['category'] = experiment_raw.category.name
     exp['type'] = experiment_raw.client.client_id
     exp['config'] = experiment_raw.client.configuration
-    exp['logo_link'] = weblab_api.ctx.core_server_url + 'client/weblabclientlab/' + exp['config'].get('experiment.picture', 'img/experiments/default.jpg')
+    exp['logo_link'] = url_for('.gwt', path='weblabclientlab/' + exp['config'].get('experiment.picture', 'img/experiments/default.jpg'))
     exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])
     exp['config_url'] = url_for('.lab_config', experiment_name=exp['name'], category_name=exp['category'], _external=True)
     exp['description'] = ""
