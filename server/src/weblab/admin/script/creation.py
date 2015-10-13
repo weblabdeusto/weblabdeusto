@@ -45,6 +45,7 @@ import weblab.db.model as model
 from weblab.db.upgrade import DbSchedulingUpgrader
 
 import weblab.admin.deploy as deploy
+from weblab.admin.script.httpd_config_generate import httpd_config_generate
 from .utils import ordered_dump
 
 import voodoo.sessions.db_lock_data as DbLockData
@@ -923,7 +924,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     if not options[Creation.NO_LAB]:
         # dummy@Dummy experiments (local)
-        deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'dummy', group_name, 200)
+        deploy.add_experiment_and_grant_on_group(Session, options[Creation.DUMMY_CATEGORY_NAME], options[Creation.DUMMY_NAME], 'js', group_name, 200, params = {
+                        'html.file': 'nativelabs/dummy.html',
+                        'builtin': True
+                    })
 
     # external-robot-movement@Robot experiments (federated)
     deploy.add_experiment_and_grant_on_group(Session, 'Robot experiments', 'external-robot-movement', 'blank', group_name, 200)
@@ -932,16 +936,41 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         deploy.add_experiment_and_grant_on_group(Session, 'Aquatic experiments', 'submarine', 'blank', group_name, 200)
 
     # visir@Visir experiments (optional)
-    if options[Creation.VISIR_SERVER] or options[Creation.ADD_FEDERATED_VISIR]:
-        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], 'visir', group_name, 1800)
+    if options[Creation.VISIR_SERVER]:
+        show_gwt_required_error("VISIR", stdout)
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], 'visir', group_name, 1800, params = {
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+            "experiment.picture": "/img/experiments/visir.jpg"
+        })
+    elif options[Creation.ADD_FEDERATED_VISIR]:
+        deploy.add_experiment_and_grant_on_group(Session, 'Visir experiments', options[Creation.VISIR_EXPERIMENT_NAME], 'blank', group_name, 1800, params = {
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#visir",
+            "experiment.picture": "/img/experiments/visir.jpg"
+        })
 
     # vm@VM experiments (optional)
     if options[Creation.VM_SERVER]:
-        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], 'vm', group_name, 200)
+        show_gwt_required_error("VM", stdout)
+        deploy.add_experiment_and_grant_on_group(Session, 'VM experiments', options[Creation.VM_EXPERIMENT_NAME], 'vm', group_name, 200, params = {
+            "experiment.picture": "/img/experiments/virtualbox.jpg"
+        })
 
     # logic@PIC experiments (optional)
-    if options[Creation.LOGIC_SERVER] or options[Creation.ADD_FEDERATED_LOGIC]:
-        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'logic', group_name, 1800)
+    if options[Creation.LOGIC_SERVER]:
+        show_gwt_required_error("Logic experiment", stdout)
+        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'logic', group_name, 1800, params = {
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+            "experiment.picture": "/img/experiments/logic.jpg"
+        })
+    elif options[Creation.ADD_FEDERATED_LOGIC]:
+        deploy.add_experiment_and_grant_on_group(Session, 'PIC experiments', 'ud-logic', 'blank', group_name, 1800, params = {
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://weblabdeusto.readthedocs.org/en/latest/sample_labs.html#ud-logic",
+            "experiment.picture": "/img/experiments/logic.jpg"
+        })
 
     ###########################################
     #
@@ -1412,7 +1441,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 open(vm_config_filename, 'w').write(cfgfile)
 
             if 'logic' in experiments_in_lab:
-                current_lab_process_config['components']['vm']['config'] = { 
+                current_lab_process_config['components']['logic']['config'] = { 
                     'logic_webcam_url' : '',
                 }
 
@@ -1841,173 +1870,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         os.mkdir(client_images_dir)
 
     images_dir = '%(directory)s/client/images/'
-
-    proxy_paths = [
-        ('%(root)s$',                    'redirect:%(root)s/weblab/client'),
-        ('%(root)s/$',                   'redirect:%(root)s/weblab/client'),
-        ('%(root)s/weblab/$',            'redirect:%(root)s/weblab/client'),
-        ('%(root)s/weblab/client$',      'redirect:%(root)s/weblab/client/index.html'),
-        ('%(root)s/weblab/client',      'file:%(war_path)s'),
-    ]
-
-    apache_conf = (
-        "\n"
-        """<LocationMatch (.*)nocache\.js$>\n"""
-        """   Header Set Cache-Control "max-age=0, no-store"\n"""
-        """</LocationMatch>\n"""
-        """\n"""
-        """<Files *.cache.*>\n"""
-        """   Header Set Cache-Control "max-age=2592000"\n"""
-        """</Files>\n"""
-        """\n"""
-        """# Apache redirects the regular paths to the particular directories \n"""
-        """RedirectMatch ^%(root)s$ %(root)s/weblab/client\n"""
-        """RedirectMatch ^%(root)s/$ %(root)s/weblab/client\n"""
-        """RedirectMatch ^%(root)s/weblab/$ %(root)s/weblab/client\n"""
-        """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
-        """\n"""
-        """Alias %(root)s/weblab/client                                    %(war_path)s\n"""
-        """\n"""
-        """<Location %(root)s/weblab/>\n"""
-        """    <IfModule authz_core_module>\n"""
-        """        Require all granted\n"""
-        """    </IfModule>\n"""
-        """\n"""
-        """    <IfModule !authz_core_module>\n"""
-        """        Order allow,deny\n"""
-        """        Allow from All\n"""
-        """    </IfModule>\n"""
-        """</Location>\n"""
-        """\n"""
-        """<Directory "%(directory)s">\n"""
-        """    Options Indexes\n"""
-        """\n"""
-        """    <IfModule authz_core_module>\n"""
-        """        Require all granted\n"""
-        """    </IfModule>\n"""
-        """\n"""
-        """    <IfModule !authz_core_module>\n"""
-        """        Order allow,deny\n"""
-        """        Allow from All\n"""
-        """    </IfModule>\n"""
-        """</Directory>\n"""
-        """\n"""
-        """<Directory "%(war_path)s">\n"""
-        """    Options Indexes\n"""
-        """\n"""
-        """    <IfModule authz_core_module>\n"""
-        """        Require all granted\n"""
-        """    </IfModule>\n"""
-        """\n"""
-        """    <IfModule !authz_core_module>\n"""
-        """        Order allow,deny\n"""
-        """        Allow from All\n"""
-        """    </IfModule>\n"""
-        """</Directory>\n"""
-        """\n"""
-        """# Apache redirects the requests retrieved to the particular server, using a stickysession if the sessions are based on memory\n"""
-        """ProxyPreserveHost On\n"""
-        """ProxyVia On\n"""
-        """\n"""
-        """ProxyPass                       %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/json/                 balancer://%(root-no-slash)s_weblab_cluster_json/           stickysession=weblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/web/                  balancer://%(root-no-slash)s_weblab_cluster_web/            stickysession=weblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/web/                  balancer://%(root-no-slash)s_weblab_cluster_web/            stickysession=weblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/login/json/           balancer://%(root-no-slash)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/login/json/           balancer://%(root-no-slash)s_weblab_cluster_login_json/     stickysession=loginweblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/login/web/            balancer://%(root-no-slash)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/login/web/            balancer://%(root-no-slash)s_weblab_cluster_login_web/      stickysession=loginweblabsessionid\n"""
-        """ProxyPass                       %(root)s/weblab/administration/       balancer://%(root-no-slash)s_weblab_cluster_administration/ stickysession=weblabsessionid lbmethod=bybusyness\n"""
-        """ProxyPassReverse                %(root)s/weblab/administration/       balancer://%(root-no-slash)s_weblab_cluster_administration/ stickysession=weblabsessionid\n"""
-        "\n")
-
-
-    apache_conf += "\n"
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_json>\n"""
-
-    proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports:
-        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/json route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/json/,' % d
-    proxy_paths.append(('%(root)s/weblab/json/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_web>\n"""
-
-    proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports:
-        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/web route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/web/,' % d
-    proxy_paths.append(('%(root)s/weblab/web/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_administration>\n"""
-
-    proxy_path = "proxy-sessions:weblabsessionid:"
-    for core_configuration in ports:
-        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/administration route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/administration,' % d
-    proxy_paths.append(('%(root)s/weblab/administration', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_json>\n"""
-
-    proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports:
-        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/json route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/json/,' % d
-    proxy_paths.append(('%(root)s/weblab/login/json/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-    apache_conf += """<Proxy balancer://%(root-no-slash)s_weblab_cluster_login_web>\n"""
-
-    proxy_path = "proxy-sessions:loginweblabsessionid:"
-    for core_configuration in ports:
-        d = { 'port' : core_configuration['json'], 'route' : core_configuration['route'], 'root' : '%(root)s' }
-        apache_conf += """    BalancerMember http://localhost:%(port)s/weblab/login/web route=%(route)s\n""" % d
-        proxy_path += '%(route)s=http://localhost:%(port)s/weblab/login/web/,' % d
-    proxy_paths.append(('%(root)s/weblab/login/web/', proxy_path))
-
-    apache_conf += """</Proxy>\n"""
-    apache_conf += """\n"""
-
-    proxy_paths.append(('',                            'redirect:%(root)s/weblab/client/index.html'))
-
-    if base_url in ('','/'):
-        apache_root    = ''
-    else:
-        apache_root    = base_url
-
     apache_img_dir = '/client/images'
 
-    apache_root_without_slash = apache_root[1:] if apache_root.startswith('/') else apache_root
-
-    server_conf_dict = { 'root' : apache_root,  'root-no-slash' : apache_root_without_slash.replace('/','_'),
-                'directory' : os.path.abspath(directory).replace('\\','/'),
-                'war_path' : data_filename('war').replace('\\','/') }
-
-    apache_conf = apache_conf % server_conf_dict
-    proxy_paths = eval(repr(proxy_paths) % server_conf_dict)
-    proxy_paths_str = "PATHS = [ \n"
-    for proxy_path in proxy_paths:
-        proxy_paths_str += "    %s,\n" % repr(proxy_path)
-    proxy_paths_str += "]\n"
-
-    open(simple_server_conf_path, 'w').write( proxy_paths_str )
-
-    apache_conf_path = os.path.join(httpd_dir, 'apache_weblab_generic.conf')
-    open(apache_conf_path, 'w').write( apache_conf )
-
-    creation_results[CreationResult.APACHE_FILE] = apache_conf_path
+    httpd_files = httpd_config_generate(directory)
+    creation_results[CreationResult.APACHE_FILE] = httpd_files['apache']
 
     if sys.platform.find('win') == 0:
         apache_windows_conf = """# At least in Debian based distributions as Debian itself
@@ -2161,4 +2027,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     creation_results[CreationResult.END_PORT] = current_port
     return creation_results
 
+def show_gwt_required_error(experiment, stdout):
+    print("", file=stdout)
+    print("*******IMPORTANT*******", file=stdout)
+    print("So as to work with {0}, right now you need to compile also the WebLab-Deusto GWT client. Go to weblabdeusto/server/src and run: 'python develop.py --compile-gwt' and then run 'python setup.py install'. If you have already done this in the past, you can skip this message.".format(experiment), file=stdout)
+    print("*******IMPORTANT*******", file=stdout)
+    print("", file=stdout)
 

@@ -44,17 +44,24 @@ def httpd_config_generate(directory):
     static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
     static_directories[base_url + '/weblab/web/pub'] =                           os.path.abspath(os.path.join(directory, 'pub')).replace('\\','/')
 
+    files = {}
     apache_contents = _apache_generation(directory, base_url, ports, static_directories)
-    _set_contents(directory, 'httpd/apache_weblab_generic.conf', apache_contents)
+    files['apache'] = _set_contents(directory, 'httpd/apache_weblab_generic.conf', apache_contents)
     simple_httpd_contents = _simple_httpd_generation(directory, base_url, ports, static_directories)
-    _set_contents(directory, 'httpd/simple_server_config.py', simple_httpd_contents)
+    files['simple'] = _set_contents(directory, 'httpd/simple_server_config.py', simple_httpd_contents)
+    
+    # TODO: support nginx
+
+    return files
 
 def _set_contents(directory, filename, new_contents):
     original_path = os.path.join(directory, filename)
     destination_path = os.path.join(directory, filename + "-backup-" + time.strftime("%Y-%m-%d_%H-%M-%S"))
-    original_contents = open(original_path).read()
-    open(destination_path, 'w').write(original_contents)
+    if os.path.exists(original_path):
+        original_contents = open(original_path).read()
+        open(destination_path, 'w').write(original_contents)
     open(original_path, 'w').write(new_contents)
+    return os.path.abspath(original_path)
 
 
 def _apache_generation(directory, base_url, ports, static_directories):
