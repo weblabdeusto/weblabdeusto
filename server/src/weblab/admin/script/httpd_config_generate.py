@@ -20,7 +20,10 @@ from weblab.util import data_filename
 import flask_admin
 
 def weblab_httpd_config_generate(directory):
-    return httpd_config_generate(directory)
+    print("Generating HTTPd configuration files... ", end='')
+    result = httpd_config_generate(directory)
+    print("[done]")
+    return result
 
 def httpd_config_generate(directory):
     debugging_variables = {}
@@ -33,7 +36,7 @@ def httpd_config_generate(directory):
     static_directories = OrderedDict() #{
         # url path : disk path
     # }
-    static_directories[base_url + '/weblab/client'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
+    static_directories[base_url + '/weblab/client'] =                            data_filename('weblab/core/static/oldclient').replace('\\','/') # \ => / for Windows
     flask_admin_static = os.path.join(os.path.dirname(flask_admin.__file__), 'static')
     static_directories[base_url + '/weblab/admin/static'] =                      flask_admin_static.replace('\\','/')
     # TODO: Avoid repeated paths
@@ -41,7 +44,7 @@ def httpd_config_generate(directory):
     static_directories[base_url + '/weblab/profile/static'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/static'] =                        data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/static'] =                            data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/gwt/weblabclientlab'] =               data_filename('war/weblabclientlab/').replace('\\','/')
+    static_directories[base_url + '/weblab/gwt/weblabclientlab'] =               data_filename('war/weblabclientlab').replace('\\','/')
     static_directories[base_url + '/weblab/web/pub'] =                           os.path.abspath(os.path.join(directory, 'pub')).replace('\\','/')
 
     files = {}
