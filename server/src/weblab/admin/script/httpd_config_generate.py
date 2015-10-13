@@ -41,7 +41,7 @@ def httpd_config_generate(directory):
     static_directories[base_url + '/weblab/profile/static'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/static'] =                        data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/webclient/static'] =              data_filename('weblab/core/static').replace('\\','/')
-    static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
+    static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab'] = data_filename('war/weblabclientlab/').replace('\\','/')
     static_directories[base_url + '/weblab/web/pub'] =                           os.path.abspath(os.path.join(directory, 'pub')).replace('\\','/')
 
     files = {}

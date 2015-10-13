@@ -52,18 +52,6 @@ def _build_requirements():
     shutil.rmtree(os.path.join('weblabdeusto_data', 'war', 'WEB-INF'), True)
     print "[done]"
 
-    GWT_CLIENT_LOCATION = os.path.abspath(os.path.join('..','..','gwt-client'))
-    GWT_WAR_LOCATION = os.path.join(GWT_CLIENT_LOCATION,'war')
-    compile_client(GWT_WAR_LOCATION, GWT_CLIENT_LOCATION)
-
-    # In any case, the client was compiled in the past or just now. Let's copy it here.
-    print "Copying...",
-    shutil.rmtree(os.path.join('weblabdeusto_data', 'gwt-war'), True)
-    shutil.copytree(GWT_WAR_LOCATION, os.path.join('weblabdeusto_data', 'gwt-war'))
-    shutil.rmtree(os.path.join('weblabdeusto_data', 'gwt-war', 'WEB-INF'), True)
-    print "[done]"
-
-
 class WebLabBuild(_build_py):
     def run(self):
         if not self.dry_run:
@@ -76,11 +64,6 @@ class WebLabBuild(_build_py):
                 if os.path.exists(lib_war):
                     shutil.rmtree(lib_war)
                 shutil.copytree(os.path.join('weblabdeusto_data', 'war'), lib_war)
-                gwt_lib_war = os.path.join(self.build_lib, 'weblabdeusto_data', 'gwt-war')
-                if os.path.exists(gwt_lib_war):
-                    shutil.rmtree(gwt_lib_war)
-                shutil.copytree(os.path.join('weblabdeusto_data', 'gwt-war'), gwt_lib_war)
-
             else:
                 print "Skipping client compilation."
 
@@ -110,11 +93,6 @@ for dirpath, dirnames, filenames in os.walk('weblabdeusto_data'):
     # made.
     if dirpath.startswith(os.path.join('weblabdeusto_data','war')):
         newdir = dirpath.replace(os.path.join('weblabdeusto_data','war'), os.path.join('..','..','client','war'))
-        if os.path.exists(newdir):
-            filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
-            data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])
-    elif dirpath.startswith(os.path.join('weblabdeusto_data','gwt-war')):
-        newdir = dirpath.replace(os.path.join('weblabdeusto_data','gwt-war'), os.path.join('..','..','gwt-client','war'))
         if os.path.exists(newdir):
             filenames = [ f for f in os.listdir(newdir) if os.path.isfile(os.path.join(newdir, f)) ]
             data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames ]])

@@ -69,15 +69,6 @@ def gwt(path = ''):
         return _process_index()
     
     # Otherwise, just
-    base_directory = data_filename('gwt-war')
-    return send_from_directory(base_directory, path)
-
-# TODO: Remove me whenever the new client is deployed
-@weblab_api.route_webclient('/client/<path:path>')
-def old_gwt_client(path = ''):
-    if path in ('', 'index.html', 'index.htm'):
-        path = 'index.html'
-
     base_directory = data_filename('war')
     return send_from_directory(base_directory, path)
 
