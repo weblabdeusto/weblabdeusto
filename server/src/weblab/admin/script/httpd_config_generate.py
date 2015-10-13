@@ -17,6 +17,9 @@ import os
 from collections import OrderedDict
 from weblab.util import data_filename
 
+def weblab_httpd_config_generate(directory):
+    return httpd_config_generate(directory)
+
 def httpd_config_generate(directory):
     debugging_variables = {}
     execfile(os.path.join(directory, 'debugging.py'), debugging_variables)
@@ -29,20 +32,19 @@ def httpd_config_generate(directory):
         # url path : disk path
     # }
     static_directories[base_url + '/weblab/client/'] =                            data_filename('war').replace('\\','/') # \ => / for Windows
+    flask_admin_static = os.path.join(os.path.dirname(flask_admin.__file__), 'static')
+    static_directories[base_url + '/weblab/admin/static/'] =                      flask_admin_static.replace('\\','/')
     # TODO: Avoid repeated paths
-    # Not adding static folder support for flask-admin since it depends from version to version (requiring the user to re-deploy the http config when
-    # upgrading the apache config)
-    # static_directories[base_url + '/weblab/admin/static/'] =       data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/instructor/static/'] =  data_filename('weblab/admin/web/static').replace('\\','/')
-    static_directories[base_url + '/weblab/profile/static/'] =     data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/instructor/static/'] =                 data_filename('weblab/admin/web/static').replace('\\','/')
+    static_directories[base_url + '/weblab/profile/static/'] =                    data_filename('weblab/admin/web/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/static/'] =                        data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/webclient/static/'] =              data_filename('weblab/core/static').replace('\\','/')
     static_directories[base_url + '/weblab/web/webclient/gwt/weblabclientlab/'] = data_filename('gwt-war/weblabclientlab/').replace('\\','/')
     static_directories[base_url + '/weblab/web/pub/'] =                           os.path.join(directory, 'pub').replace('\\','/')
 
     # TODO: override the existing files with the result of these ones
-    print(_apache_generation(directory, base_url, ports, static_directories))
-    print(_simple_httpd_generation(directory, base_url, ports, static_directories))
+    apache_contents = _apache_generation(directory, base_url, ports, static_directories)
+    simple_httpd_contents = _simple_httpd_generation(directory, base_url, ports, static_directories)
 
 def _apache_generation(directory, base_url, ports, static_directories):
     apache_conf = (
