@@ -129,9 +129,9 @@ def _get_experiment(experiment_raw):
     """
     exp = _get_experiment_data(experiment_raw.experiment)
     exp['time'] = experiment_raw.time_allowed
-    if experiment_raw.time_allowed > 3600:
+    if experiment_raw.time_allowed >= 3600:
         display_time = time.strftime("%H:%M:%S", time.gmtime(experiment_raw.time_allowed))
-    elif experiment_raw.time_allowed > 60:
+    elif experiment_raw.time_allowed >= 60:
         display_time = time.strftime("%M:%S", time.gmtime(experiment_raw.time_allowed))
     else:
         display_time = unicode(experiment_raw.time_allowed)
