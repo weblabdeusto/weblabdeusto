@@ -5,7 +5,7 @@
 	<link rel="stylesheet" href="instrumentframe/instrumentframe.css" />
 	<script type="text/javascript" src="jquery-2.1.3.min.js"></script>
 	<script type="text/javascript" src="visir.js"></script>
-	<script type="text/javascript" src="../jslib/weblabjs.js"></script>
+	<script type="text/javascript" src="../../weblabjs/weblab.v1.js"></script>
 	<script>
 
 	$(parent.document).find('iframe[name=wlframe]').hide();
@@ -37,7 +37,7 @@
 
 		$(parent.document).find('iframe[name=wlframe]').show();
 	}
-	Weblab.setOnStartInteractionCallback(function(){ visir.Load(init); });
+	weblab.onStart(function(){ visir.Load(init); });
 </script>
 </head>
 <body>

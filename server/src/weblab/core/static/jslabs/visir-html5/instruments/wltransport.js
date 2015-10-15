@@ -15,9 +15,9 @@ visir.WLTransport.prototype.Connect = function()
 {
 	trace("Login");
 
-	Weblab.sendCommand("login",
-		function(response){this._session = $.parseJSON(response).sessionkey;}.bind(this),
-		this.Error.bind(this));
+	weblab.sendCommand("login")
+		.done(function(response){this._session = $.parseJSON(response).sessionkey;}.bind(this))
+		.fail(this.Error.bind(this));
 }
 
 visir.WLTransport.prototype.Request = function(request, callback)
@@ -30,7 +30,8 @@ visir.WLTransport.prototype.Request = function(request, callback)
 
 	request = '<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>';
 
-	Weblab.sendCommand(request, function(response) {
+	weblab.sendCommand(request)
+        .done(function(response) {
 			this.SetWorking(false);
 			if (typeof callback == "function")
 			{
@@ -42,7 +43,8 @@ visir.WLTransport.prototype.Request = function(request, callback)
 					callback(ret);
 				}
 			}
-		}.bind(this), this.Error.bind(this));
+		}.bind(this))
+        .fail(this.Error.bind(this));
 }
 
 visir.WLTransport.prototype._ReadResponseProtocolHeader = function(response)
@@ -90,7 +92,8 @@ visir.WLTransport.prototype.LoadCircuit = function(file, callback) {
 	reader.onload = (function(cirFile) {
 		return function(circuit) {
 			trace("Loaded: " + circuit.target.result);
-			Weblab.sendCommand("load " + circuit.target.result, null, this.Error.bind(this));
+			weblab.sendCommand("load " + circuit.target.result)
+                .fail(this.Error.bind(this));
 
 			callback(circuit.target.result);
 		}.bind(this);
@@ -102,7 +105,8 @@ visir.WLTransport.prototype.LoadCircuit = function(file, callback) {
 visir.WLTransport.prototype.SaveCircuit = function(circuit) {
 
 	trace("Saved: " + circuit);
-	Weblab.sendCommand("save " + circuit, null, this.Error.bind(this));
+	weblab.sendCommand("save " + circuit)
+        .fail(this.Error.bind(this));
 
 	var blob = new Blob([circuit], {type: "application/xml;charset=UTF-8"});
 	saveAs(blob, "experiment.cir");
