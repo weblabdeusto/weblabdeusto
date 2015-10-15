@@ -171,6 +171,11 @@ class JSClientUpgrader(Upgrader):
         self.config_file = os.path.join(directory, 'httpd', 'simple_server_config.py')
         self.db_conf = DbConfiguration(configuration_files, configuration_values)
 
+    @classmethod
+    def get_priority(self):
+        """ After database """
+        return 5
+
     def check_updated(self):
         """
         Check whether we need to apply this updater.
