@@ -402,7 +402,8 @@ CONFIG_JS = {
         "experiment.picture": "/img/experiments/visir.jpg"
     },
     "visir-html5@Visir experiments": {
-        "html.file": "visir-html5/visir.html",
+        "html.file": "jslabs/visir-html5/visir.html",
+        "builtin": True,
         "provide.file.upload": False,
         "cssHeight": "520",
         "cssWidth": "805",

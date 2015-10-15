@@ -1,0 +1,260 @@
+.unselectable {
+	-webkit-user-select: none; /* Chrome/Safari */        
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* IE10+ */
+	-o-user-select: none;
+	user-select: none;
+}
+
+.ni_osc {
+	position: relative;
+	border: 1px solid black;
+	height: 550px;
+	width: 1000px;
+	overflow: hidden;
+}
+
+.ni_osc .knob_outer {
+	margin: 3px;
+	padding: 6px;
+	border-radius: 50%;
+	display: inline-block;
+	background-image: -webkit-radial-gradient(65% 65%, circle cover, rgba(255,255,248,1) 0%, rgba(220,216,205,1) 50%, rgba(136, 130, 127, 1) 100%);
+	background-image: -moz-radial-gradient(65% 65%, circle cover, rgba(255,255,248,1) 0%, rgba(220,216,205,1) 50%, rgba(136, 130, 127, 1) 100%);
+}
+
+.ni_osc .knob_inner {
+	position: relative;
+	height: 55px;
+	width: 55px;
+	border-radius: 50%;
+	background-image: -webkit-radial-gradient(35% 35%, circle cover, rgba(255,255,248,1) 0%, rgba(220,216,205,1) 50%, rgba(88,83,80,1) 100%);
+	background-image: -moz-radial-gradient(35% 35%, circle cover, rgba(255,255,248,1) 0%, rgba(220,216,205,1) 50%, rgba(88,83,80,1) 100%);
+}
+
+.ni_osc .knob_inner .arrow {
+	position: absolute;
+	top: 2px;
+	left: 26px;
+	width: 2px;
+	height: 18px;
+	background-color: blue;
+}
+
+.ni_osc .graph {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	display: block;
+	background-color: black;
+}
+
+.ni_osc .graph .left {
+	position: absolute;
+	height: 490px;
+	width: 30px;
+	top: 30px;
+}
+
+/* make the draggable box a bit bigger than the arrow */
+.ni_osc .graph .left .offsetbox {
+	position: absolute;
+	height: 40px;
+	width: 40px;
+	margin-top: -20px;
+	right: 0px;
+}
+
+.ni_osc .graph .left .offset {
+	position: absolute;
+	height: 0;
+	width: 0;
+	right: 0;
+	top: 15px;
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-left: 25px solid white;
+	margin-top: -10px;
+}
+
+.ni_osc .graph .left .offset span
+{
+	position: relative;
+	top: -9px; left: -22px;
+	color: black;
+	font-family: sans-serif;
+	font-size: 10pt;
+}
+
+.ni_osc .graph .left .offsetbox.ch1 .offset {
+	border-left: 25px solid white;
+}
+
+.ni_osc .graph .left .offsetbox.ch2 .offset {
+	border-left: 25px solid #9095f9;
+}
+
+.ni_osc .graph .left .offsetbox.ch1 {
+	top: 245px;
+}
+
+.ni_osc .graph .left .offsetbox.ch2 {
+	top: 245px;
+}
+
+/* XXX: would be better to layout this without absolute positioning */
+.ni_osc .graph .right {
+	position: absolute;
+	width: 30px;
+	height: 490px;
+	top: 30px;
+	left: 630px;
+}
+
+.ni_osc .graph .right .offsetbox {
+	position: absolute;
+	height: 40px;
+	width: 40px;
+	margin-top: -20px;
+	/*margin-left: -20px;*/
+	left: 0px;
+	/*background: red;*/
+}
+
+.ni_osc .graph .right .offset {
+	position: absolute;
+	height: 0;
+	width: 0;
+	left: 0;
+	top: 15px;
+	border-top: 15px solid transparent;
+	border-bottom: 15px solid transparent;
+	border-right: 25px solid green;
+	margin-top: -10px;
+}
+
+.ni_osc .graph .right .offset span
+{
+	position: relative;
+	top: -9px; left: 14px;
+	color: black;
+	font-family: sans-serif;
+	font-size: 10pt;
+}
+
+.ni_osc .graph .right .offsetbox.trigger {
+	top: 245px;
+}
+
+
+.ni_osc .graph .renderarea
+{
+	position: relative;
+	width: 600px; height: 490px;
+	top: 30px;
+	left: 30px;
+}
+
+.ni_osc .graph canvas {
+	position:absolute;
+	top: 0; left: 0;
+}
+
+.ni_osc .graph .clickarea {
+	position:absolute;
+	top: 0; left: 0;
+	width: 600px; height: 490px;;
+}
+
+
+.ni_osc .control {
+	position: absolute;
+	right: 0;
+	height: 100%;
+	display: inline-block;
+	width: 340px;
+	background-color: #d3d0c7;
+	text-align: center;
+	font-size: 8pt;
+	font-family: sans-serif;
+}
+
+.ni_osc .control .buttonlist
+{
+	padding: 3px;
+	margin-bottom: 5px;
+	/*background-color: red;*/
+}
+
+.ni_osc .control .buttonlist button
+{
+	height: 30px;
+	width: 100px;
+	background-color: #d3d0c7;
+	box-shadow: inset 3px 3px 6px white, inset 0 0 6px black; /* not perfect in mozilla */
+}
+
+.ni_osc .control .panel	{
+	position: relative;
+	display: inline-block;
+	margin: 3px;
+	border: 1px solid black;
+	width: 100px;
+	height: 220px;
+	vertical-align:top;
+	padding-top: 7px;
+}
+
+.ni_osc .control .paneltitle	{
+	position: absolute;
+	top: -7px;
+	left: 7px;
+	background-color: #d3d0c7;
+	width: 55px;
+}
+
+.ni_osc .control .panel	.innerpanel {
+	display: inline-block;
+	vertical-align:top;
+	width: 85px;
+}
+
+.ni_osc .control .panel	.sideslider {
+	position: relative;
+	display: inline-block;
+	width: 4px;
+	height: 191px;
+	height: 97%;
+	background: white;
+	border: 1px solid black;
+	margin-right: 4px;
+}
+
+.ni_osc .control .panel .sideslider .thumb {
+	position: absolute;
+	width: 10px;
+	height: 5px;
+	border: 1px solid black;
+	top: 30px;
+	background-color: #d3d0c7;
+	left: -4px;
+}
+
+.ni_osc .control .panel	select {
+	width: 80px;
+}
+
+.ni_osc .control .horzbuttonlist button	{
+	width: 28px;
+	margin: 0px;
+	background-color: #d3d0c7;
+}
+
+.ni_osc .control .panel .label {
+	margin: 3px 3px 0px 3px;
+}
+
+.ni_osc .control .menubuttonpanel button {
+	width: 50px;
+	height: 40px;
+}
