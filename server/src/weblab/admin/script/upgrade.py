@@ -247,6 +247,21 @@ class JSClientUpgrader(Upgrader):
 
         print("[Upgrader]: UPGRADE FINISHED.")
 
+class PubDirectoryUpgrader(Upgrader):
+    def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
+        super(PubDirectoryUpgrader, self).__init__(directory, configuration_files, configuration_values, *args, **kwargs)
+        self.pub_dir = os.path.join(directory, 'pub')
+
+    @classmethod
+    def get_priority(self):
+        return 6
+
+    def check_updated(self):
+        return os.path.exists(self.pub_dir)
+
+    def upgrade(self):
+        os.mkdir(self.pub_dir)
+        httpd_config_generate(self.directory)
 
 class ConfigurationExperiments2db(Upgrader):
     def __init__(self, directory, configuration_files, configuration_values, *args, **kwargs):
