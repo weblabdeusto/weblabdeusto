@@ -4,6 +4,7 @@ import threading
 
 from flask.ext.admin import expose, AdminIndexView, BaseView
 from flask.ext.admin.contrib.sqla import ModelView
+from flask.ext.admin.contrib.fileadmin import FileAdmin
 
 admin_request = threading.local()
 
@@ -45,4 +46,6 @@ class WebLabBaseView(AdminRequestInjector, BaseView):
 class WebLabModelView(AdminRequestInjector, ModelView):
     pass
 
+class WebLabFileAdmin(AdminRequestInjector, FileAdmin):
+    pass
 

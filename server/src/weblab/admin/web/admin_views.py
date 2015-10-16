@@ -44,7 +44,7 @@ from flask.ext.admin.contrib.sqla.filters import FilterEqual
 from flask.ext.admin import expose
 from flask.ext.admin.form import Select2Field
 from flask.ext.admin.model.form import InlineFormAdmin
-from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView
+from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView, WebLabFileAdmin
 
 import weblab.configuration_doc as configuration_doc
 import weblab.db.model as model
@@ -85,6 +85,9 @@ class AdministratorView(AdminAuthnMixIn, WebLabBaseView):
 
 
 class AdministratorModelView(AdminAuthnMixIn, WebLabModelView):
+    pass
+
+class AdministratorFileAdmin(AdminAuthnMixIn, WebLabFileAdmin):
     pass
 
 SAME_DATA = object()

@@ -71,6 +71,7 @@ class AdministrationApplication(object):
         app.json_encoder = CustomJSONEncoder
         
         self.cfg_manager = cfg_manager
+        pub_directory = os.path.join(os.path.abspath(self.cfg_manager.get('deployment_dir', '')), 'pub')
         self.config = cfg_manager
         db.initialize(cfg_manager)
 
@@ -113,6 +114,7 @@ class AdministrationApplication(object):
 
         self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings', url='settings'))
         self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth', url='auth'))
+        self.admin.add_view(admin_views.AdministratorFileAdmin(pub_directory, category = category_system, name = lazy_gettext('Public directory'), endpoint = 'system/pub', url='pub'))
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_users, name = lazy_gettext('Add multiple users'),  endpoint = 'users/multiple'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users', url='users'))
