@@ -1874,6 +1874,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
     httpd_files = httpd_config_generate(directory)
     creation_results[CreationResult.APACHE_FILE] = httpd_files['apache']
+    apache_conf_path = httpd_files['apache']
 
     if sys.platform.find('win') == 0:
         apache_windows_conf = """# At least in Debian based distributions as Debian itself
