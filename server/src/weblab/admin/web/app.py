@@ -114,7 +114,10 @@ class AdministrationApplication(object):
 
         self.admin.add_view(admin_views.SystemProperties(db_session, category = category_system, name = lazy_gettext('Settings'), endpoint = 'system/settings', url='settings'))
         self.admin.add_view(admin_views.AuthsPanel(db_session, category = category_system, name = lazy_gettext('Authentication'), endpoint = 'system/auth', url='auth'))
-        self.admin.add_view(admin_views.AdministratorFileAdmin(pub_directory, category = category_system, name = lazy_gettext('Public directory'), endpoint = 'system/pub', url='pub'))
+        if os.path.exists(pub_directory):
+            self.admin.add_view(admin_views.AdministratorFileAdmin(pub_directory, category = category_system, name = lazy_gettext('Public directory'), endpoint = 'system/pub', url='pub'))
+        else:
+            print("WARNING: %s not found. Create it to upload files to it." % pub_directory)
 
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_users, name = lazy_gettext('Add multiple users'),  endpoint = 'users/multiple'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users', url='users'))
