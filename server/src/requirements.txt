@@ -42,7 +42,7 @@ Flask-Admin==1.2.0
 # 
 # alembic is used for upgrading the database from version to version
 # 
-alembic==0.7.6
+alembic==0.8.3
 
 # 
 # networkx is used for generating communities and plagiarism detection
