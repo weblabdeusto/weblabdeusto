@@ -188,6 +188,8 @@
     {{ super() }}
     <script type="text/javascript">
         var LABS_JSON = "{{ url_for('.labs_json') }}";
+        var UPDATE_PREFERENCES_URL = "{{ url_for('json.get_user_preferences') }}";
+        var LABS_ORDER = "{{ weblab_api.current_user_preferences.labs_sort_method }}";
     </script>
 
     <script type="text/javascript" src="{{ url_for('.static', filename="webclient/labs.js") }}"></script>

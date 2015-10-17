@@ -179,6 +179,27 @@ def list_experiments(exp_name = None, cat_name = None):
 def check_user_session():
     return True
 
+@weblab_api.route_api('/user/preferences/', methods = ['GET', 'POST'])
+@load_user_processor
+def get_user_preferences():
+    """
+    :rtype: weblab.db.models.DbUserPreferences
+    """
+    if request.method == 'POST':
+        login = weblab_api.ctx.user_session['db_session_id'].username
+        try:
+            preferences = request.json
+            if preferences is None or not isinstance(preferences, dict):
+                return "No JSON found in your request", 400
+        except ValueError:
+            return "No JSON found in your request", 400
+        weblab_api.db.update_preferences(login, preferences)
+        return "ok"
+    else:
+        login = weblab_api.ctx.user_session['db_session_id'].username
+        return weblab_api.db.get_user_preferences(login)
+
+
 @weblab_api.route_api('/user/')
 @load_user_processor
 def get_user():

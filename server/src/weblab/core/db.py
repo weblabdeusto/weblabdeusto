@@ -112,6 +112,37 @@ class DatabaseGateway(object):
     def get_user(self, login):
         return _current.session.query(model.DbUser).filter_by(login=login).first()
 
+    @with_session
+    def get_user_preferences(self, login):
+        user = _current.session.query(model.DbUser).filter_by(login=login).first()
+        if user is None:
+            return model.DbUserPreferences()
+
+        all_preferences = user.preferences
+        if len(all_preferences) == 0:
+            return model.DbUserPreferences()
+
+        return all_preferences[0]
+
+    @with_session
+    def update_preferences(self, login, preferences):
+        user = _current.session.query(model.DbUser).filter_by(login=login).first()
+        if user is None:
+            return
+        
+        if len(user.preferences) == 0:
+            user_preferences = model.DbUserPreferences(user)
+            user.preferences.append(user_preferences)
+            _current.session.add(user_preferences)
+        else:
+            user_preferences = user.preferences[0]
+        
+        for key, value in preferences.items():
+            if key in model.DbUserPreferences.KEYS and hasattr(user_preferences, key):
+                setattr(user_preferences, key, value)
+
+        _current.session.commit()
+
     @logged()
     def list_clients(self):
         """Lists the ExperimentClients """

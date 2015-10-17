@@ -367,15 +367,17 @@ class DbUserPreferences(Base):
     id            = Column(Integer, primary_key = True)
     user_id       = Column(Integer, ForeignKey('User.id'), nullable = False, index = True, unique = True)
     # Set of user preferences. Only one register per user
-    labs_sort_method = Column(Unicode(32), nullable = False)
+    labs_sort_method = Column(Unicode(32), nullable = False, default = 'alphabetical', server_default = 'alphabetical')
     # "alphabetical"; "date"; "uses"; "categories"
 
     user = relationship("DbUser", backref=backref("preferences", order_by=id, cascade='all,delete'))
 
-    def __init__(self, user = None, labs_sort_method = 'alphabetical'):
-        super(DbUserAuth, self).__init__()
+    KEYS = ['labs_sort_method']
+
+    def __init__(self, user = None):
+        super(DbUserPreferences, self).__init__()
         self.user = user
-        self.labs_sort_method = labs_sort_method
+        self.labs_sort_method = 'alphabetical'
 
     def __repr__(self):
         return "DbUserPreferences(%r, %r)" % (self.user, self.labs_sort_method)

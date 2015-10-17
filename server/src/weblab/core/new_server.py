@@ -298,6 +298,27 @@ class WebLabAPI(object):
             return user
 
     @property
+    def current_user_preferences(self):
+        """
+        :rtype: weblab.db.models.DbUserPreferences
+        """
+        current_user_preferences = getattr(self.context, 'current_user_preferences', None)
+        if current_user_preferences is not None:
+            return current_user_preferences
+
+        if getattr(self.context, 'current_user_preferences_not_found', False):
+            return None
+        
+        try:
+            preferences = self.api.get_user_preferences()
+        except coreExc.SessionNotFoundError:
+            self.context.current_user_preferences_not_found = True
+            return None
+        else:
+            self.context.current_user_preferences = preferences
+            return preferences
+
+    @property
     def is_admin(self):
         if hasattr(self.context, 'is_admin'):
             return self.context.is_admin

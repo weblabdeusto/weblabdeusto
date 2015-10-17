@@ -42,9 +42,10 @@ function LabsScreenController($scope, $http) {
         any_category_selected: false
     };
     $scope.experiment_list = {
-        order: 'name',
+        order: get_labs_order(LABS_ORDER),
         loading: true
     };
+
     
     // 
     // Scope methods
@@ -57,8 +58,37 @@ function LabsScreenController($scope, $http) {
     // 
     // Implementation
     // 
+    function get_labs_order(db_order) {
+        if (db_order == 'alphabetical')
+            return 'name';
+        if (db_order == 'uses')
+            return '-user_uses';
+        if (db_order == 'categories')
+            return 'category';
+        if (db_order == 'date')
+            return '-latest_use_epoch';
+        return 'name';
+    }
+
+    function get_db_order(js_order) {
+        if (js_order == 'name')
+            return 'alphabetical';
+        if (js_order == '-user_uses')
+            return 'uses';
+        if (js_order == 'category')
+            return 'categories';
+        if (js_order == '-latest_use_epoch')
+            return 'date';
+        return null;
+    }
+
     function set_order(order) {
         $scope.experiment_list.order = order;
+
+        var new_order = get_db_order(order);
+        if (new_order != null) {
+            $http.post(UPDATE_PREFERENCES_URL, { 'labs_sort_method' : new_order }); 
+        }
     }
 
     function filterCategory(category) {
