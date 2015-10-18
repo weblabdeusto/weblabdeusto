@@ -4,7 +4,7 @@ Remote laboratory development
 =============================
 
 .. note::
-    **This section is being written at this time (April 2013)**
+    **This section is being written at this time (October 2015)**
 
 .. contents:: Table of Contents
 
@@ -18,7 +18,7 @@ laboratories.
 
 There are two major approaches for using WebLab-Deusto:
 
-#. Managed laboratories (prefered)
+#. Managed laboratories
 #. Unmanaged laboratories
 
 Which are described below.
@@ -111,13 +111,10 @@ For these reasons, using the managed approach is desirable, while we maintain
 this other approach for those laboratories which are far more difficult to
 develop.
 
-Future
-^^^^^^
+Which one should I use?
+^^^^^^^^^^^^^^^^^^^^^^^
 
-At the time of this writing (March 2013), we might create a new type of
-unmanaged laboratory based on web frameworks (e.g., ASP.NET, Flask, Django,
-etc.). :ref:`Contact us <contact>` if you are interested on more information or if this would be
-a priority for you.
+It depends on your background. 
 
 Managed laboratories
 --------------------
