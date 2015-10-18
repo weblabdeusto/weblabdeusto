@@ -4,6 +4,12 @@ services:
   - redis-server
 python: 2.7
 install:
+    - echo "Setting mysql params to get around 'mysql has gone away' errors"
+    - mysql -e "SET GLOBAL sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES'"
+    - mysql -e "SET GLOBAL wait_timeout = 36000;"
+    - mysql -e "SHOW VARIABLES LIKE 'wait_timeout';"
+    - mysql -e "SET GLOBAL max_allowed_packet = 67108864;"
+    - mysql -e "SHOW VARIABLES LIKE 'max_allowed_packet';"
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
     - npm install -g mocha
