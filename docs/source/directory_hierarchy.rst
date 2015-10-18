@@ -384,16 +384,16 @@ If we look at the ``configuration.yml`` file, we can appreciate the following::
       runner: run-xmlrpc.py
       host: 127.0.0.1
       processes:
-        exp_instance:
+        exp_process:
           components:
             experiment1:
               class: experiments.dummy.DummyExperiment
               protocols:
-                port: null
+                port: 10002
                 supports: xmlrpc
               type: experiment
 
-There are two hosts: ``exp_host`` and ``core_host``. The ``core_host`` contains the Laboratory server (in the ``laboratory1`` *process*) and the Core server (in the ``core_process1`` *process*). The ``exp_host`` has a single *process* which has a single *component* which is the ``experiment1``. 
+There are two hosts: ``exp_host`` and ``core_host``. The ``core_host`` contains the Laboratory server (in the ``laboratory1`` *process*) and the Core server (in the ``core_process1`` *process*). The ``exp_host`` has a single *process* which has a single *component* which is the ``experiment1``.  Since ``experiment1`` states that it only ``supports: xmlrpc``, then the Laboratory Server will use XML-RPC to contact it.
 
 Notes on addressing
 ~~~~~~~~~~~~~~~~~~~
