@@ -90,11 +90,6 @@ Ok, so everything is working for the *admin* user. What about creating a class
 of 20 students who can access only the dummy, and other class who can access the
 federated laboratories?
 
-In this section, the process will be described using the web administration panel. 
-If you are using an embedded system or a remote system where you can't access it 
-using the web application, :ref:`refer to the equivalent section using CLI tools 
-<first_steps_cli>`.
-
 Using the *admin* user, you'll see the settings button in the top-right corner. 
 Click on it:
 
@@ -201,47 +196,6 @@ you will see who has accessed when:
 By using the "Add filter", you may search by user, date, or similar.
 
 
-Monitoring users
-~~~~~~~~~~~~~~~~
-
-You can also check in real time who is using the system, what is the position of
-the queues, etc., by using the *weblab-admin.py monitor* command. While the system
-is started and running, you can call from other terminal::
-
-  $ weblab-admin.py monitor example -e
-  dummy@Dummy experiments
-  external-robot-movement@Robot experiments
-
-To see the active laboratories. If you want to see who is using a particular
-laboratory, you can call::
-
-  $ weblab-admin.py monitor example -u "dummy@Dummy experiments"
-  Server 1
-            LOGIN                    STATUS    UPS_SESSID   RESERV_ID
-            user1            reserved_local   4efeaf0a... Session ID: '4efeaf0a-abe6-407f-be9f-82f1271510df'...
-            user5                waiting: 0   1e38293d... Session ID: '1e38293d-8775-4740-9516-060a71af8675'...
-
-Waiting: 0 means that this user is in the first slot of the queue. Other users
-with the same or lower priorities will be in positions 1, 2, 3, etc. If you need
-further information, you can pass the -f flag::
-
-  $ weblab-admin.py monitor example -u "dummy@Dummy experiments" -f
-  Server 1
-            LOGIN                    STATUS    UPS_SESSID   RESERV_ID
-            user1            reserved_local   4efeaf0a-abe6-407f-be9f-82f1271510df    Session ID: '4efeaf0a-abe6-407f-be9f-82f1271510df'
-            user5                waiting: 0   1e38293d-8775-4740-9516-060a71af8675    Session ID: '1e38293d-8775-4740-9516-060a71af8675'
-
-Furthermore, you can even kick a particular user (such as user1 in this case,
-who is using the system), and check how the queue advances::
-
-  $ weblab-admin.py monitor example -b user1
-  Server 1
-  $ weblab-admin.py monitor example -u "dummy@Dummy experiments" -f
-  Server 1
-            LOGIN                    STATUS    UPS_SESSID   RESERV_ID
-            user5            reserved_local   1e38293d-8775-4740-9516-060a71af8675    Session ID: '1e38293d-8775-4740-9516-060a71af8675'
-
-
 Customizing the deployment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -267,7 +221,14 @@ This example will be run in other port (8001), so you can start it at the same
 time as the other deployment without problems. Just go to
 `http://localhost:8001/ <http://localhost:8001/>`_ instead, log in with user
 *administrator* and password *secret*, and see how there is another laboratory
-called *logic*.
+called *logic*. Many of the fields can always be changed with the administration
+panel. For example, in System and then Settings you can add a demo account, change
+the URL and logo of the school or provide a Google Analytics code.
+
+.. image:: /_static/weblab_admin_settings.png
+   :width: 650 px
+   :align: center
+
 
 Other examples, such as using Virtual Machines, VISIR, etc., are documented in
 the :ref:`next section <installation_further>`.

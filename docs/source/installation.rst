@@ -5,17 +5,20 @@ Installation
 
 Installing the core of WebLab-Deusto is pretty straightforward. It does not have
 many requirements. However, supporting more features and tuning the performance
-requires installing more software infrastructure.
+requires installing more software infrastructure. This section covers only the first
+steps.
 
 .. note::
 
     If you're familiar with ``Python``, ``git``, ``setuptools`` and
-    ``virtualenv``, and you have these tools installed in addition to ``javac``,
-    all you need to do (in a ``virtualenv``) is::
+    ``virtualenv``, all you need to do (in a ``virtualenv``) is::
         
         pip install git+https://github.com/weblabdeusto/weblabdeusto.git
 
-    And go :ref:`to the next section <first_steps>`.
+    And go :ref:`to the next section <first_steps>`. Please note that, given
+    the size of the repository, it's better if you keep the weblabdeusto git
+    repository downloaded in your computer so you can call ``git pull`` to 
+    upgrade faster.
 
     Otherwise, please read this section.
 
@@ -41,7 +44,7 @@ example), is the expected output. Finally, sometimes the output is too long, so
 Obtaining WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-At the time of this writing, there are two ways to obtain WebLab-Deusto:
+There are two ways to obtain WebLab-Deusto:
 
 #. Downloading it from github using git. That's the **recommended** version, since that allows you to upgrade WebLab-Deusto automatically in the future, and even contribute easily. However, it requires installing git. 
     * This process is detailed in :ref:`sec-download-git`.
@@ -60,26 +63,18 @@ Installing the requirements
 #. Install Python 2.7:
     * In Linux and Mac OS X, Python is probably installed.
     * In Microsoft Windows, download it `from here <http://www.python.org/download/>`_. Do not download Python 3.x (WebLab-Deusto relies on Python 2.7).
-#. Install the Java Development Kit:
-    * In Linux, use the repositories of your distribution. In Ubuntu, you can install the openjdk-6-jdk package.
-    * In Mac OS X, install `XCode <https://developer.apple.com/xcode/>`_.
-    * In Microsoft Windows, refer to the `official site <http://www.oracle.com/technetwork/java/javase/downloads/index.html>`_.
 #. Once installed, put both in the system path:
     * In Linux and Mac OS X, this is probably done by default.
-    * In Microsoft Windows, go to Control Panel -> System -> Advanced -> Environment variables -> (down) PATH -> edit and append: ``;C:\Python27\;C:\Python27\Scripts\;``, as well as the Java path (which depends on the particular version, it is usually somewhere in ``C:\Program Files\Java\jdkSOMETHING\bin``). Additionally, in Microsoft Windows you'll need to create a new environment variable in the same menu, called ``JAVA_HOME`` and which points to ``C:\Program Files\Java\jdkSOMETHING`` -without bin-).
+    * In Microsoft Windows, go to Control Panel -> System -> Advanced -> Environment variables -> (down) PATH -> edit and append: ``;C:\Python27\;C:\Python27\Scripts\;``.
 #. At this step, you should be able to open a terminal (in Microsoft Windows, click on the Start menu -> run -> type ``cmd``) and test that both tools are installed.
 
 Run the following (don't take into account the particular versions, these are just examples)::
 
   $ python --version 
 
-  Python 2.7.3
+  Python 2.7.6
 
-  $ javac -version
-
-  javac 1.6.0_24
-
-5. Install setuptools following `the instructions <http://pypi.python.org/pypi/setuptools#installation-instructions>`_. It should be as simple as downloading and executing a file.
+4. Install ``setuptools`` following `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_ (in Linux distributions you will find ``setuptools`` in the repositories and sometimes they come by default). It should be as simple as downloading and executing a file.
 #. Once setuptools are installed, you can install ``pip``, ``virtualenv`` and ``virtualenvwrapper`` (``virtualenvwrapper-win`` in Microsoft Windows). 
 
 In Linux systems you can get them in the package repositories (e.g., in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running::
@@ -88,7 +83,7 @@ In Linux systems you can get them in the package repositories (e.g., in Ubuntu t
 
   $ easy_install virtualenv
 
-  IN UNIX:
+  IN UNIX (if you can't find virtualenvwrapper in the repository of your Linux distribution):
   $ easy_install virtualenvwrapper 
 
   IN WINDOWS:
@@ -100,15 +95,15 @@ Run the following (don't take into account the particular versions)::
 
   $ pip --version
 
-  pip 1.0 from /usr/lib/python2.7/dist-packages (python 2.7)
+  pip 1.5.4 from /usr/lib/python2.7/dist-packages (python 2.7)
 
   $ virtualenv --version
 
-  1.7.1.2
+  1.11.4
 
   $ mkvirtualenv --version
 
-  1.7.1.2
+  1.11.4
 
 Troubleshooting
 ```````````````
@@ -135,7 +130,7 @@ here:
 
 If you still have problems with ``mkvirtualenv``, try uninstalling it (``pip
 uninstall virtualenvwrapper``) and installing only the ``virtualenv`` package.
-If do this, you will need to do::
+If you do this, you will need to do::
 
   $ virtualenv weblab_env
   New python executable in weblab_env/bin/python
@@ -181,27 +176,24 @@ And then, install WebLab-Deusto::
   [...]
   Finished processing dependencies for weblabdeusto==5.0
 
-The first time you run this, it will take several minutes, and it will require a
-lot of available RAM memory. If you ever change anything on the client or you
-upgrade the system through git, and you want to re-install it, go to the
-``client`` directory and run ``./gwtc.sh`` in UNIX systems or ``gwtc`` in Microsoft
-Windows environments.
-
 Once the process is over, you can test the installation by running::
 
   $ weblab-admin.py --version
-  5.0
+  5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
 
 **Note for UNIX systems:** The command ``weblab-admin`` does not work on Microsoft
 Windows itself, and therefore the command ``weblab-admin.py`` is provided for both
 frameworks. However, in UNIX you're safe to use ``weblab-admin`` wherever we
-establish ``weblab-admin.py`` in the whole documentation.
+use ``weblab-admin.py`` in the whole documentation.
 
 If it displays 5.0 or higher, then you have successfully installed the system in
 that virtual environment. Virtual environments in Python are environments where
 a set of libraries (with particular versions) are installed. For instance, you
 may have different virtual environments for different applications relying on
-different versions of libraries.
+different versions of libraries. The long code (i.e., 1ac2e2...) refers to the 
+currently installed version, and then the date of the latest change in the 
+WebLab-Deusto repository. You should :ref:`upgrade the system <upgrade>` from time 
+to time to obtain the latest features.
 
 Whenever you open a new terminal, you'll find that ``weblab-admin.py`` is not
 installed. However, whenever you activate the environment where you installed
@@ -210,12 +202,12 @@ do the following in UNIX systems::
 
     user@machine:~$ workon weblab
     (weblab) user@machine:~$ weblab-admin.py --version
-    5.0
+    5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
 
 Or the following in Microsoft Windows systems::
 
     C:\Users\John\Desktop> workon weblab
     (weblab) C:\Users\John\Desktop> weblab-admin.py --version
-    5.0
+    5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
 
 Now you can continue with the :ref:`first steps <first_steps>`.

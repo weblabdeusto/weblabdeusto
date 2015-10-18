@@ -1947,7 +1947,6 @@ class SystemPropertiesForm(Form):
             'description' : lazy_gettext("Entity customization: logo, links, etc.:"),
             'values' : [
                 ImageField(field='host_entity_image', image='.logo_regular'),
-                ImageField(field='host_entity_image_small', image='.logo_small'),
                 ClientField(field='host_entity_link', key='host.entity.link'),
                 ClientField(field='contact_email', key='admin.email'),
                 ServerField(field='admin_emails', key='admin.emails'),
@@ -1985,10 +1984,6 @@ class SystemProperties(AdministratorView):
     @expose('/logos/regular')
     def logo_regular(self):
         return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_PATH])
-
-    @expose('/logos/small')
-    def logo_small(self):
-        return logo_impl(self.app_instance.config[configuration_doc.CORE_LOGO_SMALL_PATH])
 
     def _store_image(self, field, config_property):
         image_path = self.app_instance.config[config_property]
