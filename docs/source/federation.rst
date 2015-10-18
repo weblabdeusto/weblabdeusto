@@ -65,6 +65,7 @@ Examples
 
 Other WebLab-Deusto deployments:
 
+* `PUCSP <http://weblabduino.pucsp.br/weblab/>`_: http://weblabduino.pucsp.br/weblab/
 * `UNED <http://www.uned.es/>`_: http://weblab.ieec.uned.es/
 * `Slovenská technická univerzita <http://www.kirp.chtf.stuba.sk/>`_: http://kirp50.chtf.stuba.sk/
 * `Colegio Urdaneta (secondary school) <http://www.colegiourdaneta.com>`_: http://weblab.colegiourdaneta.com/

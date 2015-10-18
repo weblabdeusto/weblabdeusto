@@ -23,42 +23,6 @@ User interface
    :align: center
 
 
-
-Virtual Machines
-^^^^^^^^^^^^^^^^
-
-.. image:: /_static/screenshots/weblab_vm.png
-   :width: 700 px
-   :align: center
-
-
-Mobile
-^^^^^^
-
-.. image:: /_static/screenshots/login-mobile.png
-   :width: 350 px
-   :align: center
-
-.. image:: /_static/screenshots/experiment-list-mobile.png
-   :width: 350 px
-   :align: center
-
-
-.. image:: /_static/screenshots/mobile-logic.png
-   :width: 700 px
-   :align: center
-
-.. image:: /_static/screenshots/robot_kindle.png
-   :width: 700 px
-   :align: center
-
-
-.. image:: /_static/screenshots/fpga_kindle.png
-   :width: 700 px
-   :align: center
-
-
-
 Tools
 -----
 
@@ -66,6 +30,14 @@ Administration panel
 ^^^^^^^^^^^^^^^^^^^^
 
 .. image:: /_static/screenshots/weblab-admin-panel.png
+   :width: 700 px
+   :align: center
+
+.. image:: /_static/screenshots/weblab-admin-panel2.png
+   :width: 700 px
+   :align: center
+
+.. image:: /_static/screenshots/weblab-admin-panel3.png
    :width: 700 px
    :align: center
 

@@ -22,4 +22,4 @@ electronics...). What WebLab-Deusto does is:
 
 If you want to see examples of running laboratories, try the demo version at:
 
-   http://www.weblab.deusto.es/weblab/
+   https://weblab.deusto.es/weblab/
