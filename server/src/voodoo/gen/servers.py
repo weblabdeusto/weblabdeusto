@@ -57,9 +57,9 @@ def xmlrpc():
         fault = xmlrpclib.Fault(remote_exc_type, repr(exc_instance.args))
         log.error(__name__, 'Error on %s' % method_name)
         log.error_exc(__name__)
-        return xmlrpclib.dumps(fault)
+        return xmlrpclib.dumps(fault, allow_none = True)
 
-    return xmlrpclib.dumps( (result,))
+    return xmlrpclib.dumps( (result,), allow_none = True)
 
 @_methods.route('/<method_name>', methods = ['GET', 'POST'])
 @show_exceptions

@@ -991,12 +991,12 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         global_config['hosts']['exp_host']['runner'] = 'run-xmlrpc.py'
         global_config['hosts']['exp_host']['host'] = '127.0.0.1'
         global_config['hosts']['exp_host']['processes'] = {}
-        global_config['hosts']['exp_host']['processes']['exp_instance'] = { 'components' : {}}
-        global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1'] = {
+        global_config['hosts']['exp_host']['processes']['exp_process'] = { 'components' : {}}
+        global_config['hosts']['exp_host']['processes']['exp_process']['components']['experiment1'] = {
                 'type' : 'experiment',
                 'class' : 'experiments.dummy.DummyExperiment',
             }
-        xmlrpc_experiment_config = global_config['hosts']['exp_host']['processes']['exp_instance']['components']['experiment1']
+        xmlrpc_experiment_config = global_config['hosts']['exp_host']['processes']['exp_process']['components']['experiment1']
 
 
     for core_n in range(1, options[Creation.CORES] + 1):
@@ -1310,7 +1310,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                 lab_config_args = { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category_name' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : dummy_id }
 
                 if options[Creation.XMLRPC_EXPERIMENT]:
-                    lab_config_args['instance'] = 'exp_instance'
+                    lab_config_args['instance'] = 'exp_process'
                     lab_config_args['host']  = 'exp_host'
                 else:
                     lab_config_args['instance'] = laboratory_instance_name
@@ -1354,9 +1354,13 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
 
             for dummy_id in experiments_in_lab.get('dummy', []):
                 if options[Creation.XMLRPC_EXPERIMENT]:
+                    xmlrpc_experiment_port = options[Creation.XMLRPC_EXPERIMENT_PORT]
+                    if not xmlrpc_experiment_port:
+                        xmlrpc_experiment_port = current_port
+                        current_port += 1
                     xmlrpc_experiment_config['protocols'] = {
                         'supports' : 'xmlrpc',
-                        'port' : options[Creation.XMLRPC_EXPERIMENT_PORT],
+                        'port' : xmlrpc_experiment_port,
                     }
                 else:
                     experiment_config = current_lab_process_config['components']['experiment%s' % dummy_id]
@@ -1485,7 +1489,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             server_names.append('experiment')
 
         if options[Creation.XMLRPC_EXPERIMENT]:
-            server_names.append('exp_instance')
+            server_names.append('exp_process')
 
     for server_name in server_names:
         logging_file = (
@@ -1801,9 +1805,9 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             """    \n"""
             """    def before_shutdown():\n""")
         if options[Creation.QUIET]:
-            """        pass\n"""
+            xmlrpc_launch_script += """        pass\n"""
         else:
-            """        print("Stopping servers...")\n"""
+            xmlrpc_launch_script += """        print("Stopping servers...")\n"""
         xmlrpc_launch_script += """    \n"""
 
         xmlrpc_launch_script += (
@@ -1820,7 +1824,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         xmlrpc_launch_script += ("""                ),\n"""
         """                {\n""")
 
-        xmlrpc_launch_script += """                    "exp_instance" : "logs%sconfig%slogging.configuration.exp_instance.txt",\n""" % (os.sep,os.sep)
+        xmlrpc_launch_script += """                    "exp_process" : "logs%sconfig%slogging.configuration.exp_process.txt",\n""" % (os.sep,os.sep)
 
         xmlrpc_launch_script += (
         """                },\n"""

@@ -159,7 +159,7 @@ class XmlRpcClient(AbstractClient):
 
         short_transport = TimeoutTransport()
         short_transport.set_timeout(60.0)
-        self.short_server = xmlrpclib.Server(self.url, transport = short_transport)
+        self.short_server = xmlrpclib.Server(self.url, transport = short_transport, allow_none = True)
 
     def _call(self, name, *args):
         if name == 'test_me':
