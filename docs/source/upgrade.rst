@@ -30,20 +30,7 @@ following::
  $ cd /opt/weblabdeusto/
  $ git pull
 
-Then, the code changes will be there, but they will still not be deployed.
-Therefore, go to the client directory, and re-compile it::
-
- $ cd client
- $ ant gwtc
- # If that fails, run this on Linux:
- $ ./gwtc.sh
- # or this on Windows:
- $ gwtc
-
-This may take several minutes. Once compiled, you will have the compiled code in
-the ``war`` directory, but it still has not been deployed.
-
-Now you need to deploy both the client code and the server code, by running::
+Then, the code changes will be there, but they will still not be deployed.  Now you need to deploy both the code, by running::
 
  # Go wherever you downloaded it
  $ cd /opt/weblabdeusto/
@@ -56,9 +43,7 @@ Now you need to deploy both the client code and the server code, by running::
     old files are left there. Most of the times this step is not mandatory, but from time
     to time, it is required.
 
-This will install all the new requirements, will copy the client code and the
-server files to the deployment directory. From this point, you may create new
-WebLab-Deusto instances using the new deployment, by running::
+This will install all the new requirements, will copy everything to the deployment directory. From this point, you may create new WebLab-Deusto instances using the new deployment, by running::
 
  $ weblab-admin.py create sample
 
@@ -90,6 +75,10 @@ So as to use the automatic upgrader, first stop your current instance, and then
 run the following::
 
  $ weblab-admin.py upgrade sample
+
+If you have made further changes (such as the location of the virtualenv, or the directory where the deployment is), you need to reconfigure the paths, by running the following and restart the web server (e.g., Apache)::
+
+ $ weblab-admin.py httpd-config-generate sample
 
 Once finished, you will be able to start again your system::
 
