@@ -10,5 +10,5 @@ if version_filename:
     except:
         git_version = None
     if git_version and 'version' in git_version:
-        __version__ = "{0} - {1}".format(base_version, git_version.get('version'))
+        __version__ = "{0} - {1} ({2})".format(base_version, git_version.get('version'), git_version.get('date'))
 __ALL__ = []
