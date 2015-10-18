@@ -230,5 +230,19 @@ the URL and logo of the school or provide a Google Analytics code.
    :align: center
 
 
+Moving the deployment to a different directory or reinstalling WebLab-Deusto
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Say you have installed WebLab-Deusto in a location and you need to move
+to a different directory. All the web server configuration files will be pointing
+with absolute paths to the old directory. The easiest way to override the 
+existing HTTPd configuration and make it point to the proper paths is running::
+
+   $ weblab-admin.py httpd-config-generate sample
+   Generating HTTPd configuration files... [done]
+   $ 
+
+After running this, restarting it and restarting the web server should be enough.
+
 Other examples, such as using Virtual Machines, VISIR, etc., are documented in
 the :ref:`next section <installation_further>`.
