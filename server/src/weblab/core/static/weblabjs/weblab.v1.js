@@ -848,20 +848,26 @@ if (window.weblab === undefined) {
             this.sendCommand = function (command) {
                 var p = $.Deferred();
 
-                if(mDbgFakeServerRunning) {
-                    try {
-                        var response = mDbgFakeServer.sendCommand(command);
-                        p.resolve(response);
+                // Do this deferredly to be closer to reality.
+                // (Particularly, so that in debugging the context is asynchronous, to avoid, for instance
+                // $apply issues when used with AngularJS).
+
+                setTimeout(function() {
+                    if (mDbgFakeServerRunning) {
+                        try {
+                            var response = mDbgFakeServer.sendCommand(command);
+                            p.resolve(response);
+                        }
+                        catch (e) {
+                            p.reject(e);
+                        }
+                    } else {
+                        if (mDbgSendCommandResult)
+                            p.resolve(mDbgSendCommandResponse);
+                        else
+                            p.reject(mDbgSendCommandResponse);
                     }
-                    catch(e) {
-                        p.reject(e);
-                    }
-                } else {
-                    if (mDbgSendCommandResult)
-                        p.resolve(mDbgSendCommandResponse);
-                    else
-                        p.reject(mDbgSendCommandResponse);
-                }
+                }, 500);
 
                 return p.promise();
             };
