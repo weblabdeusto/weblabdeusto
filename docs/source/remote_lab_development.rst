@@ -33,6 +33,10 @@ Which are described below.
 Managed laboratories
 ^^^^^^^^^^^^^^^^^^^^
 
+.. image:: /_static/weblab_arch_managed.png
+   :width: 500 px
+   :align: center
+
 Managed laboratories are those laboratories developed with the API of
 WebLab-Deusto. They basically have two parts:
 
@@ -59,8 +63,8 @@ Therefore, managed laboratories count with the following advantages:
   internal topology of the campus side network). All commands submitted through
   WebLab-Deusto will go through pure HTTP, crossing firewalls and proxies.
 * All the **information is stored** in the database by default, so it is possible to
-  perform learning analytics. By default, administrators and instructors be able
-  to track what exact commands were submitted by the student. This process
+  perform learning analytics. By default, administrators and instructors can
+  track what exact commands were submitted by the student. This process
   however does not add a relevant latency, since instead of storing each command
   whenever is sent, it adds it to a memory queue (which is a fast operation),
   and other thread is continuosly retrieving information from the queue and
@@ -71,12 +75,14 @@ Therefore, managed laboratories count with the following advantages:
   addressed, since the WebLab-Deusto internals will forward the message to the
   laboratory used by the current user.
 
-Given the amount of technologies used in remote laboratories, WebLab-Deusto not
-only supports but even provides libraries to support multiple programming
-languages. 
+WebLab-Deusto supports and provides libraries for multiple programming languages. 
 
 Unmanaged laboratories
 ^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: /_static/weblab_arch_unmanaged.png
+   :width: 500 px
+   :align: center
 
 However, not everybody in the remote laboratory community is comfortable with
 developing a remote laboratory from scratch by programming. For this reason,
@@ -84,37 +90,36 @@ WebLab-Deusto also supports unmanaged laboratories, which are those where the
 communication is not sent through WebLab-Deusto, but directly to the final
 server.
 
-The two clear examples of this are:
+A typical unmanaged environment works as follows:
+#. The user selects a laboratory in WebLab-Deusto
+#. When the user attempts to use a laboratory, WebLab-Deusto contacts the laboratory. Some secret is exchanged between both WebLab-Deusto and the laboratory, and WebLab-Deusto provides the user with a URL which contains a secret so the laboratory can identify the user.
+#. From that point, the user is redirected to that URL and he interacts directly with the laboratory.
 
-#. **Virtual Machines** based remote laboratories. A VirtualBox (at this moment)
-   virtual machine created by the experiment developer is loaded. The virtual
-   machine might run a Linux or Windows system, which will be accessed through
-   SSH, VNC or Remote Desktop. WebLab-Deusto guarantees that the server will be
-   executed.
-#. **LabVIEW Remote Panels**. They were developed but they caused too many problems.
-   If you are really interested, :ref:`contact us <contact>` and we can create more
-   documentation on their support in WebLab-Deusto. But at this stage, it simply
-   does not make too much sense. It is much better if you support :ref:`LabVIEW
-   as managed <managed_library_server_labview>`.
+This way, WebLab-Deusto still manages the reservation process, authentication (i.e., who is the user), authorization (i.e., in what groups are the user), scheduling (i.e., the queue of users) or user tracking (but only when did the user enter, not what was submitted by the user). However, the final communications are not managed by WebLab-Deusto.
 
 The main **drawbacks** of unmanaged laboratories is that:
 
-* They might cause problems with **proxies or firewalls**, since the communication
-  is managed by the final system.
-* The **user tracking** functionality is decreased: WebLab-Deusto still registers
-  who uses what and when, but not what the user did during the session.
-* The **load balancing** functionality is decreased or even removed.
+* They might cause problems with **proxies or firewalls**, since the communication is managed by the final system. Improper configurations (i.e., establishing a wrong port for the web server) could cause problems.
+* The **user tracking** functionality is decreased: WebLab-Deusto still registers who uses what and when, but not what the user did during the session.
 
 Additionally, this is more complex to deploy for system administrators.
 
-For these reasons, using the managed approach is desirable, while we maintain
-this other approach for those laboratories which are far more difficult to
-develop.
+However, this approach suits very well to developers who are used to develop web applications in other technologies (such as PHP, ASP.NET or so), who might not want to have a pure JavaScript code and Server code as in the managed approach.
 
 Which one should I use?
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-It depends on your background. 
+It depends on your background. WebLab-Deusto supports both approaches because none of them is suitable for all publics:
+
+#. If you are familiar with developing JavaScript and want to have the laboratory as something isolated in your network (so you do not need to deal with unauthenticated users or requests, with efficient approaches to know if the user has finished the session or not, etc.), then the managed approach is better for you.
+#. If you are familiar with developing complete web applications (e.g., in web frameworks such as Flask, Django or other technologies such as Node.js, PHP, ASP.NET or so), you might prefer to deploy the remote laboratory using one of these technologies and be in charge of the complete stack (e.g., managing who has access, checking when the user disconnected, etc.).
+
+In any case, both approaches are compatible in the same WebLab-Deusto server, so you might manage laboratories developed in each technology.
+
+.. image:: /_static/weblab_arch_both.png
+   :width: 500 px
+   :align: center
+
 
 Managed laboratories
 --------------------
