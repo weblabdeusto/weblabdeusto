@@ -7,6 +7,7 @@ import sys
 import time
 import json
 import random
+import zipfile
 import urlparse
 import datetime
 import traceback
@@ -35,6 +36,8 @@ from wtforms.validators import Email, Regexp, Required, NumberRange, URL
 from sqlalchemy.sql.expression import desc
 from sqlalchemy.orm import joinedload
 
+from werkzeug import secure_filename
+
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
 from flask.ext.wtf import Form
@@ -43,6 +46,7 @@ from flask.ext.wtf.file import FileField, FileAllowed
 from flask.ext.admin.contrib.sqla.filters import FilterEqual
 from flask.ext.admin import expose
 from flask.ext.admin.form import Select2Field
+from flask.ext.admin.actions import action
 from flask.ext.admin.model.form import InlineFormAdmin
 from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView, WebLabFileAdmin
 
@@ -87,8 +91,34 @@ class AdministratorView(AdminAuthnMixIn, WebLabBaseView):
 class AdministratorModelView(AdminAuthnMixIn, WebLabModelView):
     pass
 
-class AdministratorFileAdmin(AdminAuthnMixIn, WebLabFileAdmin):
+class BaseAdministratorFileAdmin(AdminAuthnMixIn, WebLabFileAdmin):
     pass
+
+class AdministratorFileAdmin(BaseAdministratorFileAdmin):
+    @action("unzip", lazy_gettext("Unzip"), confirmation = lazy_gettext("Are you sure you want to unzip this file? Every file with the same name will be overriden"))
+    def unzip(self, files):
+        errors = False
+        for filename in files:
+            if not filename.lower().endswith('.zip'):
+                flash(gettext('File "%(name)s" does not have a .zip extension.', name=filename), 'error')
+                errors = True
+        if errors:
+            return
+        for filename in files:
+            try:
+                with zipfile.ZipFile(os.path.join(self.base_path, secure_filename(filename))) as zfile:
+                    target_directory = os.path.join(self.base_path, os.path.dirname(secure_filename(filename)))
+                    try:
+                        zfile.extractall(target_directory)
+                    except Exception as e:
+                        flash(gettext('Unable to extract file: %(name)s: %(error)s', name=filename, error=unicode(e)), 'error')
+            except zipfile.BadZipfile:
+                flash(gettext('Unable to extract file: %(name)s: it is not a zip file', name=filename), 'error')
+
+        if files:
+            return_dir = os.path.dirname(secure_filename(files[0]))
+            if return_dir:
+                return redirect(url_for('.index', path=return_dir))
 
 SAME_DATA = object()
 
