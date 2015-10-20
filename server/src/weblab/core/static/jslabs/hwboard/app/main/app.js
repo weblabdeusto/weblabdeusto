@@ -20,7 +20,8 @@ angular
     ])
     .run( function($rootScope) {
         try {
-            $rootScope.VIRTUALMODEL = Weblab.getProperty("virtualmodel");
+            $rootScope.VIRTUALMODEL = "watertank"; // hard-coded for now. getProperty is currently not supported.
+            // $rootScope.VIRTUALMODEL = weblab.getProperty("virtualmodel");
         } catch(ex) {
             console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
             $rootScope.VIRTUALMODEL = "";
