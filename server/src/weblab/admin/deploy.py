@@ -166,7 +166,8 @@ CONFIG_JS = {
         "provide.file.upload": True,
         "height": "600",
         "width": "800",
-        "experiment.picture": "/img/experiments/xilinx.jpg"
+        "experiment.picture": "/img/experiments/xilinx.jpg",
+        "builtin": True
     },
     "incubator@Farm experiments": {
         "html": "This lab is disabled at this moment. Go to <a target=\"_blank\" href=\"http://130.206.138.18/lastexp/\">the original site</a> to see the archived results.",

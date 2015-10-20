@@ -19,5 +19,8 @@
     "angular-mocks": "^1.3.0"
   },
   "appPath": "app",
-  "moduleName": "hwboardApp"
+  "moduleName": "hwboardApp",
+  "resolutions": {
+    "angular": "1.4.7"
+  }
 }
