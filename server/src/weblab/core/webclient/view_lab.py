@@ -29,7 +29,7 @@ def lab(category_name, experiment_name):
         # Now obtain the current experiment
         try:
             experiment = _get_experiment_data(weblab_api.api.get_reservation_experiment_info())
-            reservation_status = weblab_api.get_reservation_status()
+            reservation_status = weblab_api.api.get_reservation_status()
         except SessionNotFoundError:
             session.pop('reservation_id', None)
             session.pop('back_url', None)
