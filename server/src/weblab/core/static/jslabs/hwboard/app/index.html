@@ -1,0 +1,106 @@
+<!doctype html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <!-- build:css(.) styles/vendor.css -->
+    <!-- bower:css -->
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+    <!-- endbower -->
+    <link rel="stylesheet" href="bower_components/angular-slider/slider.css" />
+    <!-- endbuild -->
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+</head>
+<body>
+
+<div ng-view=""></div>
+
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
+<script>
+    !function (A, n, g, u, l, a, r) {
+        A.GoogleAnalyticsObject = l, A[l] = A[l] || function () {
+            (A[l].q = A[l].q || []).push(arguments)
+        }, A[l].l = +new Date, a = n.createElement(g),
+                r = n.getElementsByTagName(g)[0], a.src = u, r.parentNode.insertBefore(a, r)
+    }(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-XXXXX-X');
+    ga('send', 'pageview');
+</script>
+
+<!-- build:js(.) scripts/vendor.js -->
+<!-- bower:js -->
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-animate/angular-animate.js"></script>
+<script src="bower_components/angular-cookies/angular-cookies.js"></script>
+<script src="bower_components/angular-resource/angular-resource.js"></script>
+<script src="bower_components/angular-route/angular-route.js"></script>
+<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
+<script src="bower_components/angular-touch/angular-touch.js"></script>
+<script src="bower_components/uri.js/src/URI.js"></script>
+<script src="bower_components/uri.js/src/IPv6.js"></script>
+<script src="bower_components/uri.js/src/SecondLevelDomains.js"></script>
+<script src="bower_components/uri.js/src/punycode.js"></script>
+<script src="bower_components/uri.js/src/URITemplate.js"></script>
+<script src="bower_components/uri.js/src/jquery.URI.js"></script>
+<script src="bower_components/uri.js/src/URI.min.js"></script>
+<script src="bower_components/uri.js/src/jquery.URI.min.js"></script>
+<script src="bower_components/uri.js/src/URI.fragmentQuery.js"></script>
+<script src="bower_components/uri.js/src/URI.fragmentURI.js"></script>
+<script src="bower_components/angular-slider/slider.js"></script>
+<script src="bower_components/angular-vertilize/angular-vertilize.js"></script>
+<script src="bower_components/sprintf/src/sprintf.js"></script>
+<!-- endbower -->
+<!-- endbuild -->
+
+<!-- build:js({.tmp,app}) scripts/scripts.js -->
+<script src="main/app.js"></script>
+<script src="main/main.controller.js"></script>
+<script src="main/about/about.controller.js"></script>
+<script src="main/webcam/webcam.controller.js"></script>
+<script src="main/webcam/webcam.directive.js"></script>
+<script src="main/status/status.controller.js"></script>
+<script src="main/status/status.directive.js"></script>
+<script src="main/button/button.directive.js"></script>
+<script src="main/button/button.controller.js"></script>
+<script src="main/switch/switch.directive.js"></script>
+<script src="main/switch/switch.controller.js"></script>
+<script src="main/status/status-updater.factory.js"></script>
+<script src="main/status/virtualmodel-updater.factory.js"></script>web
+<script src="main/status/led-updater.factory.js"></script>
+<script src="main/timer/timer.controller.js"></script>
+<script src="main/timer/timer.directive.js"></script>
+<script src="main/timer/seconds-to-date.filter.js"></script>
+<script src="main/clock/clock-control.controller.js"></script>
+<script src="main/clock/clock-control.directive.js"></script>
+<script src="main/virtual-model/virtual-model.directive.js"></script>
+<script src="main/virtual-model/virtual-model.controller.js"></script>
+<!-- endbuild -->
+
+
+<!-- WebLab library -->
+<script type="text/javascript" src="../../../weblabjs/weblab.v1.js"></script>
+
+<!-- Iframe resizer library: So that the size changes dynamically and we can have a full-height iframe. -->
+<script type="text/javascript" src="../../../jslib/weblab_iframeResizer.min.js"></script>
+
+<!-- For development only. TODO: Remove this -->
+<script type="text/javascript" src="//weblab.deusto.es/weblab/client/weblabclientlab/jslib/weblabjs.js"></script>
+
+
+<script type="text/javascript">
+    angular.element(document).ready(function () {
+        angular.bootstrap(document, ["hwboard"])
+    });
+</script>
+
+
+</body>
+</html>

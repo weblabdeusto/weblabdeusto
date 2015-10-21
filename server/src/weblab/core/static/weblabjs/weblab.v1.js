@@ -1,10 +1,11 @@
 // Make sure to avoid problems if included twice
 if (window.weblab === undefined) {
-    if (console === undefined) 
+    if (console === undefined)
         console = {};
 
     if (console.log === undefined)
-        console.log = function() {};
+        console.log = function () {
+        };
 
     if (console.debug === undefined)
         console.debug = console.log;
@@ -108,7 +109,7 @@ if (window.weblab === undefined) {
         // To store callbacks for the finish
         var mOnProcessResultsPromise = $.Deferred();
         var mExpectsPostEnd = false;
-        
+
         // If different to null, the experiment loaded callback will be called once this promise is finished
         var mExperimentLoadedPromise = null;
 
@@ -117,7 +118,7 @@ if (window.weblab === undefined) {
 
         // To keep track of the timer and be able to cancel it easily when the experiment is explicitly finished.
         var mPollingTimer;
-        
+
         // To keep track of whether we're now polling or not
         var mPolling = false;
 
@@ -146,48 +147,22 @@ if (window.weblab === undefined) {
         var mDbgSendCommandResponse;
         var mDbgSendCommandResult = true; // True success, false error.
 
+        var mDbgFakeServer = null;
+        var mDbgFakeServerRunning = false;
+
         var mFileUploadURL = "";
 
-        /**
-         * Enables the debugging mode, in which commands do not really send anything to the server.
-         * This is similar to the local-test mode.
-         * @see: dbgSetSendCommandResponse()
-         */
-        this.enableDebuggingMode = function () {
-            mDebuggingMode = true;
 
-            this.sendCommand = function (command) {
-                var p = $.Deferred();
-                if (mDbgSendCommandResult)
-                    p.resolve(mDbgSendCommandResponse);
-                else
-                    p.reject(mDbgSendCommandResponse);
-                return p.promise();
-            };
-        };
-
-        /**
-         * Checks whether we are in debugging mode, and the sendCommands will thus be fake.
-         * @returns {bool} True if the debugging mode is enabled, false otherwise.
-         */
-        this.isDebuggingMode = function () {
-            return mDebuggingMode || this.isLocalTest();
-        };
-
-        /**
-         * Sets the response that sendCommand will return in debugging mode.
-         * @param {str} response: Send command response.
-         * @param {bool} [result]: If true the response will be reported as a success, if false, as an error. True
-         * by default.
-         */
-        this.dbgSetSendCommandResponse = function (response, result) {
-            mDbgSendCommandResponse = response;
-
-            if (result == undefined)
-                result = true;
-
-            mDbgSendCommandResult = result;
-        };
+        ///////////////////////////////////////////////////////////////
+        //
+        // INTERNAL INTERFACE
+        // The following methods, which begin with a dash, are part of the
+        // internal implementation of this class and will generally NOT
+        // be used by the Experiment Developers themselves. They will sometimes
+        // be necessary, however, to interface with this class from the platforms
+        // in which it is integrated.
+        //
+        ///////////////////////////////////////////////////////////////
 
 
         /**
@@ -202,15 +177,6 @@ if (window.weblab === undefined) {
             console.debug("Guess Frame Mode: " + mode);
 
             return mode;
-        };
-
-
-        /**
-         * Checks whether the WeblabExp instance is set to FRAME MODE.
-         * @returns {bool} TRUE if the current mode is FRAME MODE. FALSE if the current mode is FREE MODE.
-         */
-        this.isFrameMode = function () {
-            return mFrameMode;
         };
 
 
@@ -306,24 +272,11 @@ if (window.weblab === undefined) {
         };
 
         this._getInitialData = function () {
-            if(mOnGetInitialDataCallback != undefined)
+            if (mOnGetInitialDataCallback != undefined)
                 return mOnGetInitialDataCallback();
             return {};
-        }
-
-        /**
-        * Checks whether the experiment is apparently not linked to Weblab and thus running in a local test mode.
-        * @returns {boolean}
-        */
-        this.isLocalTest = function() {
-            // Check whether the page is an iframe. If it is, then it is not a local test.
-            if ( window.location !== window.parent.location ) {
-                return false;
-            }
-
-            // Check whether we are in free-mode. If we are, then this page is not a local test either.
-            return !this.isFrameMode();
         };
+
 
         /**
          * Sets the reservation id to use.
@@ -345,18 +298,6 @@ if (window.weblab === undefined) {
             return mReservation;
         };
 
-        /**
-        * Adds a promise that, whenever resolved, we can notify WebLab that this method has been properly loaded.
-        * @param {promise} The result of a $.Deferred().promise();
-        * @param {seconds} An estimated amount of seconds to be loaded. After this time, it will show an error of 
-        *                  "experiment failed to load";
-        */
-        this.setExperimentLoadedPromise = function (promise, seconds) {
-            mExperimentLoadedPromise = promise;
-            if (seconds != undefined) {
-                window.parent.postMessage('weblabdeusto::experimentLoading::' + (seconds * 1000), '*');
-            }
-        };
 
         // !!!!!!!!!!!!!!
         // AS OF NOW, RESERVATION-EXTRACTING IS NOT SUPPORTED. THESE FUNCTIONS MUST BE REVISED.
@@ -533,7 +474,10 @@ if (window.weblab === undefined) {
          */
         this._sendCommand = function (command) {
             var promise = $.Deferred();
-            var request = {"method": "send_command", "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}};
+            var request = {
+                "method": "send_command",
+                "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}
+            };
             console.log("Sending command: " + command);
             this._send(request)
                 .done(function (successData) {
@@ -576,11 +520,11 @@ if (window.weblab === undefined) {
                     .done(function (successData) {
                         if (mExpectsPostEnd) {
                             this._pollForPostReservation()
-                                .done(function() {
+                                .done(function () {
                                     // Don't do mOnExperimentDeactive.resolve, since this is done the next time finish() is called
                                     promise.resolve();
                                 })
-                                .fail(function(error) {
+                                .fail(function (error) {
                                     promise.reject(error);
                                 });
                         } else {
@@ -601,48 +545,48 @@ if (window.weblab === undefined) {
             return promise.promise();
         };
 
-        this._pollForPostReservation= function() {
+        this._pollForPostReservation = function () {
             var promise = $.Deferred();
-            
-            var waitForPostReservation = function() {
+
+            var waitForPostReservation = function () {
                 this._getReservationStatus(mReservation)
-                        .done(function (result) {
-                            var status = result['status'];
-                            if (status === "Reservation::confirmed") {
-                                setTimeout(waitForPostReservation, 500);
-                            } else if (status === "Reservation::post_reservation") {
-                                if (result['finished']) {
-                                    var initialData = result['initial_data'];
-                                    var endData = result['end_data'];
-                                    mOnProcessResultsPromise.resolve(initialData, endData);
-                                    promise.resolve(initialData, endData);
-                                } else {
-                                    setTimeout(waitForPostReservation, 400);
-                                }
+                    .done(function (result) {
+                        var status = result['status'];
+                        if (status === "Reservation::confirmed") {
+                            setTimeout(waitForPostReservation, 500);
+                        } else if (status === "Reservation::post_reservation") {
+                            if (result['finished']) {
+                                var initialData = result['initial_data'];
+                                var endData = result['end_data'];
+                                mOnProcessResultsPromise.resolve(initialData, endData);
+                                promise.resolve(initialData, endData);
                             } else {
-                                promise.reject({'msg': 'Unexpected post reservation message'});
+                                setTimeout(waitForPostReservation, 400);
                             }
-                        })
-                        .fail(function (error) {
-                            promise.reject(error);
-                        });
+                        } else {
+                            promise.reject({'msg': 'Unexpected post reservation message'});
+                        }
+                    })
+                    .fail(function (error) {
+                        promise.reject(error);
+                    });
             }.bind(this);
             waitForPostReservation();
             return promise.promise();
-        }
+        };
 
         /**
          * Set the experiment configuration
          */
-        this._setConfiguration = function(configuration) {
+        this._setConfiguration = function (configuration) {
             this.config = configuration;
-        }
+        };
 
         /**
-        * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
-        * This function relies on a ?c=<configuration-url.json> parameter. If missing, the experiment will be
-        * considered unconfigured (so it can be loaded but without calling the server and so on).
-        */
+         * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
+         * This function relies on a ?c=<configuration-url.json> parameter. If missing, the experiment will be
+         * considered unconfigured (so it can be loaded but without calling the server and so on).
+         */
         this._loadConfig = function () {
             if ($.QueryString["c"] !== undefined) {
                 var that = this;
@@ -658,7 +602,7 @@ if (window.weblab === undefined) {
                     mFileUploadURL = success.fileUploadURL;
                     that._setCurrentURL(success.currentURL);
                     that._setConfiguration(success.config);
-                    $.each(success.scripts, function(i, scriptURL) {
+                    $.each(success.scripts, function (i, scriptURL) {
                         $.getScript(scriptURL);
                     });
                     mOnConfigLoadPromise.resolve();
@@ -695,17 +639,17 @@ if (window.weblab === undefined) {
                 initialData = {};
 
             this._send({
-                    "method": "reserve_experiment",
-                    "params": {
-                        "session_id": {"id": sessionID},
-                        "experiment_id": {
-                            "exp_name": experimentName,
-                            "cat_name": experimentCategory
-                        },
-                        "client_initial_data": JSON.stringify(initialData),
-                        "consumer_data": "{}"
-                    }
-                })
+                "method": "reserve_experiment",
+                "params": {
+                    "session_id": {"id": sessionID},
+                    "experiment_id": {
+                        "exp_name": experimentName,
+                        "cat_name": experimentCategory
+                    },
+                    "client_initial_data": JSON.stringify(initialData),
+                    "consumer_data": "{}"
+                }
+            })
                 .done(function (response) {
                     promise.resolve(response);
                 })
@@ -714,7 +658,7 @@ if (window.weblab === undefined) {
                 });
 
             return promise.promise();
-        } // ! reserveExperiment
+        }; // ! reserveExperiment
 
         /**
          * Retrieves the status of a reservation.
@@ -731,11 +675,11 @@ if (window.weblab === undefined) {
             var promise = $.Deferred();
 
             this._send({
-                    "method": "get_reservation_status",
-                    "params": {
-                        "reservation_id": {"id": reservationID}
-                    }
-                })
+                "method": "get_reservation_status",
+                "params": {
+                    "reservation_id": {"id": reservationID}
+                }
+            })
                 .done(function (response) {
                     // Example of a response: {"params":{"session_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
                     // console.log("Reservation status: " + response);
@@ -745,8 +689,106 @@ if (window.weblab === undefined) {
                     promise.reject(response);
                 });
 
+
             return promise.promise();
         }; // !_get_reservation
+
+        this._checkStatus = function (reservationID, promise) {
+            this._getReservationStatus(reservationID)
+                .done(function (result) {
+                    var status = result["status"];
+                    if (status === "Reservation::confirmed") {
+                        // The reservation has succeded. We report this as done, with certain variables.
+                        if (result['url'] && result['url'] != this.currentURL) {
+                            var remoteSessionID = result['remote_reservation_id']['id'];
+                            var currentURL;
+                            if (mFrameMode) {
+                                currentURL = parent.location.href;
+                            } else {
+                                currentURL = location.href;
+                            }
+
+                            var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
+                            this.disableFinishOnClose();
+
+                            if (mFrameMode) {
+                                parent.location.replace(remoteUrl);
+                            } else {
+                                location.replace(remoteUrl);
+                            }
+                        }
+                        var time = result["time"];
+                        var startingconfig = result["initial_configuration"];
+                        promise.resolve(reservationID, time, startingconfig, result);
+                    } else if (status === "Reservation::post_reservation") {
+                        if (result['finished']) {
+                            var initialData = result['initial_data'];
+                            var endData = result['end_data'];
+                            mOnProcessResultsPromise.resolve(initialData, endData);
+                        } else {
+                            setTimeout(function () {
+                                this._pollForPostReservation();
+                            }.bind(this), 400);
+                        }
+                    } else {
+                        var frequency = 2 * 1000; // 2 seconds
+                        var MAX_POLLING = 10 * 1000; // 10 seconds
+                        var MIN_POLLING = 1 * 1000; // 1 second
+
+                        if (status === "Reservation::waiting") {
+                            // The reservation is not ready yet. We are in the queue.
+                            // We report the status, but we will repeat
+                            // the query in a couple seconds.
+                            promise.notify(status, result["position"], result, false);
+
+                            // Between 1 second and 10, depending on the position (if there are 5 people, you can wait 5 seconds between polls).
+                            frequency = Math.min(MAX_POLLING, MIN_POLLING * (result["position"] + 1));
+                        }
+                        else if (status === "Reservation::waiting_instances") {
+                            // The reservation is not ready because apparently there are no instances
+                            // of the experiment. We will report our status and repeat the query in a
+                            // couple seconds.
+                            promise.notify(status, result["position"], result, true);
+
+                            // It is not very often that this changes, so half MAX_POLLING IS FINE
+                            frequency = MAX_POLLING / 2;
+                        }
+                        else if (status === "Reservation::waiting_confirmation") {
+                            // We are waiting for confirmation. Soon we will receive a
+                            // Reservation::confirmed state.
+                            promise.notify(status, undefined, result, false);
+                            frequency = 400; // 0.4 seconds; if you're next, we refresh quite often
+                        }
+                        else {
+                            promise.notify(status, undefined, result);
+                        }
+
+                        // Try again soon.
+                        setTimeout(function () {
+                            this._checkStatus(reservationID, promise);
+                        }.bind(this), frequency);
+                    }
+                }.bind(this))
+                .fail(function (result) {
+                    // An error occurred. We abort the whole reservation attempt.
+                    // In the future, some further actions which could be considered:
+                    // - If it was a connection error, it would make sense to retry.
+                    // - If the error suggests that the reservation might have succeeded anyway,
+                    //   maybe it would be appropriate to request a dispose().
+                    promise.reject(result);
+                })
+        };
+
+        /**
+         * Runs the fake debugging server. The fake server will be run if the debugging mode is enabled *and*
+         * the fake server is set.
+         * @private
+         */
+        this._dbgRunFakeServer = function() {
+            mDbgFakeServerRunning = true;
+
+            var startResponse = mDbgFakeServer.start();
+        };
 
 
         ///////////////////////////////////////////////////////////////
@@ -760,25 +802,141 @@ if (window.weblab === undefined) {
         ///////////////////////////////////////////////////////////////
 
 
-        this.reset = function () {
-            weblab = new WeblabExp();
-        }
+        /**
+         * Adds a promise that, whenever resolved, we can notify WebLab that this method has been properly loaded.
+         * @param {promise} The result of a $.Deferred().promise();
+         * @param {seconds} An estimated amount of seconds to be loaded. After this time, it will show an error of
+         *                  "experiment failed to load";
+         */
+        this.setExperimentLoadedPromise = function (promise, seconds) {
+            mExperimentLoadedPromise = promise;
+            if (seconds != undefined) {
+                window.parent.postMessage('weblabdeusto::experimentLoading::' + (seconds * 1000), '*');
+            }
+        };
 
         /**
-         * Get the experiment configuration
+         * Checks whether the experiment is apparently not linked to Weblab and thus running in a local test mode.
+         * @returns {boolean}
          */
-        this.getConfiguration = function() {
+        this.isLocalTest = function () {
+            // Check whether the page is an iframe. If it is, then it is not a local test.
+            if (window.location !== window.parent.location) {
+                return false;
+            }
+
+            // Check whether we are in free-mode. If we are, then this page is not a local test either.
+            return !this.isFrameMode();
+        };
+
+        /**
+         * Checks whether the WeblabExp instance is set to FRAME MODE.
+         * @returns {bool} TRUE if the current mode is FRAME MODE. FALSE if the current mode is FREE MODE.
+         */
+        this.isFrameMode = function () {
+            return mFrameMode;
+        };
+
+        /**
+         * Enables the debugging mode, in which commands do not really send anything to the server.
+         * This is similar to the local-test mode.
+         * @see: dbgSetSendCommandResponse()
+         */
+        this.enableDebuggingMode = function () {
+            mDebuggingMode = true;
+
+            this.sendCommand = function (command) {
+                var p = $.Deferred();
+
+                // Do this deferredly to be closer to reality.
+                // (Particularly, so that in debugging the context is asynchronous, to avoid, for instance
+                // $apply issues when used with AngularJS).
+
+                setTimeout(function() {
+                    if (mDbgFakeServerRunning) {
+                        try {
+                            var response = mDbgFakeServer.sendCommand(command);
+                            p.resolve(response);
+                        }
+                        catch (e) {
+                            p.reject(e);
+                        }
+                    } else {
+                        if (mDbgSendCommandResult)
+                            p.resolve(mDbgSendCommandResponse);
+                        else
+                            p.reject(mDbgSendCommandResponse);
+                    }
+                }, 500);
+
+                return p.promise();
+            };
+
+            if(mDbgFakeServer != null) {
+                this._dbgRunFakeServer();
+            }
+        };
+
+        /**
+         * Sets the debugging Fake Server. The Fake Server is defined client-side but acts as a remote Experiment
+         * Server, so that the client-side logic can be tested more easily. The server object should implement
+         * certain methods, including: start, sendCommand, sendFile, and finish. This server will only run if the
+         * debugging mode is enabled.
+         * @param server
+         */
+        this.dbgSetFakeServer = function(server) {
+            this.mDbgFakeServer = server;
+
+            if(this.isDebuggingMode())
+                this._dbgRunFakeServer();
+        };
+
+        /**
+         * Checks whether we are in debugging mode, and the sendCommands will thus be fake.
+         * @returns {bool} True if the debugging mode is enabled, false otherwise.
+         */
+        this.isDebuggingMode = function () {
+            return mDebuggingMode || this.isLocalTest();
+        };
+
+        /**
+         * Sets the response that sendCommand will return in debugging mode.
+         * @param {str} response: Send command response.
+         * @param {bool} [result]: If true the response will be reported as a success, if false, as an error. True
+         * by default.
+         */
+        this.dbgSetSendCommandResponse = function (response, result) {
+            mDbgSendCommandResponse = response;
+
+            if (result == undefined)
+                result = true;
+
+            mDbgSendCommandResult = result;
+        };
+
+
+        /**
+         * Resets the experiment by simply recreating the global instance of this class.
+         */
+        this.reset = function () {
+            weblab = new WeblabExp();
+        };
+
+        /**
+         * Get the experiment configuration.
+         */
+        this.getConfiguration = function () {
             return this.config;
-        }
+        };
 
         /**
          * Stop polling
          * @public
          */
-        this.stopPolling = function() {
+        this.stopPolling = function () {
             clearTimeout(mPollingTimer);
             mPolling = false;
-        }
+        };
 
         /**
          * Sends a command to the experiment server.
@@ -817,7 +975,7 @@ if (window.weblab === undefined) {
         /**
          * sendFile
          */
-        this.sendFile = function(inputObject, fileInfo) {
+        this.sendFile = function (inputObject, fileInfo) {
             if (fileInfo === undefined)
                 fileInfo = "";
 
@@ -827,7 +985,7 @@ if (window.weblab === undefined) {
                 input.val(inputObject);
             } else {
                 // A file object
-                if(inputObject instanceof $) { // a jQuery selector
+                if (inputObject instanceof $) { // a jQuery selector
                     input = $(inputObject[0]);
                 } else { // Regular <input> element
                     input = $(inputObject);
@@ -847,18 +1005,18 @@ if (window.weblab === undefined) {
 
             var promise = $.Deferred();
             var fileUploadUrl = this.getFileUploadUrl();
-            $form.submit(function(e) {
+            $form.submit(function (e) {
                 if (weblab.debug) {
                     console.log("Submitting file with fileInfo", fileInfo);
                 }
                 $.ajax({
-                      url: fileUploadUrl + "?format=json",
-                      type: 'POST',
-                      data: new FormData( this ),
-                      processData: false,
-                      dataType: "json",
-                      contentType: false
-                    })
+                    url: fileUploadUrl + "?format=json",
+                    type: 'POST',
+                    data: new FormData(this),
+                    processData: false,
+                    dataType: "json",
+                    contentType: false
+                })
                     .done(function (response) {
                         if (weblab.debug) {
                             console.log("File submitted with fileInfo", fileInfo, "returned", response);
@@ -912,15 +1070,15 @@ if (window.weblab === undefined) {
         };
 
         /**
-        * get reservation identifier. Used in GWT for example for sending files.
-        */
+         * get reservation identifier. Used in GWT for example for sending files.
+         */
         this.getReservationId = function () {
             return this._getReservation();
         };
 
         /**
-        * get reservation identifier. Used in GWT for example for sending files.
-        */
+         * get reservation identifier. Used in GWT for example for sending files.
+         */
         this.getFileUploadUrl = function () {
             return mFileUploadURL;
         };
@@ -963,19 +1121,19 @@ if (window.weblab === undefined) {
             return promise.promise();
         };
 
-       /** 
-        * Sets the getInitialDataCallback. This is the callback that will be invoked
-        * when the reserve process is started, so the client can provide to the server
-        * whatever data it expects from the 'lobby' stage of the experiment.
-        *
-        * If the experiment is active when we call this method then the callback will be invoked, but the
-        * returned data will have no effect because other data will have been provided to the server
-        * already. Calling it is thus mostly for consistency and in case the user is interested
-        * in the event itself and not so much on returning specific data.
-        *
-        * @param onGetInitialDataCallback: This callback takes no parameters but should
-        * return the data, either as a JSON-encoded string or as an Object.
-        */
+        /**
+         * Sets the getInitialDataCallback. This is the callback that will be invoked
+         * when the reserve process is started, so the client can provide to the server
+         * whatever data it expects from the 'lobby' stage of the experiment.
+         *
+         * If the experiment is active when we call this method then the callback will be invoked, but the
+         * returned data will have no effect because other data will have been provided to the server
+         * already. Calling it is thus mostly for consistency and in case the user is interested
+         * in the event itself and not so much on returning specific data.
+         *
+         * @param onGetInitialDataCallback: This callback takes no parameters but should
+         * return the data, either as a JSON-encoded string or as an Object.
+         */
         this.setOnGetInitialDataCallback = function (onGetInitialDataCallback) {
             mOnGetInitialDataCallback = onGetInitialDataCallback;
         };
@@ -1033,15 +1191,16 @@ if (window.weblab === undefined) {
          */
 
         /*
-        * Events for adding events when an experiment is active or inactive
-        */
-        this.onExperimentActive = function(experimentActiveHandler) {
+         * Events for adding events when an experiment is active or inactive
+         */
+        this.onExperimentActive = function (experimentActiveHandler) {
             if (experimentActiveHandler != undefined) {
                 mOnExperimentActive.done(experimentActiveHandler.bind(this));
             }
             return mOnExperimentActive.promise();
         };
-        this.onExperimentDeactive = function(experimentDeactiveHandler) {
+
+        this.onExperimentDeactive = function (experimentDeactiveHandler) {
             if (experimentDeactiveHandler != undefined) {
                 mOnExperimentDeactive.done(experimentDeactiveHandler.bind(this));
             }
@@ -1118,11 +1277,10 @@ if (window.weblab === undefined) {
         };
 
 
-        
         /**
-        * Optional method. Reports whenever the configuration has been loaded and processed.
-        */
-        this.onConfigLoad = function(onConfigLoadHandler) {
+         * Optional method. Reports whenever the configuration has been loaded and processed.
+         */
+        this.onConfigLoad = function (onConfigLoadHandler) {
             if (onConfigLoadHandler != undefined) {
                 mOnConfigLoadPromise.done(onConfigLoadHandler);
             }
@@ -1130,16 +1288,16 @@ if (window.weblab === undefined) {
         };
 
         /**
-        * Disable that whenever the window is closed, the system sends a finishExperiment() event.
-        */
-        this.disableFinishOnClose = function() {
+         * Disable that whenever the window is closed, the system sends a finishExperiment() event.
+         */
+        this.disableFinishOnClose = function () {
             mFinishOnClose = false;
         };
 
         /**
-        * Show the body whenever loaded
-        */
-        this.show = function() {
+         * Show the body whenever loaded
+         */
+        this.show = function () {
             $("body").show();
         };
 
@@ -1149,93 +1307,6 @@ if (window.weblab === undefined) {
             return promise.promise();
         };
 
-
-        this._checkStatus = function (reservationID, promise) {
-            this._getReservationStatus(reservationID)
-                .done(function (result) {
-                    var status = result["status"];
-                    if (status === "Reservation::confirmed") {
-                        // The reservation has succeded. We report this as done, with certain variables.
-                        if (result['url'] && result['url'] != this.currentURL) {
-                            var remoteSessionID = result['remote_reservation_id']['id'];
-                            var currentURL;
-                            if (mFrameMode) {
-                                currentURL = parent.location.href;
-                            } else {
-                                currentURL = location.href;
-                            }
-
-                            var remoteUrl = result['url'] + "client/federated.html#reservation_id=" + remoteSessionID + "&locale=" + this.locale + "&back=" + currentURL;
-                            this.disableFinishOnClose();
-
-                            if (mFrameMode) {
-                                parent.location.replace(remoteUrl);
-                            } else {
-                                location.replace(remoteUrl);
-                            }
-                        }
-                        var time = result["time"];
-                        var startingconfig = result["initial_configuration"];
-                        promise.resolve(reservationID, time, startingconfig, result);
-                    } else if (status === "Reservation::post_reservation"){
-                        if (result['finished']) {
-                            var initialData = result['initial_data'];
-                            var endData = result['end_data'];
-                            mOnProcessResultsPromise.resolve(initialData, endData);
-                        } else {
-                            setTimeout(function () {
-                                this._pollForPostReservation();
-                            }.bind(this), 400);
-                        }
-                    } else {
-                        var frequency = 2 * 1000; // 2 seconds
-                        var MAX_POLLING = 10 * 1000; // 10 seconds
-                        var MIN_POLLING = 1 * 1000; // 1 second
-
-                        if (status === "Reservation::waiting") {
-                            // The reservation is not ready yet. We are in the queue.
-                            // We report the status, but we will repeat
-                            // the query in a couple seconds.
-                            promise.notify(status, result["position"], result, false);
-
-                            // Between 1 second and 10, depending on the position (if there are 5 people, you can wait 5 seconds between polls).
-                            frequency = Math.min(MAX_POLLING, MIN_POLLING * (result["position"] + 1));
-                        }
-                        else if (status === "Reservation::waiting_instances") {
-                            // The reservation is not ready because apparently there are no instances
-                            // of the experiment. We will report our status and repeat the query in a
-                            // couple seconds.
-                            promise.notify(status, result["position"], result, true);
-
-                            // It is not very often that this changes, so half MAX_POLLING IS FINE
-                            frequency = MAX_POLLING / 2;
-                        }
-                        else if (status === "Reservation::waiting_confirmation") {
-                            // We are waiting for confirmation. Soon we will receive a
-                            // Reservation::confirmed state.
-                            promise.notify(status, undefined, result, false);
-                            frequency = 400; // 0.4 seconds; if you're next, we refresh quite often
-                        }
-                        else
-                        {
-                            promise.notify(status, undefined, result);
-                        }
-
-                        // Try again soon.
-                        setTimeout(function() {
-                            this._checkStatus(reservationID, promise);
-                        }.bind(this), frequency);
-                    }
-                }.bind(this))
-                .fail(function (result) {
-                    // An error occurred. We abort the whole reservation attempt.
-                    // In the future, some further actions which could be considered:
-                    // - If it was a connection error, it would make sense to retry.
-                    // - If the error suggests that the reservation might have succeeded anyway,
-                    //   maybe it would be appropriate to request a dispose().
-                    promise.reject(result);
-                })
-        };
 
         /**
          * Reserves an experiment.
@@ -1269,7 +1340,7 @@ if (window.weblab === undefined) {
                 });
 
             return promise.promise();
-        }
+        };
 
         /**
          * @callback reserveExperiment~done
@@ -1304,18 +1375,19 @@ if (window.weblab === undefined) {
         this._loadConfig();
 
         var that = this;
-        $(window).bind('beforeunload', function(){
+        $(window).bind('beforeunload', function () {
             if (mFinishOnClose && mExperimentActive) {
                 mClosing = true;
                 that.finishExperiment();
             }
         });
 
+        // TODO: Add description.s
         this.onConfigLoad(function () {
             if (mExperimentLoadedPromise == null) {
                 window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
             } else {
-                mExperimentLoadedPromise.always(function() {
+                mExperimentLoadedPromise.always(function () {
                     window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
                 });
             }
@@ -1336,7 +1408,6 @@ if (window.weblab === undefined) {
 
 
     }; // !WeblabExp
-
 
 
     /////////////////////////////////
