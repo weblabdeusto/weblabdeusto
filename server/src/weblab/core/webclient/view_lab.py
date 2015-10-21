@@ -7,6 +7,7 @@ from weblab.core.exc import SessionNotFoundError
 from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data, _hook_native_experiments
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
+from weblab.core.reservations import Reservation
 
 # TODO: make sure we have a special 500 error handler, which simply calls error but also calls the send_mail function
 
@@ -28,6 +29,7 @@ def lab(category_name, experiment_name):
         # Now obtain the current experiment
         try:
             experiment = _get_experiment_data(weblab_api.api.get_reservation_experiment_info())
+            reservation_status = weblab_api.get_reservation_status()
         except SessionNotFoundError:
             session.pop('reservation_id', None)
             session.pop('back_url', None)
@@ -38,6 +40,12 @@ def lab(category_name, experiment_name):
                 experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
             except SessionNotFoundError:
                 return render_template("webclient/error.html", error_message = gettext("The reservation you used has expired."), federated_mode = True, back_url = back_url)
+        else:
+            if experiment is not None and reservation_status is not None and experiment['type'] == 'redirect':
+                if reservation_status.status == Reservation.CONFIRMED:
+                    local_url = reservation_status.url
+                    if local_url is not None:
+                        return redirect(local_url.replace("TIME_REMAINING", unicode(local_url.time)))
 
     if experiment is None:
         try:
