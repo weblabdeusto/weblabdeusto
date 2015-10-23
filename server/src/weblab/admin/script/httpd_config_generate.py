@@ -121,7 +121,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
             continue
         previous.append(static_directory)
         apache_conf += ("""<Directory "%(static_directory)s">\n"""
-        """    Options Indexes\n"""
+        """    Options Indexes FollowSymLinks\n"""
         """\n"""
         """    <IfModule authz_core_module>\n"""
         """        Require all granted\n"""
