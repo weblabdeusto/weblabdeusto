@@ -214,99 +214,212 @@ The client code is focused on two tasks:
 * Submitting commands to the Experiment server and managing the responses
 
 While WebLab-Deusto supports some web libraries, it is highly recommended to use
-libraries which rely on JavaScript (such as JavaScript itself or Google Web
-Toolkit). Those laboratories developed on top of these libraries will be
-available for mobile devices, and the number of conflicts in different platforms
-will be highly decreased, since they will not need any plug-in installed.
+the JavaScript library (as opposed to Flash or Java applets). Those laboratories 
+developed on top of it will be available for mobile devices, and the number of 
+conflicts in different platforms will be highly decreased, since they will not 
+need any plug-in installed.
 
 In the following sections describe how to use each of the provided APIs.
+
+JavaScript
+..........
+
+The recommended programming language for managed laboratories is JavaScript:
+* It's easy. You simply develop an HTML file without any restriction. You include a JavaScript that WebLab provides to interface with the server.
+* Does not have any dependency, other than a JavaScript script file and jQuery.
+* Can easily make use of any kind of JavaScript library or framework.
+* Possible to develop and test the experiments offline, without deploying a WebLab first. You can just open the HTML file in a browser.
+
+What to develop
+```````````````
+
+In order to create a new experiment, essentially you need:
+
+* An experiment server
+* **An experiment client**
+
+This section is, as you are probably aware, dedicated to the later (an experiment client). 
+An experiment client provides the interface and client-side logic that your particular experiment
+requires. It communicates with WebLab and the experiment server through a very simple API. 
+
+A good way to start, however, is to simply create a new folder, with an empty HTML file.
+You have certain freedom when choosing where to place it, but it is advisable to place it
+within the "public" folder of the WebLab standard client. For instance, if your experiment is going to
+control a remote lightbulb, you could create a jslightbulb.html, in the following path:
+
+``src\es\deusto\weblab\public\lightbulb\jslightbulb.html``
+
+
+The public folder is automatically exported when you deploy WebLab, so you can feel free to put any number
+of HTML, JS or image files (or any kind of file, really) within it.
+
+This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab Deusto as an iframe.
+If we continue with the aforementioned example (an experiment to remotely control a lightbulb), you might want to add, for instance,
+a webcam feed to your HTML (in order to see the lightbulb), and maybe some JavaScript button (to turn the lightbulb on and off).
+
+Because it is just standard HTML, you can use any library or framework you wish to make your work easier.
+
+As of now, however, our lightbulb experiment does not really connect to WebLab. You are hence probably wondering how to *actually* 
+tell the lightbulb to turn off when the user presses your JS button. That is, how to send a command to the experiment server.
+
+This is done through the JavaScript API, which will be explained next.
+
+JavaScript API
+``````````````
+
+The WebLab API is relatively simple.
+The basic API provides these base functions, which is all you really need:
+
+* Sending a command.
+* Sending a file.
+* Receiving a time-left notification.
+* Receiving an experiment-starts notification.
+* Receiving an experiment-ends notification.
+* Forcing the experiment to end early.
+
+For JavaScript, this API can be found in the following place:
+
+``src\es\deusto\weblab\public\jslib\jsweblab.js``
+
+You can simply reference it from your HTML. For instance, if your HTML is within ``public\jslightbulb\jslightbulb.html``, you can do, within ``<head>``:
+
+	``<script src="../jslib/weblabjs.js"></script>``
+
+The API follows:
+	
+.. code-block:: javascript
+
+	//! Sends a command to the experiment server.
+    //!
+    //! @param text Text of the command. 
+    //! @param successHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //! @param errorHandler Callback that will receive the response for the command.
+    //! Takes a single string as argument.
+    //!
+    this.sendCommand = function (text, successHandler, errorHandler) 
+
+
+    //! Sets the callback that will be invoked when the experiment finishes. Generally,
+    //! an experiment finishes when it runs out of allocated time, but it may also 
+    //! be finished explicitly by the user or the experiment code, or by errors and
+    //! and disconnections.
+    //!
+    this.setOnEndCallback = function (onEndCallback) 
+
+    //! Sets the callbacks that will be invoked by default when a sendfile request
+    //! finishes. The appropriate callback specified here will be invoked if no 
+    //! callback was specified in the sendFile call, or if the sendFile was done
+    //! from GWT itself and not through this API.
+    //!
+    //! @param onSuccess Callback invoked when the sendFile request succeeds. Takes
+    //! the return message as argument.
+    //! @param onError Callback invoked when the sendFile request fails. Takes the
+    //! return message as argument.
+    this.setFileHandlerCallbacks = function (onSuccess, onError) 
+
+    //! Sets the startInteractionCallback. This is the callback that will be invoked
+    //! after the Weblab experiment is successfully reserved, and the user can start
+    //! interacting with the experiment. 
+    this.setOnStartInteractionCallback = function (onStartInteractionCallback) 
+	
+    //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
+    //! the time that the experiment has left. Currently, the Weblab system only invokes
+    //! this once, on startup. Hence, from the moment setTime is invoked, the experiment
+    //! can take for granted that that is indeed the time it has left. Unless, of course,
+    //! the experiment itself chooses to finish, or the user finishes early.
+    //!
+    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
+    //! the experiment.
+    //!
+    this.setOnTimeCallback = function (onTimeCallback) 
+
+    //! Sets the three Weblab callbacks at once.
+    //! 
+    //! @param onStartInteraction Start Interaction callback.
+    //! @param onTime On Time callback.
+    //! @param onEnd On End callback.
+    //! 
+    //! @see setOnStartInteraction
+    //! @see setOnTimeCallback
+    //! @see setOnEndCallback
+    this.setCallbacks = function (onStartInteraction, onTime, onEnd) 
+
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
+    this.getProperty = function (name) 
+	
+    //! Retrieves a configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
+    this.getPropertyDef = function (name, def) 
+
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
+    this.getIntProperty = function (name) 
+
+    //! Retrieves an integer configuration property.
+    //!
+    //! @param name Name of the property.
+    //! @param def Default value to return if the configuration property
+    //! is not found.
+    this.getIntPropertyDef = function (name, def) 
+
+    //! Finishes the experiment.
+    //!
+    this.clean = function () 
+
+    //! Returns true if the experiment is active, false otherwise.
+    //! An experiment is active if it has started and not finished.
+    //! That is, if the server, supposedly, should be able to receive
+    //! commands.
+    //!
+    this.isExperimentActive = function () 
+	
+    //! Checks whether this interface is actually connected to the real
+    //! WebLab client. 
+    //!
+    //! @return True, if connected to the real WL client. False otherwise.
+    this.checkOnline = function () 
+	
+    //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
+    //! offline from the real Weblab client, then the response to SendCommand will be as specified.
+    //!
+    //! @param response Text in the response.
+    //! @param result If true, SendCommand will invoke the success handler.
+    //! @param result If false, SendCommand will invoke the failure handler.
+    this.dbgSetOfflineSendCommandResponse = function (response, result) 
+	
+	
+Using the API is easy. Once the script has been included, you can simply:
+
+.. code-block:: javascript
+	
+	Weblab.sendCommand( "LIGHTBULB ON", 
+		function(response) {
+			console.log("Light turned on successfully");
+		},
+		function(response) {
+			console.error("Light failed to turn on");
+		}
+	);
+	
+Note that as you can see above, there are some functions that start with "dbg". Those are for development purposes.
+Sometimes, for instance, it is convenient to be able to run your HTML interface stand-alone. In order for the experiment
+to behave in a way that more closely resembles in its intended way, you can use these to simulate command responses
+from the server and the like.
+
 
 Google Web Toolkit
 ..................
 
-`Google Web Toolkit (GWT) <http://developers.google.com/web-toolkit/>`_ is the
-technology used by all the remote labs developed by the WebLab-Deusto team. You
-are encouraged to use it, while we support the other options.
-
-**Why GWT?**
-
-
-In GWT, you write code in Java using Eclipse, and it generates optimized
-JavaScript code. For instance, it generates the whole application for each of
-the supported web browsers (implementing the high level features in different
-ways for each one), and translated to each supported language. Therefore, when
-you access the web application, you only download the code dependent of your
-language and web browser.
-
-The platform is mature and very advanced, providing the following features:
-
-* The `provided widgets
-  <http://gwt.googleusercontent.com/samples/Showcase/Showcase.html#!CwCheckBox>`_
-  are natively supported in many web browsers.
-
-* It does not wrap *too much:* you can still call native code and export
-  functionalities to pure JavaScript using `JSNI
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideCodingBasicsJSNI>`_.
-  You can even provide alternatives to widgets, and when compiling the system it
-  will use different code for each web browser. For example, in WebLab-Deusto,
-  the camera component is different in `Chrome/Safari
-  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcamSafariBased.java>`_,
-  in `Firefox
-  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcamFirefox.java>`_
-  or `other web browsers
-  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/client/ui/widgets/WlWebcam.java>`_,
-  by simply `defining it in the XML file
-  <https://github.com/weblabdeusto/weblabdeusto/blob/0e924c5c16adaf324bb3a3ad27c1fd420412cb71/client/src/es/deusto/weblab/WebLabClient.gwt.xml#L30>`_.
-
-* It supports writing the user interface directly with code, with `a custom XML
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideUiBinder>`_, or
-  even with the `GWT Designer
-  <https://developers.google.com/web-toolkit/tools/gwtdesigner/userinterface/design_view>`_
-  (a visual tool).
-
-* It enables you to easily define how to `split the application
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideCodeSplitting>`_.
-  For instance, when you enter in the application, you will download the desktop
-  version (and not the mobile version), and no laboratory by default. When you
-  click on a laboratory, then you download the client code of that laboratory.
-  And with the proper caching configuration in the web server, you will only
-  download this once (kept in the cache during the rest of the accesses). Then,
-  you will only download the response of the requests, which are commonly small
-  JSON objects. This is very suitable for mobile environments.
-
-* It enables you to `embed the images directly in the JavaScript code
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideUiImageBundles>`_,
-  therefore avoiding HTTP connections and loading from cache in a faster way.
-
-* The development cycle is fast: with the development mode in Eclipse, you
-  refresh the web page and automatically you are using it without compiling the
-  whole thing.
-
-* Localizing the `application is very simple
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n>`_. See it
-  `in WebLab-Deusto
-  <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/client/i18n>`_.
-
-* You program in Java with Eclipse as a regular application. Your tests are in
-  `JUnit
-  <https://developers.google.com/web-toolkit/doc/latest/DevGuideTesting>`_.
-
-The WebLab-Deusto server is entirely developed in Python. We therefore not use
-those communication components or server side stuff of GWT. We use plain HTTP to
-communicate all the client requests to the server. So we basically compile all
-the application into JavaScript and load it.
-
-.. warning::
-
-    When running it with the development, the communication is being
-    proxied by a server component which takes the requests and sends them to
-    ``http://localhost/weblab/``. Note that this will not work if you were using a
-    custom WebLab-Deusto deployment and you are not using Apache or you are using
-    other path.
-
-You have plenty of information in `the official website
-<https://developers.google.com/web-toolkit/doc/latest/DevGuide>`, so you are
-encouraged to learn there some basics before developing the laboratory.
+`Google Web Toolkit (GWT) <http://www.gwtproject.org/>`_ used to be the 
+technology used by WebLab-Deusto in all the remote laboratories. Nowadays, it is
+still used in certain legacy laboratories and systems.
 
 **How to develop the lab**
 
@@ -528,204 +641,6 @@ paste code as most of them are very similar:
             }
 
 So as to test all this code, you will need to read the next section (:ref:`remote_lab_deployment`).
-
-JavaScript
-..........
-
-An easy way to develop an experiment is to use standard JavaScript.
-Though you will not have access to certain GWT widgets that are already implemented,
-and though you will have to implement most of the experiment and interface yourself,
-it has certain advantages:
-
-* It's easy. You simply develop an HTML file without any restriction. You include a JavaScript that WebLab provides to interface with the server.
-* Does not have any dependency, other than a JavaScript script file.
-* New experiments can be developed without needing to compile anything.
-* Can easily make use of any kind of JavaScript library or framework.
-* Possible to develop and test the experiments offline, without deploying a WebLab first. You can just open the HTML file in a browser.
-
-What to develop
-```````````````
-
-In order to create a new experiment, essentially you need:
-
-* An experiment server
-* **An experiment client**
-
-This section is, as you are probably aware, dedicated to the later (an experiment client). 
-An experiment client provides the interface and client-side logic that your particular experiment
-requires. It communicates with WebLab and the experiment server through a very simple API. 
-
-A good way to start, however, is to simply create a new folder, with an empty HTML file.
-You have certain freedom when choosing where to place it, but it is advisable to place it
-within the "public" folder of the WebLab standard client. For instance, if your experiment is going to
-control a remote lightbulb, you could create a jslightbulb.html, in the following path:
-
-``src\es\deusto\weblab\public\lightbulb\jslightbulb.html``
-
-
-The public folder is automatically exported when you deploy WebLab, so you can feel free to put any number
-of HTML, JS or image files (or any kind of file, really) within it.
-
-This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab Deusto as an iframe.
-If we continue with the aforementioned example (an experiment to remotely control a lightbulb), you might want to add, for instance,
-a webcam feed to your HTML (in order to see the lightbulb), and maybe some JavaScript button (to turn the lightbulb on and off).
-
-Because it is just standard HTML, you can use any library or framework you wish to make your work easier.
-
-As of now, however, our lightbulb experiment does not really connect to WebLab. You are hence probably wondering how to *actually* 
-tell the lightbulb to turn off when the user presses your JS button. That is, how to send a command to the experiment server.
-
-This is done through the JavaScript API, which will be explained next.
-
-JavaScript API
-``````````````
-
-The WebLab API is relatively simple.
-The basic API provides these base functions, which is all you really need:
-
-* Sending a command.
-* Sending a file.
-* Receiving a time-left notification.
-* Receiving an experiment-starts notification.
-* Receiving an experiment-ends notification.
-* Forcing the experiment to end early.
-
-For JavaScript, this API can be found in the following place:
-
-``src\es\deusto\weblab\public\jslib\jsweblab.js``
-
-You can simply reference it from your HTML. For instance, if your HTML is within ``public\jslightbulb\jslightbulb.html``, you can do, within ``<head>``:
-
-	``<script src="../jslib/weblabjs.js"></script>``
-
-The API follows:
-	
-.. code-block:: javascript
-
-	//! Sends a command to the experiment server.
-    //!
-    //! @param text Text of the command. 
-    //! @param successHandler Callback that will receive the response for the command.
-    //! Takes a single string as argument.
-    //! @param errorHandler Callback that will receive the response for the command.
-    //! Takes a single string as argument.
-    //!
-    this.sendCommand = function (text, successHandler, errorHandler) 
-
-
-    //! Sets the callback that will be invoked when the experiment finishes. Generally,
-    //! an experiment finishes when it runs out of allocated time, but it may also 
-    //! be finished explicitly by the user or the experiment code, or by errors and
-    //! and disconnections.
-    //!
-    this.setOnEndCallback = function (onEndCallback) 
-
-    //! Sets the callbacks that will be invoked by default when a sendfile request
-    //! finishes. The appropriate callback specified here will be invoked if no 
-    //! callback was specified in the sendFile call, or if the sendFile was done
-    //! from GWT itself and not through this API.
-    //!
-    //! @param onSuccess Callback invoked when the sendFile request succeeds. Takes
-    //! the return message as argument.
-    //! @param onError Callback invoked when the sendFile request fails. Takes the
-    //! return message as argument.
-    this.setFileHandlerCallbacks = function (onSuccess, onError) 
-
-    //! Sets the startInteractionCallback. This is the callback that will be invoked
-    //! after the Weblab experiment is successfully reserved, and the user can start
-    //! interacting with the experiment. 
-    this.setOnStartInteractionCallback = function (onStartInteractionCallback) 
-	
-    //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
-    //! the time that the experiment has left. Currently, the Weblab system only invokes
-    //! this once, on startup. Hence, from the moment setTime is invoked, the experiment
-    //! can take for granted that that is indeed the time it has left. Unless, of course,
-    //! the experiment itself chooses to finish, or the user finishes early.
-    //!
-    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
-    //! the experiment.
-    //!
-    this.setOnTimeCallback = function (onTimeCallback) 
-
-    //! Sets the three Weblab callbacks at once.
-    //! 
-    //! @param onStartInteraction Start Interaction callback.
-    //! @param onTime On Time callback.
-    //! @param onEnd On End callback.
-    //! 
-    //! @see setOnStartInteraction
-    //! @see setOnTimeCallback
-    //! @see setOnEndCallback
-    this.setCallbacks = function (onStartInteraction, onTime, onEnd) 
-
-    //! Retrieves a configuration property.
-    //!
-    //! @param name Name of the property.
-    this.getProperty = function (name) 
-	
-    //! Retrieves a configuration property.
-    //!
-    //! @param name Name of the property.
-    //! @param def Default value to return if the configuration property
-    //! is not found.
-    this.getPropertyDef = function (name, def) 
-
-    //! Retrieves an integer configuration property.
-    //!
-    //! @param name Name of the property.
-    this.getIntProperty = function (name) 
-
-    //! Retrieves an integer configuration property.
-    //!
-    //! @param name Name of the property.
-    //! @param def Default value to return if the configuration property
-    //! is not found.
-    this.getIntPropertyDef = function (name, def) 
-
-    //! Finishes the experiment.
-    //!
-    this.clean = function () 
-
-    //! Returns true if the experiment is active, false otherwise.
-    //! An experiment is active if it has started and not finished.
-    //! That is, if the server, supposedly, should be able to receive
-    //! commands.
-    //!
-    this.isExperimentActive = function () 
-	
-    //! Checks whether this interface is actually connected to the real
-    //! WebLab client. 
-    //!
-    //! @return True, if connected to the real WL client. False otherwise.
-    this.checkOnline = function () 
-	
-    //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
-    //! offline from the real Weblab client, then the response to SendCommand will be as specified.
-    //!
-    //! @param response Text in the response.
-    //! @param result If true, SendCommand will invoke the success handler.
-    //! @param result If false, SendCommand will invoke the failure handler.
-    this.dbgSetOfflineSendCommandResponse = function (response, result) 
-	
-	
-Using the API is easy. Once the script has been included, you can simply:
-
-.. code-block:: javascript
-	
-	Weblab.sendCommand( "LIGHTBULB ON", 
-		function(response) {
-			console.log("Light turned on successfully");
-		},
-		function(response) {
-			console.error("Light failed to turn on");
-		}
-	);
-	
-Note that as you can see above, there are some functions that start with "dbg". Those are for development purposes.
-Sometimes, for instance, it is convenient to be able to run your HTML interface stand-alone. In order for the experiment
-to behave in a way that more closely resembles in its intended way, you can use these to simulate command responses
-from the server and the like.
-
 
 Java applets
 ............
