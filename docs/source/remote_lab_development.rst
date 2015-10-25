@@ -99,7 +99,7 @@ This way, WebLab-Deusto still manages the reservation process, authentication (i
 
 The main **drawbacks** of unmanaged laboratories is that:
 
-* They might cause problems with **proxies or firewalls**, since the communication is managed by the final system. Improper configurations (i.e., establishing a wrong port for the web server) could cause problems.
+* They might cause problems with **proxies or firewalls**, since the communication is managed by the final system. Improper configurations (i.e., establishing a wrong port for the web server and not relying on a web server acting as a proxy) could cause problems.
 * The **user tracking** functionality is decreased: WebLab-Deusto still registers who uses what and when, but not what the user did during the session.
 
 Additionally, this is more complex to deploy for system administrators.
@@ -133,10 +133,16 @@ As previously defined, in the managed laboratories, all the communications are
 managed by WebLab-Deusto. This basically means that, as seen on the following
 figure, the client code will call a set of methods such as:
 
-.. code-block:: java
+.. code-block:: javascript
 
    // In the client side
-   weblab.sendCommand("press button1");
+   weblab.sendCommand("press button1")
+       .done(function (response) {
+           console.log(response);
+       })
+       .fail(function (error) {
+           console.log(error);
+       });
 
 And WebLab-Deusto guarantees that this string will be forwarded to the proper
 experiment server. In the experiment server, there will be a method such as (in
