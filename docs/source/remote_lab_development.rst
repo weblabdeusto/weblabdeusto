@@ -225,7 +225,8 @@ JavaScript
 ..........
 
 The recommended programming language for managed laboratories is JavaScript:
-* It's easy. You simply develop an HTML file without any restriction. You include a JavaScript that WebLab provides to interface with the server.
+
+* It is easy. You simply develop an HTML file without any restriction. You include a JavaScript that WebLab provides to interface with the server.
 * Does not have any dependency, other than a JavaScript script file and jQuery.
 * Can easily make use of any kind of JavaScript library or framework.
 * Possible to develop and test the experiments offline, without deploying a WebLab first. You can just open the HTML file in a browser.
@@ -238,20 +239,25 @@ In order to create a new experiment, essentially you need:
 * An experiment server
 * **An experiment client**
 
-This section is, as you are probably aware, dedicated to the later (an experiment client). 
-An experiment client provides the interface and client-side logic that your particular experiment
+This section is dedicated to the latter (an experiment client). 
+An experiment client provides the user interface and client-side logic that your particular experiment
 requires. It communicates with WebLab and the experiment server through a very simple API. 
 
-A good way to start, however, is to simply create a new folder, with an empty HTML file.
-You have certain freedom when choosing where to place it, but it is advisable to place it
-within the "public" folder of the WebLab standard client. For instance, if your experiment is going to
-control a remote lightbulb, you could create a jslightbulb.html, in the following path:
+When you create a WebLab-Deusto environment, it creates a **pub** directory. Whatever you put on this directory is available in http://localhost/weblab/web/pub/ . You can put HTML/JS/CSS files there. The most basic version of your first JavaScript lab will look like this:
 
-``src\es\deusto\weblab\public\lightbulb\jslightbulb.html``
+.. block:: html
 
+   <html>
+      <head>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="../static/weblabjs/weblab.v1.js"></script>
+      </head>
+      <body>
+        <p>Hello world</p>
+      </body>
+   </html>
 
-The public folder is automatically exported when you deploy WebLab, so you can feel free to put any number
-of HTML, JS or image files (or any kind of file, really) within it.
+Make sure that the weblab.v1.js file is properly configured. On a typical environment, it is available in http://localhost/weblab/web/static/weblabjs/weblab.v1.js, so one file called http://localhost/weblab/web/pub/mylab.html  will refer to it as "../static/weblabjs/weblab.v1.js", but if you create the file in a different directory (e.g., in a directory "mylab" in the pub directory), then you need more "../".
 
 This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab Deusto as an iframe.
 If we continue with the aforementioned example (an experiment to remotely control a lightbulb), you might want to add, for instance,
