@@ -243,7 +243,7 @@ This section is dedicated to the latter (an experiment client).
 An experiment client provides the user interface and client-side logic that your particular experiment
 requires. It communicates with WebLab and the experiment server through a very simple API. 
 
-When you create a WebLab-Deusto environment, it creates a **pub** directory. Whatever you put on this directory is available in http://localhost/weblab/web/pub/ . You can put HTML/JS/CSS files there. The most basic version of your first JavaScript lab will look like this:
+When you create a WebLab-Deusto environment, it creates a ``pub`` directory. Whatever you put on this directory is available in http://localhost/weblab/web/pub/ . You can put HTML/JS/CSS files there. The most basic version of your first JavaScript lab will look like this:
 
 .. block:: html
 
@@ -257,18 +257,12 @@ When you create a WebLab-Deusto environment, it creates a **pub** directory. Wha
       </body>
    </html>
 
-Make sure that the weblab.v1.js file is properly configured. On a typical environment, it is available in http://localhost/weblab/web/static/weblabjs/weblab.v1.js, so one file called http://localhost/weblab/web/pub/mylab.html  will refer to it as "../static/weblabjs/weblab.v1.js", but if you create the file in a different directory (e.g., in a directory "mylab" in the pub directory), then you need more "../".
+Make sure that the weblab.v1.js file is properly configured. On a typical environment, it is available in http://localhost/weblab/web/static/weblabjs/weblab.v1.js, so one file called http://localhost/weblab/web/pub/mylab.html  will refer to it as ``../static/weblabjs/weblab.v1.js``, but if you create the file in a different directory (e.g., in a directory ``mylab`` in the pub directory), then you need more ``../``.
 
-This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab Deusto as an iframe.
-If we continue with the aforementioned example (an experiment to remotely control a lightbulb), you might want to add, for instance,
-a webcam feed to your HTML (in order to see the lightbulb), and maybe some JavaScript button (to turn the lightbulb on and off).
+This HTML that you have just created is meant to be your experiment's interface. It will appear within WebLab-Deusto as an iframe.
+If we continue with the aforementioned example, you might want to add, for instance, a webcam feed to your HTML, and maybe some JavaScript button. Because it is just standard HTML, you can use any library or framework you wish to make your work easier.
 
-Because it is just standard HTML, you can use any library or framework you wish to make your work easier.
-
-As of now, however, our lightbulb experiment does not really connect to WebLab. You are hence probably wondering how to *actually* 
-tell the lightbulb to turn off when the user presses your JS button. That is, how to send a command to the experiment server.
-
-This is done through the JavaScript API, which will be explained next.
+Once you draw buttons or things, you only need to interact with the expeirment server, by sending and receiving commands. This is done through the JavaScript API, which will be explained next.
 
 JavaScript API
 ``````````````
@@ -278,18 +272,11 @@ The basic API provides these base functions, which is all you really need:
 
 * Sending a command.
 * Sending a file.
-* Receiving a time-left notification.
 * Receiving an experiment-starts notification.
 * Receiving an experiment-ends notification.
 * Forcing the experiment to end early.
 
-For JavaScript, this API can be found in the following place:
-
-``src\es\deusto\weblab\public\jslib\jsweblab.js``
-
-You can simply reference it from your HTML. For instance, if your HTML is within ``public\jslightbulb\jslightbulb.html``, you can do, within ``<head>``:
-
-	``<script src="../jslib/weblabjs.js"></script>``
+For JavaScript, this API can be found in the following place `/weblab/web/static/weblabjs/weblab.v1.js <https://github.com/weblabdeusto/weblabdeusto/blob/master/server/src/weblab/core/static/weblabjs/weblab.v1.js>`_
 
 The API follows:
 	
@@ -298,12 +285,31 @@ The API follows:
 	//! Sends a command to the experiment server.
     //!
     //! @param text Text of the command. 
-    //! @param successHandler Callback that will receive the response for the command.
-    //! Takes a single string as argument.
-    //! @param errorHandler Callback that will receive the response for the command.
+    //! @returns a jQuery.Deferred object. You might use it to register callbacks, if desired.
     //! Takes a single string as argument.
     //!
-    this.sendCommand = function (text, successHandler, errorHandler) 
+    weblab.sendCommand(text)
+        .done(function(message) {
+            // ...
+        })
+        .fail(function(error) {
+            // ...
+        })
+
+	//! Sends a file to the experiment server.
+    //!
+    //! @param file An <input type="file"> element (the result of a document.getElementById or $("#fileinput"))  
+    //! @param fileInfo A string describing the file (e.g., a file name or whatever). 
+    //! @returns a jQuery.Deferred object. You might use it to register callbacks, if desired.
+    //! Takes a single string as argument.
+    //!
+    weblab.sendFile(file, fileInfo)
+        .done(function(message) {
+            // ...
+        })
+        .fail(function(error) {
+            // ...
+        })
 
 
     //! Sets the callback that will be invoked when the experiment finishes. Generally,
@@ -311,108 +317,29 @@ The API follows:
     //! be finished explicitly by the user or the experiment code, or by errors and
     //! and disconnections.
     //!
-    this.setOnEndCallback = function (onEndCallback) 
-
-    //! Sets the callbacks that will be invoked by default when a sendfile request
-    //! finishes. The appropriate callback specified here will be invoked if no 
-    //! callback was specified in the sendFile call, or if the sendFile was done
-    //! from GWT itself and not through this API.
-    //!
-    //! @param onSuccess Callback invoked when the sendFile request succeeds. Takes
-    //! the return message as argument.
-    //! @param onError Callback invoked when the sendFile request fails. Takes the
-    //! return message as argument.
-    this.setFileHandlerCallbacks = function (onSuccess, onError) 
+    weblab.onFinish(function() {
+        // Do something when the user finishes
+    });
 
     //! Sets the startInteractionCallback. This is the callback that will be invoked
     //! after the Weblab experiment is successfully reserved, and the user can start
     //! interacting with the experiment. 
-    this.setOnStartInteractionCallback = function (onStartInteractionCallback) 
+    weblab.onStart(function (time, initialConfig) {
+        // Work with the initialConfig (provided by your experiment server) and the 
+        // remaining time (you're responsible of keep track of it once received)
+    });
 	
-    //! Sets the setTime callback. This is the callback that Weblab invokes when it defines
-    //! the time that the experiment has left. Currently, the Weblab system only invokes
-    //! this once, on startup. Hence, from the moment setTime is invoked, the experiment
-    //! can take for granted that that is indeed the time it has left. Unless, of course,
-    //! the experiment itself chooses to finish, or the user finishes early.
-    //!
-    //! @param onTimeCallback The callback to invoke when Weblab sets the time left for 
-    //! the experiment.
-    //!
-    this.setOnTimeCallback = function (onTimeCallback) 
-
-    //! Sets the three Weblab callbacks at once.
-    //! 
-    //! @param onStartInteraction Start Interaction callback.
-    //! @param onTime On Time callback.
-    //! @param onEnd On End callback.
-    //! 
-    //! @see setOnStartInteraction
-    //! @see setOnTimeCallback
-    //! @see setOnEndCallback
-    this.setCallbacks = function (onStartInteraction, onTime, onEnd) 
-
-    //! Retrieves a configuration property.
-    //!
-    //! @param name Name of the property.
-    this.getProperty = function (name) 
-	
-    //! Retrieves a configuration property.
-    //!
-    //! @param name Name of the property.
-    //! @param def Default value to return if the configuration property
-    //! is not found.
-    this.getPropertyDef = function (name, def) 
-
-    //! Retrieves an integer configuration property.
-    //!
-    //! @param name Name of the property.
-    this.getIntProperty = function (name) 
-
-    //! Retrieves an integer configuration property.
-    //!
-    //! @param name Name of the property.
-    //! @param def Default value to return if the configuration property
-    //! is not found.
-    this.getIntPropertyDef = function (name, def) 
-
-    //! Finishes the experiment.
-    //!
-    this.clean = function () 
-
-    //! Returns true if the experiment is active, false otherwise.
-    //! An experiment is active if it has started and not finished.
-    //! That is, if the server, supposedly, should be able to receive
-    //! commands.
-    //!
-    this.isExperimentActive = function () 
-	
-    //! Checks whether this interface is actually connected to the real
-    //! WebLab client. 
-    //!
-    //! @return True, if connected to the real WL client. False otherwise.
-    this.checkOnline = function () 
-	
-    //! This method is for debugging purposes. When the WeblabJS interface is used stand-alone,
-    //! offline from the real Weblab client, then the response to SendCommand will be as specified.
-    //!
-    //! @param response Text in the response.
-    //! @param result If true, SendCommand will invoke the success handler.
-    //! @param result If false, SendCommand will invoke the failure handler.
-    this.dbgSetOfflineSendCommandResponse = function (response, result) 
-	
-	
-Using the API is easy. Once the script has been included, you can simply:
+Using the API is easy. Once the script has been included, you can simply call:
 
 .. code-block:: javascript
 	
-	Weblab.sendCommand( "LIGHTBULB ON", 
-		function(response) {
+	weblab.sendCommand( "LIGHTBULB ON")
+		.done(function(response) {
 			console.log("Light turned on successfully");
-		},
-		function(response) {
+		})
+        .fail(function(response) {
 			console.error("Light failed to turn on");
-		}
-	);
+		});
 	
 Note that as you can see above, there are some functions that start with "dbg". Those are for development purposes.
 Sometimes, for instance, it is convenient to be able to run your HTML interface stand-alone. In order for the experiment
