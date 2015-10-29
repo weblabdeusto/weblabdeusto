@@ -79,8 +79,8 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """</Files>\n"""
     """\n"""
     """# Apache redirects the regular paths to the particular directories \n"""
-    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
-    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
+#    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
+#    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
     """\n""")
@@ -121,7 +121,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
             continue
         previous.append(static_directory)
         apache_conf += ("""<Directory "%(static_directory)s">\n"""
-        """    Options Indexes\n"""
+        """    Options Indexes FollowSymLinks\n"""
         """\n"""
         """    <IfModule authz_core_module>\n"""
         """        Require all granted\n"""

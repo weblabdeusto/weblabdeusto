@@ -104,8 +104,16 @@ def _get_experiment_data(experiment_raw):
     exp['display_name'] = experiment_raw.name
     exp['category'] = experiment_raw.category.name
     exp['type'] = experiment_raw.client.client_id
-    exp['config'] = experiment_raw.client.configuration
-    exp['logo_link'] = url_for('.gwt', path='weblabclientlab' + exp['config'].get('experiment.picture', '/img/experiments/default.jpg'))
+    exp['config'] = experiment_raw.client.configuration or {}
+    if 'experiment.picture' in exp['config']:
+        if exp['type'] == 'js' and not exp['config'].get('builtin'):
+            exp['logo_link'] = url_for('core_web.pub', path=exp['config'].get('experiment.picture'))
+        else:
+            exp['logo_link'] = url_for('.gwt', path='weblabclientlab' + exp['config'].get('experiment.picture'))
+    else:
+        default_logo = url_for('.gwt', path='weblabclientlab/img/experiments/default.jpg')
+        exp['logo_link'] = default_logo
+
     exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])
     exp['config_url'] = url_for('.lab_config', experiment_name=exp['name'], category_name=exp['category'], _external=True)
     exp['description'] = ""

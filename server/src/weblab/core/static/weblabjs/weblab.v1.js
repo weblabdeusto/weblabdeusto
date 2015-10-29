@@ -573,14 +573,14 @@ if (window.weblab === undefined) {
             }.bind(this);
             waitForPostReservation();
             return promise.promise();
-        }
+        };
 
         /**
          * Set the experiment configuration
          */
         this._setConfiguration = function (configuration) {
             this.config = configuration;
-        }
+        };
 
         /**
          * Loads the initial configuration (e.g., target URL, experiment configuration, scripts to be loaded, etc.).
@@ -1340,7 +1340,7 @@ if (window.weblab === undefined) {
                 });
 
             return promise.promise();
-        }
+        };
 
         /**
          * @callback reserveExperiment~done
@@ -1382,6 +1382,7 @@ if (window.weblab === undefined) {
             }
         });
 
+        // TODO: Add description.s
         this.onConfigLoad(function () {
             if (mExperimentLoadedPromise == null) {
                 window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
