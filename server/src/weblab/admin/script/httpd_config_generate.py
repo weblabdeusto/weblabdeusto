@@ -79,8 +79,8 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """</Files>\n"""
     """\n"""
     """# Apache redirects the regular paths to the particular directories \n"""
-    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
-    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
+#    """RedirectMatch ^%(root)s$ %(root)s/weblab/\n"""
+#    """RedirectMatch ^%(root)s/$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab$ %(root)s/weblab/\n"""
     """RedirectMatch ^%(root)s/weblab/client/$ %(root)s/weblab/client/index.html\n"""
     """\n""")
