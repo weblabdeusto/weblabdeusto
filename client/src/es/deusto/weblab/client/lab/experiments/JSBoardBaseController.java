@@ -233,7 +233,12 @@ public class JSBoardBaseController implements IBoardBaseController {
 			} else if (rawValue instanceof String) {
 				value = new JSONString((String)rawValue);
 			} else {
-				log("Invalid value for key: " + key);
+				log("Invalid value for key: " + key + "; value: " + rawValue);
+				try {
+				    log("; original type: " + rawValue.getClass().getName());
+				} catch(Exception ex) {
+
+				}
 				continue;
 			}
 			log("Key: " + key + "; value: " + value);
@@ -252,7 +257,18 @@ public class JSBoardBaseController implements IBoardBaseController {
 		var configuration = $wnd.gwt_experiment_config.config;
 		for (var key in configuration) {
 			var value = configuration[key];
-			configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, value);
+
+            // If we call ::put directly with a JS object as parameter, it gets passed as an encapsulated
+            // JavaScriptObject, and is not automagically converted to the right type (Boolean, for instance).
+            // That is why we check the type here, and explicitly instance the Java type.
+
+			if(typeof(value) == "boolean") {
+			    configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, @java.lang.Boolean::valueOf(Z)(value));
+			} else if(typeof(value) == "number") {
+			    configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, @java.lang.Double::valueOf(D)(value));
+			}
+            else
+			    configObj.@java.util.Map::put(Ljava/lang/Object;Ljava/lang/Object;)(key, value);
 		}
 	}-*/;
 
