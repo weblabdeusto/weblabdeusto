@@ -193,7 +193,7 @@ class UsersPanel(AdministratorModelView):
     column_searchable_list = ('full_name', 'login')
     column_labels = dict(role=lazy_gettext("Role"), login=lazy_gettext("Login"), full_name=lazy_gettext("Full name"), email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"), permissions=lazy_gettext("Permissions"), auths=lazy_gettext("Credentials"))
 
-    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions'
+    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions', 'preferences'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
 
     column_descriptions = dict(login=lazy_gettext('Username (all letters, dots and numbers)'),
