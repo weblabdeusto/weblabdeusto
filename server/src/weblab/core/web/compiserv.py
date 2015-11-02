@@ -38,7 +38,7 @@ def compiserve():
 @weblab_api.route_web('/compiserv/queue/armc', methods=["POST"])
 def compiserve_queue_vhdl_post():
     """
-    Enqueues a VHDL synthesization job. This can be done by any client.
+    Enqueues an ARMC synthesization job. This can be done by any client.
     :return:
     """
     BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
@@ -69,8 +69,11 @@ def compiserve_queue_vhdl_post():
         token = json_resp["TokenID"]
 
         response['result'] = 'accepted'
-        response['uid'] = id + "+" + token
-        # response['uid'] = uuid.uuid1()
+        uid = id + "+" + token
+        response['uid'] = uid
+
+        # Store the JOB in the queue.
+        JOBS[uid] = {'state': 'queued'}
 
     contents = json.dumps(response, indent=4)
     response = make_response(contents)
@@ -84,6 +87,9 @@ def compiserve_queue_get(uid):
     Enquiries about the status of a specific job. This can be done by any client.
     :return:
     """
+    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
+    GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
+
     result = {
         "result": ""
     }
@@ -92,6 +98,29 @@ def compiserve_queue_get(uid):
         result['state'] = 'not_found'
 
     job = JOBS[uid]
+
+    # Split the UID into its components.
+    id, tokenid = uid.split("+", 1)
+
+    # Retrieve the state of the remote JOB
+    resp = request.get(GET_URL.format(id, tokenid))
+    jsresp = resp.json()
+
+    # BinaryFile, CompletedDate, LogFile, State
+    state = jsresp['state'].lower()
+
+    if state == 'finished':
+        binary_file = jsresp['BinaryFile']
+        completed_date = jsresp['CompletedDate']
+        log_file = jsresp['LogFile']
+        result['state'] = 'done'
+
+    elif state == 'unfinished':
+        pass
+
+    else:
+        raise Exception("Unrecognized job state: " + state)
+
 
     if job['state'] == 'done':
         result['state'] = 'done'
