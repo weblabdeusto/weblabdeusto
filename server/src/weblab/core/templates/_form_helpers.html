@@ -4,10 +4,10 @@
     {% endif %}
 
     <div class="form-group {% if field.errors %}has-error{% endif %}">
-        {% if required %}
-            {% set the_label = '%s <strong style="color: red">&#42;</strong>' % field.label.text %}
+        {% if required and field.label.text %}
+            {% set the_label = field.label.text + ' <strong style="color: red">&#42;</strong>' %}
         {% else %}
-            {% set the_label = '%s' % field.label.text %}
+            {% set the_label = field.label.text %}
         {% endif %}
         {{ field.label(the_label, class="control-label col-sm-3") }}
         
