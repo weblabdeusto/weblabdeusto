@@ -36,7 +36,7 @@ def compiserve():
 
 
 @weblab_api.route_web('/compiserv/queue/armc', methods=["POST"])
-def compiserve_queue_vhdl_post():
+def compiserve_queue_armc_post():
     """
     Enqueues an ARMC synthesization job. This can be done by any client.
     :return:
