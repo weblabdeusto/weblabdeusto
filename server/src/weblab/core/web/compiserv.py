@@ -20,6 +20,8 @@ import json
 
 
 # TO-DO: Just a prototype.
+import requests
+
 JOBS = {}
 
 
@@ -33,12 +35,15 @@ def compiserve():
     return response
 
 
-@weblab_api.route_web('/compiserv/queue/vhdl', methods=["POST"])
+@weblab_api.route_web('/compiserv/queue/armc', methods=["POST"])
 def compiserve_queue_vhdl_post():
     """
     Enqueues a VHDL synthesization job. This can be done by any client.
     :return:
     """
+    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
+    POST_URL = BASE_URL + "/PutCompilerTask/uvision"
+
     response = {
         "result": ""  # accepted or denied
     }
@@ -57,8 +62,15 @@ def compiserve_queue_vhdl_post():
 
     else:
         # Send to AZURE SERVICE
+        resp = requests.post(POST_URL, file_contents)
+        json_resp = resp.json()
+        generated_date = json_resp["GeneratedDate"]
+        id = json_resp["ID"]
+        token = json_resp["TokenID"]
+
         response['result'] = 'accepted'
-        response['uid'] = uuid.uuid1()
+        response['uid'] = id + "+" + token
+        # response['uid'] = uuid.uuid1()
 
     contents = json.dumps(response, indent=4)
     response = make_response(contents)
