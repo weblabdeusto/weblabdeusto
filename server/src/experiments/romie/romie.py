@@ -141,7 +141,8 @@ class RoMIExperiment(Experiment.Experiment):
                     cur.execute('SELECT gender, birthday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
                     result = cur.fetchone()
                     conn.close()
-
+                    
+                    self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                     result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'gender': result[0], 'time': self.finish_time, 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
