@@ -63,7 +63,7 @@ class TestCompiserv(unittest.TestCase):
 
     def _mocked_post(url, data):
         """
-        Moc
+        Mocks the POST JOB request.
         """
         resp = requests.Response()
         respobj = {"GeneratedDate": "27/11/2015", "ID": 20, "TokenID": "abcdef"}
@@ -71,9 +71,10 @@ class TestCompiserv(unittest.TestCase):
         return resp
 
     @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
-    def test_lab_page(self):
+    def test_post_compiserv_job(self):
         """
         Ensure that POST'ing a new compilation job seems to work as expected.
+        Mocks the remote compilation server.
         """
         rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
 
@@ -86,6 +87,36 @@ class TestCompiserv(unittest.TestCase):
 
         self.assertIn("uid", response, "The response to the job POST request does not seem to contain an uid key")
         self.assertEqual(response["uid"], "20+abcdef", "UID is not 20+abcdef as was expected")
+
+    def _mocked_get(url):
+        """
+        Mocks the GET job request.
+        """
+        resp = requests.Response()
+        respobj = {"State": "finished", "BinaryFile": "Binary File Contents", "CompletedDate": "20/02/2015", "LogFile": "Log File Contents" }
+        resp._content = json.dumps(respobj)
+        return resp
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
+    def test_get_compiserv_job(self):
+        """
+        Ensure that GET'ing the status of a compilation job seems to work as expected.
+        Mocks the remote compilation server.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+        resp = json.loads(rv.data)
+
+        self.assertIsNotNone(resp, "Resp is None")
+        self.assertIn("state", resp, "The response to the GET request does not seem to contain a 'status' key")
+        self.assertEqual(resp["state"], "done", "The reported state is not 'done'")
+
+    def test_retrieve_result(self):
+        """
+        Ensure that we can retrieve the binary file etc.
+        """
+        rv = self.
 
     def tearDown(self):
         """

@@ -17,10 +17,32 @@ from weblab.core.wl import weblab_api
 
 import uuid
 import json
-
-
-# TO-DO: Just a prototype.
 import requests
+
+# # PROTOCOL
+#
+# ## ACTION: Create a new job
+# METHOD: POST to /compiserv/queue/armc
+# PARAMETERS: Can receive the file as a multipart file, or as raw data.
+#
+# RETURNS:
+# A JSON object:
+# { result: <result>, // <result> is 'accepted' or 'denied'
+#   uid: <uid>, // only if result is 'accepted'
+# }
+#
+#
+# ## ACTION: Check the state of a job
+# METHOD: GET to /compiserv/queue/<uid>
+# PARAMETERS: The <uid>
+#
+# RETURNS:
+# A JSON object:
+# { state: <state>, // <state> is 'finished' if the task is done or failed, 'unfinished' if it is reportedly in progress or
+#                      in queue, and 'not_found' if it could not be found.
+#
+# }
+#
 
 JOBS = {}
 BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
@@ -90,7 +112,7 @@ def compiserve_queue_get(uid):
     """
 
     result = {
-        "result": ""
+        "state": ""
     }
 
     if uid not in JOBS:
@@ -106,7 +128,7 @@ def compiserve_queue_get(uid):
     jsresp = resp.json()
 
     # BinaryFile, CompletedDate, LogFile, State
-    state = jsresp['state'].lower()
+    state = jsresp['State'].lower()
 
     if state == 'finished':
         binary_file = jsresp['BinaryFile']
@@ -114,23 +136,16 @@ def compiserve_queue_get(uid):
         log_file = jsresp['LogFile']
         result['state'] = 'done'
 
-    elif state == 'unfinished':
-        pass
+    elif state.startswith('Unfinished'):
+        splits = state.split(":")
+        number = int(splits[1].trim())
+        result['state'] = 'queued'
+        result['position'] = number
+
+    # TODO: How are failures reported?
 
     else:
         raise Exception("Unrecognized job state: " + state)
-
-
-    if job['state'] == 'done':
-        result['state'] = 'done'
-
-    elif job['state'] == 'failed':
-        result['failed'] = 'failed'
-
-    else:
-        # TODO
-        result['state'] = 'queued'
-        result['position'] = 2
 
     contents = json.dumps(result, indent=4)
     response = make_response(contents)
