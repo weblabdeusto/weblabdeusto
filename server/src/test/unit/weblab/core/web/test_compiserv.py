@@ -13,10 +13,15 @@
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
 from __future__ import print_function
+import json
 import unittest
+import mock
+import requests
 
 from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
+
+from mock import patch
 
 
 class TestCompiserv(unittest.TestCase):
@@ -49,14 +54,38 @@ class TestCompiserv(unittest.TestCase):
     def test_nothing(self):
         pass
 
-#    def test_lab_page(self):
-#        """
-#        Ensure that the labs page seems to load.
-#        """
-#        rv = self.app.get('/weblab/labs/%s/%s/' % ("Dummy%20experiments", "jsdummy"))
-#        self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
-#        self.assertIn("jsdummy", rv.data, "Lab page does not contain the expected 'jsdummy' text")
-#        self.assertIn("upload", rv.data, "Lab page does not contain the expected 'Upload' text")
+    def test_intro_page_loads(self):
+        """
+        Ensure that the compiserv index page loads.
+        """
+        rv = self.app.get('/weblab/web/compiserv/')
+        self.assertEqual(rv.status_code, 200, "Compiserv index page does not return 200")
+
+    def _mocked_post(url, data):
+        """
+        Moc
+        """
+        resp = requests.Response()
+        respobj = {"GeneratedDate": "27/11/2015", "ID": 20, "TokenID": "abcdef"}
+        resp._content = json.dumps(respobj)
+        return resp
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    def test_lab_page(self):
+        """
+        Ensure that POST'ing a new compilation job seems to work as expected.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+
+        self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
+
+        response = json.loads(rv.data)
+
+        self.assertIn("result", response, "The response to the job POST request does not seem to contain a result key")
+        self.assertEqual(response["result"], "accepted", "Result is not 'accepted'")
+
+        self.assertIn("uid", response, "The response to the job POST request does not seem to contain an uid key")
+        self.assertEqual(response["uid"], "20+abcdef", "UID is not 20+abcdef as was expected")
 
     def tearDown(self):
         """

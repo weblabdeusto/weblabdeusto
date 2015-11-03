@@ -23,6 +23,9 @@ import json
 import requests
 
 JOBS = {}
+BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
+POST_URL = BASE_URL + "/PutCompilerTask/uvision"
+GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
 
 
 @weblab_api.route_web('/compiserv/')
@@ -41,8 +44,6 @@ def compiserve_queue_armc_post():
     Enqueues an ARMC synthesization job. This can be done by any client.
     :return:
     """
-    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
-    POST_URL = BASE_URL + "/PutCompilerTask/uvision"
 
     response = {
         "result": ""  # accepted or denied
@@ -69,7 +70,7 @@ def compiserve_queue_armc_post():
         token = json_resp["TokenID"]
 
         response['result'] = 'accepted'
-        uid = id + "+" + token
+        uid = "{0}+{1}".format(id, token)
         response['uid'] = uid
 
         # Store the JOB in the queue.
@@ -87,8 +88,6 @@ def compiserve_queue_get(uid):
     Enquiries about the status of a specific job. This can be done by any client.
     :return:
     """
-    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
-    GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
 
     result = {
         "result": ""
@@ -103,7 +102,7 @@ def compiserve_queue_get(uid):
     id, tokenid = uid.split("+", 1)
 
     # Retrieve the state of the remote JOB
-    resp = request.get(GET_URL.format(id, tokenid))
+    resp = requests.get(GET_URL.format(id, tokenid))
     jsresp = resp.json()
 
     # BinaryFile, CompletedDate, LogFile, State
