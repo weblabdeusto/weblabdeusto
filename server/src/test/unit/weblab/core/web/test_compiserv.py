@@ -92,10 +92,15 @@ class TestCompiserv(unittest.TestCase):
         """
         Mocks the GET job request.
         """
-        resp = requests.Response()
-        respobj = {"State": "finished", "BinaryFile": "Binary File Contents", "CompletedDate": "20/02/2015", "LogFile": "Log File Contents" }
-        resp._content = json.dumps(respobj)
-        return resp
+
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+            resp = requests.Response()
+            respobj = {"State": "finished", "BinaryFile": "Binary File Contents", "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
+            resp._content = json.dumps(respobj)
+            return resp
+        else:
+            # Unexpected URL
+            assert False
 
     @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
     @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
@@ -112,11 +117,21 @@ class TestCompiserv(unittest.TestCase):
         self.assertIn("state", resp, "The response to the GET request does not seem to contain a 'status' key")
         self.assertEqual(resp["state"], "done", "The reported state is not 'done'")
 
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
     def test_retrieve_result(self):
         """
         Ensure that we can retrieve the binary file etc.
         """
-        rv = self.
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+
+        # This call is meant to be carried out internally (by the experiment server itself).
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("20+abcdef"))
+
+        # Ensure that it returns a file indeed.
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        self.assertEqual(rv.data, "Binary File Contents") # TODO: This is just while testing.
 
     def tearDown(self):
         """

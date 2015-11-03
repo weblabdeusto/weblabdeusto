@@ -134,6 +134,12 @@ def compiserve_queue_get(uid):
         binary_file = jsresp['BinaryFile']
         completed_date = jsresp['CompletedDate']
         log_file = jsresp['LogFile']
+
+        # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
+        job["binary_file"] = binary_file
+        job["completed_date"] = completed_date
+        job["log_file"] = log_file
+
         result['state'] = 'done'
 
     elif state.startswith('Unfinished'):
@@ -161,8 +167,12 @@ def compiserve_result_outputfile(uid):
     :return:
     """
 
+    # Find the job
+    job = JOBS[uid]
+
     if True:  # TODO: IF FILE IS INDEED READY
-        file_contents = """ TEST FILE """
+        # TODO: Check the state of the job. Do not assume it is finished.
+        file_contents = job["binary_file"]
         response = make_response(file_contents)
         response.headers["Content-Disposition"] = "attachment; filename=result.bin"
         response.headers["Content-Type"] = "application/octet-stream"
