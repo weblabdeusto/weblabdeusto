@@ -19,8 +19,8 @@ function start(time, initialConfig) {
             else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
             else init(response['time'], response['points']);
 
-            $(parent.document).find('iframe[name=wlframe]').show();
-            $(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
+            $(parent.document).find('#exp-frame').show();
+            $(parent).scrollTop($(parent.document).find('#exp-frame').position().top, 0);
         });
 }
 
