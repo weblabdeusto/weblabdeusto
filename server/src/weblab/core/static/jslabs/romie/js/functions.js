@@ -14,10 +14,19 @@ function getAge(milliseconds) {
 function start(time, initialConfig) {
 	weblab.sendCommand("CHECK_REGISTER")
         .done(function(response) {
-            response = JSON.parse(response)
-            if (response['register']) register(response['psycho']);
-            else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
-            else init(response['time'], response['points']);
+            response = JSON.parse(response);
+			console.debug("[server check_register response is: ");
+			console.debug(response);
+
+			if (response['register']) {
+				register(response['psycho']);
+			}
+            else if (response['psycho']) {
+				psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
+			}
+            else {
+				init(response['time'], response['points']);
+			}
 
             $(parent.document).find('#exp-frame').show();
             $(parent).scrollTop($(parent.document).find('#exp-frame').position().top, 0);
