@@ -125,6 +125,7 @@ function register(do_psycho) {
 }
 
 function init(time, points) {
+	console.debug("[time is: " + time)
 	romie = new Romie();
 	game = new Game(time, points);
 
@@ -142,7 +143,7 @@ function init(time, points) {
 	updateCam1 = function() {
 		d = new Date();
 		$('.camera1 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
-	}
+	};
 
 	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
 	updateCam1();
