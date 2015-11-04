@@ -102,6 +102,20 @@ class TestCompiserv(unittest.TestCase):
             # Unexpected URL
             assert False
 
+    def _mocked_get_unfinished(url):
+        """
+        Mocks the GET job request for the UNFINISHED case.
+        """
+
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+            resp = requests.Response()
+            respobj = {"State": "Unfinished: 1"}
+            resp._content = json.dumps(respobj)
+            return resp
+        else:
+            # Unexpected URL
+            assert False
+
     @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
     @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
     def test_get_compiserv_job(self):
@@ -126,12 +140,61 @@ class TestCompiserv(unittest.TestCase):
         rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
         rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
 
-        # This call is meant to be carried out internally (by the experiment server itself).
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
         rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("20+abcdef"))
 
         # Ensure that it returns a file indeed.
         self.assertEqual(rv.status_code, 200, "Result is not 200")
-        self.assertEqual(rv.data, "Binary File Contents") # TODO: This is just while testing.
+        self.assertEqual(rv.data, "Binary File Contents")
+
+        # This call is also meant to be carried out internally (by the experiment server),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("20+abcdef"))
+
+        # Ensure that it returns a file indeed.
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        self.assertEqual(rv.data, "Log File Contents")
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
+    def test_retrieve_result_reports_error_if_not_exists(self):
+        """
+        Ensure that if the job doesn't exist, an error is reported in JSON.
+        """
+
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("21+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("21+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get_unfinished))
+    def test_retrieve_result_reports_error_if_pending(self):
+        """
+        Ensure that if the job hasn't finished, an error is reported in JSON.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))  # This won't finish.
+
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("20+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("20+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
 
     def tearDown(self):
         """

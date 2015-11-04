@@ -142,9 +142,9 @@ def compiserve_queue_get(uid):
 
         result['state'] = 'done'
 
-    elif state.startswith('Unfinished'):
+    elif state.startswith('unfinished'):
         splits = state.split(":")
-        number = int(splits[1].trim())
+        number = int(splits[1].strip())
         result['state'] = 'queued'
         result['position'] = number
 
@@ -167,11 +167,20 @@ def compiserve_result_outputfile(uid):
     :return:
     """
 
+    if uid not in JOBS:
+        result = {
+            'result': 'error',
+            'msg': "job not found"
+        }
+        result = json.dumps(result, indent=4)
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
     # Find the job
     job = JOBS[uid]
 
-    if True:  # TODO: IF FILE IS INDEED READY
-        # TODO: Check the state of the job. Do not assume it is finished.
+    if "binary_file" in job:  # TODO: IF FILE IS INDEED READY
         file_contents = job["binary_file"]
         response = make_response(file_contents)
         response.headers["Content-Disposition"] = "attachment; filename=result.bin"
@@ -181,6 +190,7 @@ def compiserve_result_outputfile(uid):
             'result': 'error',
             'msg': 'result not found'
         }
+        result = json.dumps(result, indent=4)
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
 
@@ -195,16 +205,31 @@ def compiserve_result_logfile(uid):
     :return:
     """
 
-    if True:  # TODO: IF FILE IS INDEED READY
-        file_contents = """ TEST LOG FILE """
+    if uid not in JOBS:
+        result = {
+            'result': 'error',
+            'msg': "job not found"
+        }
+        result = json.dumps(result, indent=4)
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    # Find the job
+    job = JOBS[uid]
+
+    if "log_file" in job:  # TODO: IF FILE IS INDEED READY
+        # TODO: Check the state of the job. Do not assume it is finished.
+        file_contents = job["log_file"]
         response = make_response(file_contents)
-        response.headers["Content-Disposition"] = "attachment; filename=result.log"
+        response.headers["Content-Disposition"] = "attachment; filename=logfile.bin"
         response.headers["Content-Type"] = "application/octet-stream"
     else:  #
         result = {
             'result': 'error',
             'msg': 'result not found'
         }
+        result = json.dumps(result, indent=4)
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
 
