@@ -12,15 +12,16 @@
 #
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
-from flask import make_response, request
 from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
+from flask import make_response, request, jsonify
 from weblab.core.wl import weblab_api
 
 import uuid
 import json
 import requests
 import time
+import traceback
 
 # # PROTOCOL
 #
@@ -53,7 +54,7 @@ import time
 JOBS = {}
 BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
 POST_URL = BASE_URL + "/PutCompilerTask/uvision"
-GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
+GET_URL = BASE_URL + "/GetCompilerTask/{0}/{1}"
 
 
 @weblab_api.route_web('/compiserv/')
@@ -110,60 +111,67 @@ def compiserve_queue_armc_post():
     return response
 
 
-@weblab_api.route_web('/compiserv/queue/<uid>', methods=["GET"])
+@weblab_api.route_web('/compiserv/queue/armc/<uid>', methods=["GET"])
 def compiserve_queue_get(uid):
     """
     Enquiries about the status of a specific job. This can be done by any client.
     :return:
     """
 
-    result = {
-        "state": ""
-    }
+    try:
 
-    if uid not in JOBS:
-        result['state'] = 'not_found'
+        print("Received UID is: " + uid)
 
-    job = JOBS[uid]
+        result = {
+            "state": ""
+        }
 
-    # Split the UID into its components.
-    id, tokenid = uid.split("+", 1)
+        if uid not in JOBS:
+            return jsonify(state='not_found')
 
-    # Retrieve the state of the remote JOB
-    resp = requests.get(GET_URL.format(id, tokenid))
-    jsresp = resp.json()
+        job = JOBS[uid]
 
-    # BinaryFile, CompletedDate, LogFile, State
-    state = jsresp['State'].lower()
+        # Split the UID into its components.
+        id, tokenid = uid.split("+", 1)
 
-    if state == 'finished':
-        binary_file = jsresp['BinaryFile']
-        completed_date = jsresp['CompletedDate']
-        log_file = jsresp['LogFile']
+        # Retrieve the state of the remote JOB
+        resp = requests.get(GET_URL.format(id, tokenid))
+        jsresp = resp.json()
 
-        # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
-        job["binary_file"] = binary_file
-        job["completed_date"] = completed_date
-        job["log_file"] = log_file
+        # BinaryFile, CompletedDate, LogFile, State
+        state = jsresp['State'].lower()
 
-        result['state'] = 'done'
+        if state == 'finished':
+            binary_file = jsresp['BinaryFile']
+            completed_date = jsresp['CompletedDate']
+            log_file = jsresp['LogFile']
 
-    elif state.startswith('unfinished'):
-        splits = state.split(":")
-        number = int(splits[1].strip())
-        result['state'] = 'queued'
-        result['position'] = number
+            # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
+            job["binary_file"] = binary_file
+            job["completed_date"] = completed_date
+            job["log_file"] = log_file
 
-    # TODO: How are failures reported?
+            result['state'] = 'done'
 
-    else:
-        raise Exception("Unrecognized job state: " + state)
+        elif state.startswith('unfinished'):
+            splits = state.split(":")
+            number = int(splits[1].strip())
+            result['state'] = 'queued'
+            result['position'] = number
 
-    contents = json.dumps(result, indent=4)
-    response = make_response(contents)
-    response.content_type = 'application/json'
-    return response
+        # TODO: How are failures reported?
 
+        else:
+            raise Exception("Unrecognized job state: " + state)
+
+        contents = json.dumps(result, indent=4)
+        response = make_response(contents)
+        response.content_type = 'application/json'
+        return response
+
+    except Exception as ex:
+        tb = traceback.format_exc()
+        return jsonify(state='error', traceback=tb)
 
 @weblab_api.route_web('/compiserv/result/<uid>/outputfile', methods=["GET"])
 def compiserve_result_outputfile(uid):
