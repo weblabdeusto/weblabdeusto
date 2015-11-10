@@ -12,7 +12,7 @@
 #
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
-from flask import make_response, request
+from flask import make_response, request, jsonify
 from weblab.core.wl import weblab_api
 
 import uuid
@@ -95,7 +95,7 @@ def compiserve_queue_get(uid):
     }
 
     if uid not in JOBS:
-        result['state'] = 'not_found'
+        return jsonify(state='not_found')
 
     job = JOBS[uid]
 
