@@ -48,7 +48,7 @@ import traceback
 JOBS = {}
 BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
 POST_URL = BASE_URL + "/PutCompilerTask/uvision"
-GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
+GET_URL = BASE_URL + "/GetCompilerTask/{0}/{1}"
 
 
 @weblab_api.route_web('/compiserv/')
