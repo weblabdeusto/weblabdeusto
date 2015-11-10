@@ -150,8 +150,8 @@ def compiserve_queue_get(uid):
             # Store the binary file as a byte array.
             # TODO: Check whether flask supports bytearray
 
-            binary_file = array.array('B', binary_file)
-            log_file = array.array('B', log_file)
+            binary_file = array.array('B', binary_file).tostring()
+            log_file = array.array('B', log_file).tostring()
 
             # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
             job["binary_file"] = binary_file
