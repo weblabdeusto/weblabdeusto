@@ -22,6 +22,7 @@ import json
 import requests
 import time
 import traceback
+import array
 
 # # PROTOCOL
 #
@@ -145,6 +146,12 @@ def compiserve_queue_get(uid):
             binary_file = jsresp['BinaryFile']
             completed_date = jsresp['CompletedDate']
             log_file = jsresp['LogFile']
+
+            # Store the binary file as a byte array.
+            # TODO: Check whether flask supports bytearray
+
+            binary_file = array.array('B', binary_file)
+            log_file = array.array('B', log_file)
 
             # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
             job["binary_file"] = binary_file
