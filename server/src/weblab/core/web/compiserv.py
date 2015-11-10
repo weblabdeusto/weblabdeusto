@@ -23,6 +23,7 @@ import requests
 import time
 import traceback
 import array
+import threading
 
 # # PROTOCOL
 #
@@ -105,6 +106,7 @@ def compiserve_queue_armc_post():
 
         # Store the JOB in the queue.
         JOBS[uid] = {'state': 'queued'}
+        print("JOB PUT IN QUEUE: Thread: {0}".format(threading.current_thread()))
 
     contents = json.dumps(response, indent=4)
     response = make_response(contents)
@@ -143,6 +145,9 @@ def compiserve_queue_get(uid):
         state = jsresp['State'].lower()
 
         if state == 'finished':
+
+            print "[DEBUG]: CompiServ finished with {0}. From thread: {1}".format(uid, threading.current_thread())
+
             binary_file = jsresp['BinaryFile']
             completed_date = jsresp['CompletedDate']
             log_file = jsresp['LogFile']
@@ -159,6 +164,8 @@ def compiserve_queue_get(uid):
             job["log_file"] = log_file
 
             result['state'] = 'done'
+
+            print("[DEBUG] Compiserv result saved. Jobs dictionary is: {0}".format(JOBS))
 
         elif state.startswith('unfinished'):
             splits = state.split(":")
