@@ -104,7 +104,7 @@ def compiserve_queue_armc_post():
     return response
 
 
-@weblab_api.route_web('/compiserv/queue/<uid>', methods=["GET"])
+@weblab_api.route_web('/compiserv/queue/armc/<uid>', methods=["GET"])
 def compiserve_queue_get(uid):
     """
     Enquiries about the status of a specific job. This can be done by any client.
