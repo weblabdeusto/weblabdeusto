@@ -183,10 +183,16 @@ def compiserve_result_outputfile(uid):
 
     try:
 
+        # TODO: Clean this.
+        # This is just an attempt of bug work-around. It would be better to properly fix this.
+        if "+" not in uid:
+            uid = uid.replace(" ", "+")
+
         if uid not in JOBS:
             result = {
                 'result': 'error',
-                'msg': "job not found"
+                'msg': "Job not found. Searched for: {0}".format(uid),
+                'jobs': "{0}".format(JOBS)
             }
             result = json.dumps(result, indent=4)
             response = make_response(result)
