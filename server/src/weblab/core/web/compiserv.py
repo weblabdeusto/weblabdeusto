@@ -181,34 +181,40 @@ def compiserve_result_outputfile(uid):
     :return:
     """
 
-    if uid not in JOBS:
-        result = {
-            'result': 'error',
-            'msg': "job not found"
-        }
-        result = json.dumps(result, indent=4)
-        response = make_response(result)
-        response.headers["Content-Type"] = "application/json"
+    try:
+
+        if uid not in JOBS:
+            result = {
+                'result': 'error',
+                'msg': "job not found"
+            }
+            result = json.dumps(result, indent=4)
+            response = make_response(result)
+            response.headers["Content-Type"] = "application/json"
+            return response
+
+        # Find the job
+        job = JOBS[uid]
+
+        if "binary_file" in job:  # TODO: IF FILE IS INDEED READY
+            file_contents = job["binary_file"]
+            response = make_response(file_contents)
+            response.headers["Content-Disposition"] = "attachment; filename=result.bin"
+            response.headers["Content-Type"] = "application/octet-stream"
+        else:  #
+            result = {
+                'result': 'error',
+                'msg': 'result not found'
+            }
+            result = json.dumps(result, indent=4)
+            response = make_response(result)
+            response.headers["Content-Type"] = "application/json"
+
         return response
 
-    # Find the job
-    job = JOBS[uid]
-
-    if "binary_file" in job:  # TODO: IF FILE IS INDEED READY
-        file_contents = job["binary_file"]
-        response = make_response(file_contents)
-        response.headers["Content-Disposition"] = "attachment; filename=result.bin"
-        response.headers["Content-Type"] = "application/octet-stream"
-    else:  #
-        result = {
-            'result': 'error',
-            'msg': 'result not found'
-        }
-        result = json.dumps(result, indent=4)
-        response = make_response(result)
-        response.headers["Content-Type"] = "application/json"
-
-    return response
+    except Exception as ex:
+        tb = traceback.format_exc()
+        return jsonify(state='error', traceback=tb)
 
 @weblab_api.route_web('/compiserv/result/<uid>/logfile', methods=["GET"])
 def compiserve_result_logfile(uid):
