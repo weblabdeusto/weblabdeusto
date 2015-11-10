@@ -127,6 +127,7 @@ class RoMIExperiment(Experiment.Experiment):
 
             result = ''
             if count == 0 and not self._cfg_manager.get_value('romie_demo'):
+                # This seems to work as expected.
                 result = {'register': True, 'psycho': self._cfg_manager.get_value('romie_labpsico')}
             else:
                 if self._cfg_manager.get_value('romie_demo') or self.get_psycho_points() > 0:
@@ -141,7 +142,8 @@ class RoMIExperiment(Experiment.Experiment):
                     result = cur.fetchone()
                     conn.close()
 
-                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'gender': result[0], 'birthday': result[1], 'grade': result[2], 'user': self.username}
+                    self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
+                    result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'gender': result[0], 'time': self.finish_time, 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
             conn.close()
 

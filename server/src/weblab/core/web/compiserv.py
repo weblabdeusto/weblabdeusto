@@ -17,12 +17,37 @@ from weblab.core.wl import weblab_api
 
 import uuid
 import json
-
-
-# TO-DO: Just a prototype.
 import requests
 
+# # PROTOCOL
+#
+# ## ACTION: Create a new job
+# METHOD: POST to /compiserv/queue/armc
+# PARAMETERS: Can receive the file as a multipart file, or as raw data.
+#
+# RETURNS:
+# A JSON object:
+# { result: <result>, // <result> is 'accepted' or 'denied'
+#   uid: <uid>, // only if result is 'accepted'
+# }
+#
+#
+# ## ACTION: Check the state of a job
+# METHOD: GET to /compiserv/queue/<uid>
+# PARAMETERS: The <uid>
+#
+# RETURNS:
+# A JSON object:
+# { state: <state>, // <state> is 'finished' if the task is done or failed, 'unfinished' if it is reportedly in progress or
+#                      in queue, and 'not_found' if it could not be found.
+#
+# }
+#
+
 JOBS = {}
+BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
+POST_URL = BASE_URL + "/PutCompilerTask/uvision"
+GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
 
 
 @weblab_api.route_web('/compiserv/')
@@ -36,13 +61,11 @@ def compiserve():
 
 
 @weblab_api.route_web('/compiserv/queue/armc', methods=["POST"])
-def compiserve_queue_vhdl_post():
+def compiserve_queue_armc_post():
     """
     Enqueues an ARMC synthesization job. This can be done by any client.
     :return:
     """
-    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
-    POST_URL = BASE_URL + "/PutCompilerTask/uvision"
 
     response = {
         "result": ""  # accepted or denied
@@ -69,7 +92,7 @@ def compiserve_queue_vhdl_post():
         token = json_resp["TokenID"]
 
         response['result'] = 'accepted'
-        uid = id + "+" + token
+        uid = "{0}+{1}".format(id, token)
         response['uid'] = uid
 
         # Store the JOB in the queue.
@@ -87,11 +110,9 @@ def compiserve_queue_get(uid):
     Enquiries about the status of a specific job. This can be done by any client.
     :return:
     """
-    BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
-    GET_URL = BASE_URL + "/GetCompilerTask/uvision/{0}/{1}"
 
     result = {
-        "result": ""
+        "state": ""
     }
 
     if uid not in JOBS:
@@ -103,35 +124,34 @@ def compiserve_queue_get(uid):
     id, tokenid = uid.split("+", 1)
 
     # Retrieve the state of the remote JOB
-    resp = request.get(GET_URL.format(id, tokenid))
+    resp = requests.get(GET_URL.format(id, tokenid))
     jsresp = resp.json()
 
     # BinaryFile, CompletedDate, LogFile, State
-    state = jsresp['state'].lower()
+    state = jsresp['State'].lower()
 
     if state == 'finished':
         binary_file = jsresp['BinaryFile']
         completed_date = jsresp['CompletedDate']
         log_file = jsresp['LogFile']
+
+        # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
+        job["binary_file"] = binary_file
+        job["completed_date"] = completed_date
+        job["log_file"] = log_file
+
         result['state'] = 'done'
 
-    elif state == 'unfinished':
-        pass
+    elif state.startswith('unfinished'):
+        splits = state.split(":")
+        number = int(splits[1].strip())
+        result['state'] = 'queued'
+        result['position'] = number
+
+    # TODO: How are failures reported?
 
     else:
         raise Exception("Unrecognized job state: " + state)
-
-
-    if job['state'] == 'done':
-        result['state'] = 'done'
-
-    elif job['state'] == 'failed':
-        result['failed'] = 'failed'
-
-    else:
-        # TODO
-        result['state'] = 'queued'
-        result['position'] = 2
 
     contents = json.dumps(result, indent=4)
     response = make_response(contents)
@@ -147,8 +167,21 @@ def compiserve_result_outputfile(uid):
     :return:
     """
 
-    if True:  # TODO: IF FILE IS INDEED READY
-        file_contents = """ TEST FILE """
+    if uid not in JOBS:
+        result = {
+            'result': 'error',
+            'msg': "job not found"
+        }
+        result = json.dumps(result, indent=4)
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    # Find the job
+    job = JOBS[uid]
+
+    if "binary_file" in job:  # TODO: IF FILE IS INDEED READY
+        file_contents = job["binary_file"]
         response = make_response(file_contents)
         response.headers["Content-Disposition"] = "attachment; filename=result.bin"
         response.headers["Content-Type"] = "application/octet-stream"
@@ -157,6 +190,7 @@ def compiserve_result_outputfile(uid):
             'result': 'error',
             'msg': 'result not found'
         }
+        result = json.dumps(result, indent=4)
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
 
@@ -171,16 +205,31 @@ def compiserve_result_logfile(uid):
     :return:
     """
 
-    if True:  # TODO: IF FILE IS INDEED READY
-        file_contents = """ TEST LOG FILE """
+    if uid not in JOBS:
+        result = {
+            'result': 'error',
+            'msg': "job not found"
+        }
+        result = json.dumps(result, indent=4)
+        response = make_response(result)
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    # Find the job
+    job = JOBS[uid]
+
+    if "log_file" in job:  # TODO: IF FILE IS INDEED READY
+        # TODO: Check the state of the job. Do not assume it is finished.
+        file_contents = job["log_file"]
         response = make_response(file_contents)
-        response.headers["Content-Disposition"] = "attachment; filename=result.log"
+        response.headers["Content-Disposition"] = "attachment; filename=logfile.bin"
         response.headers["Content-Type"] = "application/octet-stream"
     else:  #
         result = {
             'result': 'error',
             'msg': 'result not found'
         }
+        result = json.dumps(result, indent=4)
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
 

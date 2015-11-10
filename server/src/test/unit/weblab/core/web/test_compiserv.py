@@ -13,10 +13,15 @@
 # Author: Luis Rodriguez-Gil <luis.rodriguezgil@deusto.es>
 #
 from __future__ import print_function
+import json
 import unittest
+import mock
+import requests
 
 from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
+
+from mock import patch
 
 
 class TestCompiserv(unittest.TestCase):
@@ -49,14 +54,147 @@ class TestCompiserv(unittest.TestCase):
     def test_nothing(self):
         pass
 
-#    def test_lab_page(self):
-#        """
-#        Ensure that the labs page seems to load.
-#        """
-#        rv = self.app.get('/weblab/labs/%s/%s/' % ("Dummy%20experiments", "jsdummy"))
-#        self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
-#        self.assertIn("jsdummy", rv.data, "Lab page does not contain the expected 'jsdummy' text")
-#        self.assertIn("upload", rv.data, "Lab page does not contain the expected 'Upload' text")
+    def test_intro_page_loads(self):
+        """
+        Ensure that the compiserv index page loads.
+        """
+        rv = self.app.get('/weblab/web/compiserv/')
+        self.assertEqual(rv.status_code, 200, "Compiserv index page does not return 200")
+
+    def _mocked_post(url, data):
+        """
+        Mocks the POST JOB request.
+        """
+        resp = requests.Response()
+        respobj = {"GeneratedDate": "27/11/2015", "ID": 20, "TokenID": "abcdef"}
+        resp._content = json.dumps(respobj)
+        return resp
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    def test_post_compiserv_job(self):
+        """
+        Ensure that POST'ing a new compilation job seems to work as expected.
+        Mocks the remote compilation server.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+
+        self.assertEqual(rv.status_code, 200, "Lab page does not return 200")
+
+        response = json.loads(rv.data)
+
+        self.assertIn("result", response, "The response to the job POST request does not seem to contain a result key")
+        self.assertEqual(response["result"], "accepted", "Result is not 'accepted'")
+
+        self.assertIn("uid", response, "The response to the job POST request does not seem to contain an uid key")
+        self.assertEqual(response["uid"], "20+abcdef", "UID is not 20+abcdef as was expected")
+
+    def _mocked_get(url):
+        """
+        Mocks the GET job request.
+        """
+
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+            resp = requests.Response()
+            respobj = {"State": "finished", "BinaryFile": "Binary File Contents", "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
+            resp._content = json.dumps(respobj)
+            return resp
+        else:
+            # Unexpected URL
+            assert False
+
+    def _mocked_get_unfinished(url):
+        """
+        Mocks the GET job request for the UNFINISHED case.
+        """
+
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+            resp = requests.Response()
+            respobj = {"State": "Unfinished: 1"}
+            resp._content = json.dumps(respobj)
+            return resp
+        else:
+            # Unexpected URL
+            assert False
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
+    def test_get_compiserv_job(self):
+        """
+        Ensure that GET'ing the status of a compilation job seems to work as expected.
+        Mocks the remote compilation server.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+        resp = json.loads(rv.data)
+
+        self.assertIsNotNone(resp, "Resp is None")
+        self.assertIn("state", resp, "The response to the GET request does not seem to contain a 'status' key")
+        self.assertEqual(resp["state"], "done", "The reported state is not 'done'")
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
+    def test_retrieve_result(self):
+        """
+        Ensure that we can retrieve the binary file etc.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("20+abcdef"))
+
+        # Ensure that it returns a file indeed.
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        self.assertEqual(rv.data, "Binary File Contents")
+
+        # This call is also meant to be carried out internally (by the experiment server),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("20+abcdef"))
+
+        # Ensure that it returns a file indeed.
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        self.assertEqual(rv.data, "Log File Contents")
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get))
+    def test_retrieve_result_reports_error_if_not_exists(self):
+        """
+        Ensure that if the job doesn't exist, an error is reported in JSON.
+        """
+
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("21+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("21+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+    @mock.patch('weblab.core.web.compiserv.requests.post', mock.Mock(side_effect=_mocked_post))
+    @mock.patch('weblab.core.web.compiserv.requests.get', mock.Mock(side_effect=_mocked_get_unfinished))
+    def test_retrieve_result_reports_error_if_pending(self):
+        """
+        Ensure that if the job hasn't finished, an error is reported in JSON.
+        """
+        rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
+        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))  # This won't finish.
+
+        # This call is meant to be carried out internally (by the experiment server itself),
+        # once the file is ready.
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/outputfile'.format("20+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
+
+        rv = self.app.get('/weblab/web/compiserv/result/{0}/logfile'.format("20+abcdef"))
+        self.assertEqual(rv.status_code, 200, "Result is not 200")
+        jsresp = json.loads(rv.data)
+        self.assertEqual(jsresp['result'], 'error', 'Result is not error')
 
     def tearDown(self):
         """

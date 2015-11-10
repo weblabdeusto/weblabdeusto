@@ -14,13 +14,22 @@ function getAge(milliseconds) {
 function start(time, initialConfig) {
 	weblab.sendCommand("CHECK_REGISTER")
         .done(function(response) {
-            response = JSON.parse(response)
-            if (response['register']) register(response['psycho']);
-            else if (response['psycho']) psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
-            else init(response['time'], response['points']);
+            response = JSON.parse(response);
+			console.debug("[server check_register response is: ");
+			console.debug(response);
 
-            $(parent.document).find('iframe[name=wlframe]').show();
-            $(parent).scrollTop($(parent.document).find('iframe[name=wlframe]').position().top, 0);
+			if (response['register']) {
+				register(response['psycho']);
+			}
+            else if (response['psycho']) {
+				psycho(response['gender'], response['birthday']*1000, response['grade'], response['user']);
+			}
+            else {
+				init(response['time'], response['points']);
+			}
+
+            $(parent.document).find('#exp-frame').show();
+            $(parent).scrollTop($(parent.document).find('#exp-frame').position().top, 0);
         });
 }
 
@@ -125,6 +134,7 @@ function register(do_psycho) {
 }
 
 function init(time, points) {
+	console.debug("[time is: " + time)
 	romie = new Romie();
 	game = new Game(time, points);
 
@@ -142,7 +152,7 @@ function init(time, points) {
 	updateCam1 = function() {
 		d = new Date();
 		$('.camera1 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_onboard?"+d.getTime());
-	}
+	};
 
 	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
 	updateCam1();

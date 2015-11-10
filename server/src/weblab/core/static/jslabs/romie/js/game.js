@@ -7,16 +7,18 @@ function pad(n, width, z) {
 Game = function(time, points) {
 	this.points = points;
 	this.endTime = new Date(time*1000);
+    console.debug("[ time * 1000 is: " + time * 1000);
 	this.topCamTimmer = null;
 	this.timer = null;
 	this.cameraStartTime = null;
 
 	this.startGame();
-}
+};
 
 Game.prototype.startGame = function() {
 	this.timer = setInterval(function() {
 		time = (this.endTime.getTime()-(new Date()).getTime())/1000;
+        console.debug("[ time in startGame: " + time);
 		updateTime(time);
 		if (time <= 0) {
 			updateTime(0);
@@ -24,7 +26,7 @@ Game.prototype.startGame = function() {
 		}
 	}.bind(this), 10);
 	updatePoints(this.points);
-}
+};
 
 Game.prototype.endGame = function() {
 	clearInterval(this.timer);
