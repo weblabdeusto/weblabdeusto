@@ -1191,7 +1191,8 @@ if (window.weblab === undefined) {
          */
 
         /*
-         * Events for adding events when an experiment is active or inactive
+         * Events for adding events when an experiment is active or inactive.
+         * TODO: Define what "active" exactly means, and consider adding an isActive method if appropriate.
          */
         this.onExperimentActive = function (experimentActiveHandler) {
             if (experimentActiveHandler != undefined) {

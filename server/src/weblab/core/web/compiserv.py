@@ -13,11 +13,14 @@
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
 from flask import make_response, request
+from voodoo.gen import load_dir
+from voodoo.gen.registry import GLOBAL_REGISTRY
 from weblab.core.wl import weblab_api
 
 import uuid
 import json
 import requests
+import time
 
 # # PROTOCOL
 #
@@ -42,6 +45,9 @@ import requests
 #                      in queue, and 'not_found' if it could not be found.
 #
 # }
+#
+#
+# Note: The BinaryFile and LogFile are returned from the remote compilation service in array-of-byte-integers format.
 #
 
 JOBS = {}
@@ -85,7 +91,7 @@ def compiserve_queue_armc_post():
 
     else:
         # Send to AZURE SERVICE
-        resp = requests.post(POST_URL, file_contents)
+        resp = requests.post(POST_URL, files={"main.c": ("main.c", file_contents, "text/plain")})
         json_resp = resp.json()
         generated_date = json_resp["GeneratedDate"]
         id = json_resp["ID"]
@@ -234,3 +240,32 @@ def compiserve_result_logfile(uid):
         response.headers["Content-Type"] = "application/json"
 
     return response
+
+
+
+if __name__ == "__main__":
+    print("Testing external service")
+
+    import requests
+
+    program = """
+    #include <stdio.h>
+
+    int main()
+    {
+    }
+    """
+
+    resp = requests.post("http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/PutCompilerTask/uvision", files={"main.c": ("main.c", program, "text/plain")})
+    resp = resp.json()
+
+    id = resp["ID"]
+    tid = resp["TokenID"]
+
+    time.sleep(10)
+    resp = requests.get("http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(id, tid))
+    print "Req to: " + "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(id, tid)
+    data = resp.content
+    print len(data)
+    print data
+
