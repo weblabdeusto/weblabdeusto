@@ -22,6 +22,7 @@ from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
 
 from mock import patch
+from weblab.core.web import compiserv
 
 
 class TestCompiserv(unittest.TestCase):
@@ -51,6 +52,10 @@ class TestCompiserv(unittest.TestCase):
         rv = self.app.post('weblab/login', data=dict(username='any', password='password'))
         self.assertEqual(rv.status_code, 302, "Login POST for any / password does not return 302")
 
+        # Clear REDIS.
+        # TODO: These tests should probably start their own redis instance to avoid side-effects.
+        compiserv._redis.delete("compiserv::jobs::20+abcdef")
+
     def test_nothing(self):
         pass
 
@@ -61,7 +66,7 @@ class TestCompiserv(unittest.TestCase):
         rv = self.app.get('/weblab/web/compiserv/')
         self.assertEqual(rv.status_code, 200, "Compiserv index page does not return 200")
 
-    def _mocked_post(url, data):
+    def _mocked_post(url, files):
         """
         Mocks the POST JOB request.
         """
@@ -93,9 +98,9 @@ class TestCompiserv(unittest.TestCase):
         Mocks the GET job request.
         """
 
-        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/20/abcdef":
             resp = requests.Response()
-            respobj = {"State": "finished", "BinaryFile": "Binary File Contents", "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
+            respobj = {"State": "finished", "BinaryFile": str("Binary File Contents"), "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
             resp._content = json.dumps(respobj)
             return resp
         else:
@@ -107,7 +112,7 @@ class TestCompiserv(unittest.TestCase):
         Mocks the GET job request for the UNFINISHED case.
         """
 
-        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/uvision/20/abcdef":
+        if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/20/abcdef":
             resp = requests.Response()
             respobj = {"State": "Unfinished: 1"}
             resp._content = json.dumps(respobj)
@@ -124,7 +129,7 @@ class TestCompiserv(unittest.TestCase):
         Mocks the remote compilation server.
         """
         rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
-        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+        rv = self.app.get('/weblab/web/compiserv/queue/armc/{0}'.format("20+abcdef"))
         resp = json.loads(rv.data)
 
         self.assertIsNotNone(resp, "Resp is None")
@@ -138,7 +143,7 @@ class TestCompiserv(unittest.TestCase):
         Ensure that we can retrieve the binary file etc.
         """
         rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
-        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))
+        rv = self.app.get('/weblab/web/compiserv/queue/armc/{0}'.format("20+abcdef"))
 
         # This call is meant to be carried out internally (by the experiment server itself),
         # once the file is ready.
@@ -146,7 +151,7 @@ class TestCompiserv(unittest.TestCase):
 
         # Ensure that it returns a file indeed.
         self.assertEqual(rv.status_code, 200, "Result is not 200")
-        self.assertEqual(rv.data, "Binary File Contents")
+        self.assertEqual(rv.data, str("Binary File Contents"))
 
         # This call is also meant to be carried out internally (by the experiment server),
         # once the file is ready.
@@ -182,7 +187,7 @@ class TestCompiserv(unittest.TestCase):
         Ensure that if the job hasn't finished, an error is reported in JSON.
         """
         rv = self.app.post('/weblab/web/compiserv/queue/armc', data='cprogramsource')
-        rv = self.app.get('/weblab/web/compiserv/queue/{0}'.format("20+abcdef"))  # This won't finish.
+        rv = self.app.get('/weblab/web/compiserv/queue/armc/{0}'.format("20+abcdef"))  # This won't finish.
 
         # This call is meant to be carried out internally (by the experiment server itself),
         # once the file is ready.

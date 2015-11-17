@@ -17,6 +17,7 @@ import time
 import traceback
 import array
 import threading
+import requests
 
 from flask import make_response, request, jsonify
 import redis
@@ -109,8 +110,11 @@ def compiserve_queue_armc_post():
         uid = "{0}+{1}".format(id, token)
         response['uid'] = uid
 
+        job_key = "compiserv::jobs::{0}".format(uid)
+
+
         # Store the JOB.
-        _redis.hset("compiserv::jobs::{0}".format(uid), "state", "queued")
+        _redis.hset(job_key, "state", "queued")
 
         print("JOB PUT IN QUEUE: Thread: {0}".format(threading.current_thread()))
 
@@ -161,17 +165,17 @@ def compiserve_queue_get(uid):
             # Store the binary file as a byte array.
             # TODO: Check whether flask supports bytearray
 
-            binary_file = array.array('B', binary_file).tostring()
-            log_file = array.array('B', log_file).tostring()
+            binary_file = array.array('B', str(binary_file)).tostring()
+            log_file = array.array('B', str(log_file)).tostring()
 
             # Store the files in the redis-powered job
             _redis.hset(job_key, "binary_file", binary_file)
             _redis.hset(job_key, "completed_date", completed_date)
-            _redis.hset(log_file, "log_file", log_file)
+            _redis.hset(job_key, "log_file", log_file)
 
             result['state'] = 'done'
 
-            print("[DEBUG] Compiserv result saved. Jobs dictionary is: {0}".format(JOBS))
+            print("[DEBUG] Compiserv result saved.")
 
         elif state.startswith('unfinished'):
             splits = state.split(":")
