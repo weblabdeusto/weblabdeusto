@@ -12,18 +12,17 @@
 #
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
-from voodoo.gen import load_dir
-from voodoo.gen.registry import GLOBAL_REGISTRY
-from flask import make_response, request, jsonify
-from weblab.core.wl import weblab_api
-
-import uuid
 import json
-import requests
 import time
 import traceback
 import array
 import threading
+
+from flask import make_response, request, jsonify
+import redis
+
+from weblab.core.wl import weblab_api
+
 
 # # PROTOCOL
 #
@@ -53,10 +52,16 @@ import threading
 # Note: The BinaryFile and LogFile are returned from the remote compilation service in array-of-byte-integers format.
 #
 
-JOBS = {}
 BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc"
 POST_URL = BASE_URL + "/PutCompilerTask/uvision"
 GET_URL = BASE_URL + "/GetCompilerTask/{0}/{1}"
+
+
+
+# Connect forever to the redis server
+_redis = redis.Redis("localhost")
+""" type : redis.Redis """
+
 
 
 @weblab_api.route_web('/compiserv/')
@@ -104,8 +109,9 @@ def compiserve_queue_armc_post():
         uid = "{0}+{1}".format(id, token)
         response['uid'] = uid
 
-        # Store the JOB in the queue.
-        JOBS[uid] = {'state': 'queued'}
+        # Store the JOB.
+        _redis.hset("compiserv::jobs::{0}".format(uid), "state", "queued")
+
         print("JOB PUT IN QUEUE: Thread: {0}".format(threading.current_thread()))
 
     contents = json.dumps(response, indent=4)
@@ -125,14 +131,14 @@ def compiserve_queue_get(uid):
 
         print("Received UID is: " + uid)
 
+        job_key = "compiserv::jobs::{0}".format(uid)
+
         result = {
             "state": ""
         }
 
-        if uid not in JOBS:
+        if not _redis.exists(job_key):
             return jsonify(state='not_found')
-
-        job = JOBS[uid]
 
         # Split the UID into its components.
         id, tokenid = uid.split("+", 1)
@@ -158,10 +164,10 @@ def compiserve_queue_get(uid):
             binary_file = array.array('B', binary_file).tostring()
             log_file = array.array('B', log_file).tostring()
 
-            # Store the files internally. TODO: DO THIS PROPERLY. For now we store them in memory.
-            job["binary_file"] = binary_file
-            job["completed_date"] = completed_date
-            job["log_file"] = log_file
+            # Store the files in the redis-powered job
+            _redis.hset(job_key, "binary_file", binary_file)
+            _redis.hset(job_key, "completed_date", completed_date)
+            _redis.hset(log_file, "log_file", log_file)
 
             result['state'] = 'done'
 
@@ -202,22 +208,23 @@ def compiserve_result_outputfile(uid):
         if "+" not in uid:
             uid = uid.replace(" ", "+")
 
-        if uid not in JOBS:
+        job_key = "compiserv::jobs::{0}".format(uid)
+
+        if not _redis.exists(job_key):
             result = {
                 'result': 'error',
-                'msg': "Job not found. Searched for: {0}".format(uid),
-                'jobs': "{0}".format(JOBS)
+                'msg': "Job not found. Searched for: {0}".format(uid)
             }
             result = json.dumps(result, indent=4)
             response = make_response(result)
             response.headers["Content-Type"] = "application/json"
             return response
 
-        # Find the job
-        job = JOBS[uid]
+        # Find the file in redis
+        binary_file = _redis.hget(job_key, "binary_file")
 
-        if "binary_file" in job:  # TODO: IF FILE IS INDEED READY
-            file_contents = job["binary_file"]
+        if binary_file is not None:  # TODO: IF FILE IS INDEED READY
+            file_contents = binary_file
             response = make_response(file_contents)
             response.headers["Content-Disposition"] = "attachment; filename=result.bin"
             response.headers["Content-Type"] = "application/octet-stream"
@@ -250,23 +257,24 @@ def compiserve_result_logfile(uid):
     if "+" not in uid:
         uid = uid.replace(" ", "+")
 
-    if uid not in JOBS:
+    job_key = "compiserv::jobs::{0}".format(uid)
+
+    if not _redis.exists(job_key):
         result = {
             'result': 'error',
-            'msg': "Job not found. Searched for: {0}".format(uid),
-            'jobs': "{0}".format(JOBS)
+            'msg': "Job not found. Searched for: {0}".format(uid)
         }
         result = json.dumps(result, indent=4)
         response = make_response(result)
         response.headers["Content-Type"] = "application/json"
         return response
 
-    # Find the job
-    job = JOBS[uid]
+    # Find the job log_file in redis.
+    log_file = _redis.hget(job_key, "log_file")
 
-    if "log_file" in job:  # TODO: IF FILE IS INDEED READY
+    if log_file is not None:
         # TODO: Check the state of the job. Do not assume it is finished.
-        file_contents = job["log_file"]
+        file_contents = log_file
         response = make_response(file_contents)
         response.headers["Content-Disposition"] = "attachment; filename=logfile.bin"
         response.headers["Content-Type"] = "application/octet-stream"
