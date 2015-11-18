@@ -1,0 +1,18 @@
+hosts:
+  myhost:
+    processes:
+      myprocess:
+        config_file: process_config.py
+        components:
+          mycore:
+            config_file: core_config.py
+            type: core
+          myexperiment:
+            class: experiments.dummy.DummyExperiment
+            config:
+              dummy_verbose: false
+            type: experiment
+          mylab:
+            config_file: lab_config.py
+            type: laboratory
+
