@@ -40,8 +40,21 @@
         </div>
         <div class="col-xs-2"></div>
         <div ng-repeat="button in [3, 2, 1, 0]" class="col-xs-1">
-            <slider ng-init="delay=1000" floor="0" default="1000" ceiling="10000" step="100" precision="0" ng-model="delay" translate=""></slider>
+            <slider ng-init="delay=1000" floor="0" default="1000" ceiling="10000" step="100" precision="0"
+                    ng-model="delay" translate=""></slider>
             <wl-button ident="{{ button }}" caption="{{ button }}" delay="delay"></wl-button>
+        </div>
+    </div>
+
+    <!-- File upload -->
+    <div class="row">
+        <div class="col-xs-2 col-xs-push-5">
+            <form>
+                <div class="form-group">
+                    <input class="" type="file" id="file" name="file"/>
+                    <input class="" type="submit" value="Upload"/>
+                </div>
+            </form>
         </div>
     </div>
 
