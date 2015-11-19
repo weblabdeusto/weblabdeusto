@@ -7,7 +7,7 @@ core_experiment_poll_time         = 350 # seconds
 dont_start = False
 
 # Use the flask server
-flask_debug = True
+flask_debug = False
 
 # Ports
 core_facade_port   = 18340

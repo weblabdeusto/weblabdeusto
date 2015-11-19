@@ -20,15 +20,16 @@ from voodoo.gen.registry import GLOBAL_REGISTRY
 # Fix the path if we are running with the file's folder as working folder.
 # (The actual working folder should be "src")
 import os
+
 cur_cwd = os.getcwd()
 if cur_cwd.endswith(os.path.sep + "selenium"):
     os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 
-
 class TimeoutError(Exception):
     def __init__(self):
         pass
+
 
 class TestWeblabInstanceRunner(threading.Thread):
     """
@@ -147,7 +148,6 @@ class SeleniumBaseTest(unittest.TestCase):
         self.weblab_instance_runner.start()
         self.weblab_instance_runner.wait_until_ready(10)
 
-
     @classmethod
     def setUpClass(cls):
         pass
@@ -194,7 +194,6 @@ class SeleniumBaseTest(unittest.TestCase):
         finally:
             self.accept_next_alert = True
 
-
     def tearDown(self):
         print("Stopping")
         self.weblab_instance_runner.stop()
@@ -203,8 +202,8 @@ class SeleniumBaseTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         pass
-        #self.driver.quit()
-        #self.assertEqual([], self.verificationErrors)
+        # self.driver.quit()
+        # self.assertEqual([], self.verificationErrors)
 
 
 if __name__ == "__main__":
