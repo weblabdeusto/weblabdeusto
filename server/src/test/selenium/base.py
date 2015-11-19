@@ -17,6 +17,14 @@ from voodoo.gen import load_dir
 from voodoo.gen.registry import GLOBAL_REGISTRY
 
 
+# Fix the path if we are running with the file's folder as working folder.
+# (The actual working folder should be "src")
+import os
+cur_cwd = os.getcwd()
+if cur_cwd.endswith(os.path.sep + "selenium"):
+    os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+
+
 
 class TimeoutError(Exception):
     def __init__(self):
@@ -61,6 +69,15 @@ class TestWeblabInstanceRunner(threading.Thread):
         # Start the weblab instance. The dont-start flag is set to False, so this call
         # WILL BLOCK and start the HTTP server.
         self.handler = self.global_config.load_process('myhost', 'myprocess')
+        """ type : voodoo.gen.handler.ProcessHandler """
+
+    def stop(self):
+        """
+        Signals weblab to stop. This will not happen immediately.
+        :return:
+        """
+        if self.handler is not None:
+            self.handler.stop()
 
     def is_ready(self):
         """
@@ -110,6 +127,7 @@ class TestWeblabInstanceRunner(threading.Thread):
             print("[ERROR]: Failed to start WebLab Test Instance")
             raise
 
+
 class SeleniumBaseTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(SeleniumBaseTest, self).__init__(*args, **kwargs)
@@ -128,6 +146,7 @@ class SeleniumBaseTest(unittest.TestCase):
         self.weblab_instance_runner = TestWeblabInstanceRunner()
         self.weblab_instance_runner.start()
         self.weblab_instance_runner.wait_until_ready(10)
+
 
     @classmethod
     def setUpClass(cls):
@@ -177,7 +196,9 @@ class SeleniumBaseTest(unittest.TestCase):
 
 
     def tearDown(self):
-        pass
+        print("Stopping")
+        self.weblab_instance_runner.stop()
+        print("Stopped")
 
     @classmethod
     def tearDownClass(cls):
