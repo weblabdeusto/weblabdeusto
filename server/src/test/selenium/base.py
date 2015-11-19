@@ -20,7 +20,6 @@ from voodoo.gen.registry import GLOBAL_REGISTRY
 # Fix the path if we are running with the file's folder as working folder.
 # (The actual working folder should be "src")
 import os
-
 cur_cwd = os.getcwd()
 if cur_cwd.endswith(os.path.sep + "selenium"):
     os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
@@ -80,6 +79,8 @@ class TestWeblabInstanceRunner(threading.Thread):
         if self.handler is not None:
             self.handler.stop()
 
+        GLOBAL_REGISTRY.clear()
+
     def is_ready(self):
         """
         Checks whether the instance has been started and is ready to reply.
@@ -134,39 +135,30 @@ class SeleniumBaseTest(unittest.TestCase):
         super(SeleniumBaseTest, self).__init__(*args, **kwargs)
         pass
 
-    def test_empty(self):
-        pass
-
     def setUp(self):
         """
         Start a weblab instance for the test.
         :return:
         """
-        print("Setup")
-
         self.weblab_instance_runner = TestWeblabInstanceRunner()
         self.weblab_instance_runner.start()
         self.weblab_instance_runner.wait_until_ready(10)
 
     @classmethod
+    def start_selenium(cls):
+        if os.environ.get("SELENIUM_HEADLESS"):
+            cls.driver = webdriver.PhantomJS()
+        else:
+            # We force the language so that we know what to expect.
+            cls.profile = FirefoxProfile()
+            cls.profile.set_preference("intl.accept_languages", "en")
+            cls.driver = webdriver.Firefox(cls.profile)
+
+        cls.driver.set_window_size(1400, 1000)
+
+    @classmethod
     def setUpClass(cls):
-        pass
-        # if os.environ.get("SELENIUM_HEADLESS") and False:
-        #     self.driver = webdriver.PhantomJS()
-        # else:
-        #     self.profile = FirefoxProfile()
-        #     self.profile.set_preference("intl.accept_languages", "en")
-        #     self.driver = webdriver.Firefox(self.profile)
-        #
-        # self.driver.set_window_size(1400, 1000)
-        #
-        # # self.driver.implicitly_wait(30)
-        #
-        # # TODO:
-        # self.port = ports.new()
-        # self.base_url = "http://localhost:{0}/".format(ports.new())
-        # self.verificationErrors = []
-        # self.accept_next_alert = True
+        cls.start_selenium()
 
     def is_element_present(self, how, what):
         try:
@@ -195,15 +187,11 @@ class SeleniumBaseTest(unittest.TestCase):
             self.accept_next_alert = True
 
     def tearDown(self):
-        print("Stopping")
         self.weblab_instance_runner.stop()
-        print("Stopped")
 
     @classmethod
     def tearDownClass(cls):
-        pass
-        # self.driver.quit()
-        # self.assertEqual([], self.verificationErrors)
+        cls.driver.quit()
 
 
 if __name__ == "__main__":
