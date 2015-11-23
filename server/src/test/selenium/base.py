@@ -133,7 +133,7 @@ class TestWeblabInstanceRunner(threading.Thread):
 class SeleniumBaseTest(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(SeleniumBaseTest, self).__init__(*args, **kwargs)
-        pass
+        self.core_server_url = None
 
     def setUp(self):
         """
@@ -143,10 +143,11 @@ class SeleniumBaseTest(unittest.TestCase):
         self.weblab_instance_runner = TestWeblabInstanceRunner()
         self.weblab_instance_runner.start()
         self.weblab_instance_runner.wait_until_ready(10)
+        self.core_server_url = self.weblab_instance_runner.core_server_url
 
     @classmethod
     def start_selenium(cls):
-        if os.environ.get("SELENIUM_HEADLESS"):
+        if os.environ.get("SELENIUM_HEADLESS") or True:
             cls.driver = webdriver.PhantomJS()
         else:
             # We force the language so that we know what to expect.
@@ -191,8 +192,8 @@ class SeleniumBaseTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        cls.driver.refresh()
         cls.driver.quit()
-
 
 if __name__ == "__main__":
     unittest.main()
