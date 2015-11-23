@@ -5,14 +5,16 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from base import SeleniumBaseTest
 
+import os
+print ("[DBG]: Running test from: {0}".format(os.getcwd()))
 
 # Fix the path if we are running with the file's folder as working folder.
 # (The actual working folder should be "src")
-import os
 cur_cwd = os.getcwd()
 if cur_cwd.endswith(os.path.sep + "selenium"):
     os.chdir(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
+print ("[DBG]: Running test from: {0}".format(os.getcwd()))
 
 class TestLogin(SeleniumBaseTest):
 
