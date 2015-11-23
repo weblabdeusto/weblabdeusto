@@ -59,7 +59,7 @@ class TestLogin(SeleniumBaseTest):
         self._login()
 
         # Logout
-        logout = self.driver.find_element_by_css_selector('a[href="/weblab/logout"')
+        logout = self.driver.find_element_by_id('logout')
         logout.click()
 
         # Ensure that we have managed to logout
