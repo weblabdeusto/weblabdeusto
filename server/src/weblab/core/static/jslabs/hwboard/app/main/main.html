@@ -49,12 +49,13 @@
     <!-- File upload -->
     <div class="row">
         <div class="col-xs-2 col-xs-push-5">
+
+        <div class="form-group">
             <form>
-                <div class="form-group">
-                    <input class="" type="file" id="file" name="file"/>
-                    <input class="" type="submit" value="Upload"/>
-                </div>
+                <input class="" type="file" id="file" name="file"/>
+                <input class="" type="button" ng-click="doFileUpload()" value="Upload"/>
             </form>
+        </div>
         </div>
     </div>
 

@@ -27,8 +27,6 @@ function MainController($scope, $rootScope, $injector, $log) {
     weblab.onStart(onStartInteraction);
     weblab.onFinish(onEndInteraction);
 
-    // Initialize the file ctrl
-    weblab.sendFile($("#file"));
 
 
     // ---------------
@@ -36,10 +34,47 @@ function MainController($scope, $rootScope, $injector, $log) {
     // ---------------
     $scope.time = 0;
 
+    $scope.doFileUpload = doFileUpload;
+
 
     // ----------------
     // Implementations
     // ----------------
+
+    function doFileUpload() {
+
+        $log.debug("Trying to read file");
+
+        // Read the file content using HTML5's FileReader API
+        // TODO: Make sure this is stable, consider using a wrapper.
+        var inputElem = $("#file")[0];
+        var file = inputElem.files[0];
+        var fileReader = new FileReader();
+        window.gFileReader = fileReader; // For debugging
+        fileReader.onload = function(ev) {
+            var result = fileReader.result;
+
+            $log.debug("File has been read client-side.");
+            $log.debug(result);
+
+
+            // Initialize the file ctrl
+            weblab.sendFile(result)
+                .done(onFileSent)
+                .fail(onFileSentFail);
+        };
+
+        fileReader.readAsText(file);
+
+    } // !doFileUpload
+
+    function onFileSent(result) {
+        $log.debug("FILE SENT: " + result);
+    } // !onFileSend
+
+    function onFileSentFail(result) {
+        $log.debug("FILE SENDING ERROR: " + result);
+    } // !onFileSendError
 
     /**
      * To receive a notification whenever a status update is received.
