@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 #-*-*- encoding: utf-8 -*-*-
 
+debug = True
+fake = True
+
 xilinx_board_type = 'FPGA'
 weblab_xilinx_experiment_port_number   = 1
 

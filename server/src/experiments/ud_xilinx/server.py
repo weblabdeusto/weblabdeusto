@@ -64,10 +64,13 @@ CFG_XILINX_BIT_ALLOWED = "xilinx_bit_allowed"
 # If zero, no limit will be enforced.
 CFG_XILINX_MAX_USE_TIME = "xilinx_max_use_time"
 
-DEBUG = False
+CFG_DEBUG_FLAG = "debug"
+CFG_FAKE_FLAG = "fake"
+
+DEBUG = False  # Can be overriden by the config.
 
 
-#TODO: which exceptions should the user see and which ones should not?
+# TODO: which exceptions should the user see and which ones should not?
 class UdXilinxExperiment(Experiment.Experiment):
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
@@ -83,19 +86,29 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         # Board & Programming related attributes
         self._board_type = self._cfg_manager.get_value('xilinx_board_type', "")  # Read the board type: IE: FPGA
-        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type', "")  # Read the programmer type: IE: DigilentAdapt
+        self._programmer_type = self._cfg_manager.get_value('xilinx_programmer_type',
+                                                            "")  # Read the programmer type: IE: DigilentAdapt
         self._programmer = self._load_programmer(self._programmer_type, self._board_type)
         self._command_sender = self._load_command_sender()
+
+        # Debugging and testing related attributes
+        global DEBUG
+        DEBUG = self._cfg_manager.get_value(CFG_DEBUG_FLAG, DEBUG)
+        self._fake = self._cfg_manager.get_value(CFG_FAKE_FLAG, False)
 
         self.webcam_url = self._load_webcam_url()
 
         self._programming_thread = None
         self._current_state = STATE_NOT_READY
-        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25") # Seconds
-        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90") # Seconds
+        self._programmer_time = self._cfg_manager.get_value('xilinx_programmer_time', "25")  # Seconds
+        self._synthesizer_time = self._cfg_manager.get_value('xilinx_synthesizer_time', "90")  # Seconds
         self._adaptive_time = self._cfg_manager.get_value('xilinx_adaptive_time', True)
-        self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False) # Seconds
+        self._switches_reversed = self._cfg_manager.get_value('switches_reversed', False)  # Seconds
         self._max_use_time = self._cfg_manager.get_value('xilinx_max_use_time', 0)
+
+        # TODO: It doesn't really make sense to have such a default, but it is here so that the deployed
+        # servers don't break if they aren't updated ot include this setting.
+        self._leds_service_url = self._cfg_manager.get_value('leds_service_url', "http://192.168.0.73/values.json")
 
         self._compiling_files_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_FILES_PATH, "")
         self._compiling_tools_path = self._cfg_manager.get_value(CFG_XILINX_COMPILING_TOOLS_PATH, "")
@@ -152,6 +165,12 @@ class UdXilinxExperiment(Experiment.Experiment):
         provided file.
         """
 
+        if DEBUG: print("[DBG]: File Received: Info: {0}".format(file_info))
+
+        # If we are in fake-mode we'll just return a programming state.
+        if self._fake:
+            return "STATE=" + STATE_PROGRAMMING
+
         # Reset the tracked state
         self._switches_state = list("0000000000")
 
@@ -199,7 +218,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         """
         self._current_state = STATE_SYNTHESIZING
         c = Compiler(self._compiling_files_path, self._compiling_tools_path, self._board_type.lower())
-        #c.DEBUG = True
+        # c.DEBUG = True
         content = base64.b64decode(file_content)
 
         done_already = c.is_same_as_last(content)
@@ -220,7 +239,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
             # TODO: Fix this. Wrong work-around around a bug, so that it works during
             # controlled circumstances.
-            #if success is None: success = True
+            # if success is None: success = True
 
         if success is not None and not success:
             self._current_state = STATE_SYNTHESIZING_ERROR
@@ -236,7 +255,6 @@ class UdXilinxExperiment(Experiment.Experiment):
             if DEBUG: print "[DBG]: Target file retrieved after successful compile. Now programming."
             c._compiling_result = "Synthesizing done."
             self._program_file_t(targetfile)
-
 
     @threaded()
     @logged("info", except_for='file_content')
@@ -275,7 +293,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                                              suffix='.' + self._programmer.get_suffix())  # Originally the Programmer wasn't the one to contain the suffix info.
             try:
                 try:
-                    #TODO: encode? utf8?
+                    # TODO: encode? utf8?
                     if isinstance(file_content, unicode):
                         file_content_encoded = file_content.encode('utf8')
                     else:
@@ -292,7 +310,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 # sys.stdout.flush()
         except Exception as e:
 
-            #TODO: test me
+            # TODO: test me
             log.log(UdXilinxExperiment, log.level.Info,
                     "Exception joining sending program to device: %s" % e.args[0])
             log.log_exc(UdXilinxExperiment, log.level.Debug)
@@ -327,7 +345,6 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         return "ok"
 
-
     @Override(Experiment.Experiment)
     @logged("info")
     def do_start_experiment(self, *args, **kwargs):
@@ -335,7 +352,6 @@ class UdXilinxExperiment(Experiment.Experiment):
         return json.dumps({
             "initial_configuration": """{ "webcam" : "%s", "expected_programming_time" : %s, "expected_synthesizing_time" : %s, "max_use_time" : %s }""" % (
                 self.webcam_url, self._programmer_time, self._synthesizer_time, self._max_use_time), "batch": False})
-
 
     def virtualworld_update(self, delta):
         """
@@ -405,7 +421,6 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         return 10  # We still haven't exceeded our time. Check again in ten seconds.
 
-
     @logged("info")
     @Override(Experiment.Experiment)
     @caller_check(ServerType.Laboratory)
@@ -415,6 +430,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             # will need to know whether the programming has been done and whether we are
             # hence ready to start receiving real commands.
             if command == 'STATE':
+                if self._fake:
+                    self._current_state = STATE_READY
                 if DEBUG:
                     print "[DBG]: STATE CHECK: " + self._current_state
                 reply = "STATE=" + self._current_state
@@ -527,8 +544,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             )
 
     def query_leds_from_json(self):
-        # TODO: Currently hard-coded. Softcode it when there's time.
-        jsonurl = "http://192.168.0.73/values.json"
+
+        if self._fake:
+            return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+        jsonurl = self._leds_service_url
         o = urllib2.urlopen(jsonurl)
         jsonstr = o.read()
         js = json.loads(jsonstr)
@@ -584,8 +604,6 @@ if __name__ == "__main__":
     print experiment.do_should_finish()
     print experiment.do_send_command_to_device("STATE")
     print experiment.do_should_finish()
-
-
 
     print experiment.do_send_command_to_device("VIRTUALWORLD_STATE")
     print experiment.do_send_command_to_device("REPORT_SWITCHES")
