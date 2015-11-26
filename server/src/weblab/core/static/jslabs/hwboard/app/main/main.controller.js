@@ -45,26 +45,30 @@ function MainController($scope, $rootScope, $injector, $log) {
 
         $log.debug("Trying to read file");
 
-        // Read the file content using HTML5's FileReader API
-        // TODO: Make sure this is stable, consider using a wrapper.
-        var inputElem = $("#file")[0];
-        var file = inputElem.files[0];
-        var fileReader = new FileReader();
-        window.gFileReader = fileReader; // For debugging
-        fileReader.onload = function(ev) {
+
+        try { // Read the file content using HTML5's FileReader API
+            // TODO: Make sure this is stable, consider using a wrapper.
+            var inputElem = $("#file")[0];
+            var file = inputElem.files[0];
+            var fileReader = new FileReader();
+            window.gFileReader = fileReader; // For debugging
+            fileReader.onload = onFileReadLoadEven;
+            fileReader.readAsBinaryString(file);
+        } catch (e) {
+            alert("There was an error while trying to read your file. Please, ensure that" +
+                " it is valid.");
+        }
+
+        function onFileReadLoadEvent(ev) {
             var result = fileReader.result;
 
             $log.debug("File has been read client-side.");
-            $log.debug(result);
-
 
             // Initialize the file ctrl
             weblab.sendFile(result)
                 .done(onFileSent)
                 .fail(onFileSentFail);
-        };
-
-        fileReader.readAsText(file);
+        } // !onFileReadLoadEvent
 
     } // !doFileUpload
 
@@ -74,6 +78,9 @@ function MainController($scope, $rootScope, $injector, $log) {
 
     function onFileSentFail(result) {
         $log.debug("FILE SENDING ERROR: " + result);
+
+        alert("The server reported an error with your file. Please, ensure that you sent a valid file and" +
+            " try again.");
     } // !onFileSendError
 
     /**
