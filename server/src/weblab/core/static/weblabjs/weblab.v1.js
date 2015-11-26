@@ -973,7 +973,10 @@ if (window.weblab === undefined) {
          */
 
         /**
-         * sendFile
+         * Sends a file to the experiment server or prepares file-sending.
+         * @param inputObject: An ```<input type='file'>``` element (jquery).
+         * @param fileInfo: A string describing the file (such as a file name)
+         * @return jQuery.Promise object, which you may use to register callbacks.
          */
         this.sendFile = function (inputObject, fileInfo) {
             if (fileInfo === undefined)

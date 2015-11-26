@@ -28,7 +28,7 @@ function MainController($scope, $rootScope, $injector, $log) {
     weblab.onFinish(onEndInteraction);
 
     // Initialize the file ctrl
-    weblab.sendFile("#file");
+    weblab.sendFile($("#file"));
 
 
     // ---------------
