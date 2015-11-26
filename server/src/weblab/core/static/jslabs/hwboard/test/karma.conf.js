@@ -41,6 +41,7 @@ module.exports = function (config) {
             'bower_components/angular-slider/slider.js',
             'bower_components/angular-vertilize/angular-vertilize.js',
             'bower_components/sprintf/src/sprintf.js',
+            'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'bower_components/angular-mocks/angular-mocks.js',
             // endbower
             'app/main/*.js',

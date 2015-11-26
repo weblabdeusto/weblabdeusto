@@ -5,8 +5,11 @@ angular
     .controller('MainController', MainController);
 
 
-function MainController($scope, $rootScope, $injector, $log) {
+function MainController($scope, $rootScope, $injector, $log, $uibModal) {
     var controller = this;
+
+    // Debugging purposes.
+    window.$rootScope = $rootScope;
 
     // ---------------
     // Dependencies & Initialization
@@ -33,13 +36,42 @@ function MainController($scope, $rootScope, $injector, $log) {
     // Scope-related
     // ---------------
     $scope.time = 0;
+    $scope.modals = {};
 
     $scope.doFileUpload = doFileUpload;
+    $scope.openModal = openModal;
+
+    $scope.modals.reserveModal = openModal(1000, {
+            title: "Welcome",
+            message: "Welcome! Before sending your program or using the device, you will need to Reserve the experiment. " +
+            "You can find the Reserve button at the bottom of the page. Please, prepare your program before reserving so that you have more time. Thank you!",
+            canClose: false
+        });
 
 
     // ----------------
     // Implementations
     // ----------------
+
+    function openModal(size, params) {
+        var backdrop = true;
+        if(!params.canClose)
+            backdrop = "static";
+
+        var modalInstance = $uibModal.open({
+            animation: true,
+            templateUrl: 'modal.controller.html',
+            controller: 'ModalController',
+            size: size,
+            resolve: {
+                params: params
+            },
+            backdrop: backdrop
+        });
+
+        return modalInstance;
+    } // !openModal
+
 
     function doFileUpload() {
 
@@ -121,6 +153,9 @@ function MainController($scope, $rootScope, $injector, $log) {
      * @param config
      */
     function onStartInteraction(time, config) {
+
+        // Remove the 'Please reserve' modal.
+        $scope.modals.reserveModal.close("Reserve done");
 
         onTime(time);
 

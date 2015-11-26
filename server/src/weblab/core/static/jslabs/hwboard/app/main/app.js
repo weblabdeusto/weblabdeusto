@@ -16,7 +16,9 @@ angular
         'ngSanitize',
         'ngTouch',
         'ui.slider',
-        'angular.vertilize'
+        'angular.vertilize',
+        'ui.bootstrap',
+        'ui.bootstrap.modal'
     ])
     .run( function($rootScope) {
         try {
