@@ -518,7 +518,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                 try:
                     self._led_state = self.query_leds_from_json()
                     if DEBUG:
-                        print "[DBG]: LED state queried. It is: " + self._led_state
+                        print("[DBG]: LED state queried. It is: {0}".format(self._led_state))
 
                     if self._virtual_world == "watertank":
                         # Note: The following needs a somewhat major redesign.
@@ -546,7 +546,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     def query_leds_from_json(self):
 
         if self._fake:
-            return [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            return ['0']*10
 
         jsonurl = self._leds_service_url
         o = urllib2.urlopen(jsonurl)
