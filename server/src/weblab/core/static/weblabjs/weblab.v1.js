@@ -977,15 +977,29 @@ if (window.weblab === undefined) {
          * @param inputObject: An ```<input type='file'>``` element (jquery).
          * @param fileInfo: A string describing the file (such as a file name)
          * @return jQuery.Promise object, which you may use to register callbacks.
+         *
+         * TODO: This function and the file uploading scheme probably needs to be revised.
          */
         this.sendFile = function (inputObject, fileInfo) {
             if (fileInfo === undefined)
                 fileInfo = "";
 
+            var blob = undefined;
+
             var input = null;
             if (typeof(inputObject) == "string") { // A string message
-                input = $("<input type='hidden' name='file_sent'></input>");
-                input.val(inputObject);
+
+                // Using an input for the submit results in the file being sent
+                // as a string would, without a content-disposition header or a file
+                // name. When the server interprets it as a "standard" utf-8 encoded form
+                // field, binary file content can't be handled. We will try to add the
+                // file content as an HTML 5 BLOB instead.
+                // input = $("<input type='hidden' name='file_sent'></input>");
+                // input.val(inputObject);
+
+                console.log("Adding string: " + inputObject);
+                blob = new Blob([inputObject]);
+
             } else {
                 // A file object
                 if (inputObject instanceof $) { // a jQuery selector
@@ -1012,10 +1026,17 @@ if (window.weblab === undefined) {
                 if (weblab.debug) {
                     console.log("Submitting file with fileInfo", fileInfo);
                 }
+                var formData = new FormData(this);
+
+                // If blob is not undefined we created a blob to fake the file content,
+                // so we need to add it here.
+                if(blob != undefined)
+                    formData.append("file_sent", blob);
+
                 $.ajax({
                     url: fileUploadUrl + "?format=json",
                     type: 'POST',
-                    data: new FormData(this),
+                    data: formData,
                     processData: false,
                     dataType: "json",
                     contentType: false

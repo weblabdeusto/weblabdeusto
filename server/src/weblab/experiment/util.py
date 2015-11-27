@@ -24,6 +24,12 @@ class UnableToDeserializeError(Exception):
         Exception.__init__(self,*args,**kargs)
 
 def serialize(file_content):
+    """
+    Serializes into base64.
+    :param file_content: The string to serialize. If it was an unicode string, errors could occur.
+    :type file_content: str
+    :return:
+    """
     result = base64.encodestring(file_content)
     return result
 
