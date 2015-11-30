@@ -4,7 +4,7 @@ angular
     .factory("advise", AdviseFactory);
 
 
-function AdviseFactory() {
+function AdviseFactory($log, $filter) {
 
     // -----------
     // Initialization
@@ -16,7 +16,7 @@ function AdviseFactory() {
     // Declare the API
     // -------------
     return {
-        eval: eval
+        evalFile: evalFile
     }; // !return
 
 
@@ -35,7 +35,7 @@ function AdviseFactory() {
         if(termination != "vhd" && termination != "bit") {
             return {
                 result: "error",
-                message: "The file you have uploaded has an unrecognized termination (does not seem to be a VHDL or a BITSTREAM file). Please, ensure that you are uploading the right file. If you are indeed uploading the right one, ensure that your file name matches its type."
+                message: $filter("translate")("advise.unrecognized.termination")
             }
         }
 
@@ -44,7 +44,7 @@ function AdviseFactory() {
             if (pos == -1) {
                 return {
                     result: "error",
-                    message: "The file you uploaded does not seem to be a VHDL file at all. Maybe it has not been generated properly."
+                    message: $filter("translate")("advise.no.vhdl")
                 }
             }
 
@@ -52,7 +52,7 @@ function AdviseFactory() {
             if (pos == -1) {
                 return {
                     result: "error",
-                    message: "The file you uploaded seems to be VHDL, but it does not seem to contain the expected input output declarations. If you generated the file, make sure that you generated it to be compatible with WebLab-Deusto"
+                    message: $filter("translate")("advise.invalid.vhdl")
                 }
             }
         }

@@ -4,7 +4,7 @@ angular
     .controller("StatusController", StatusController);
 
 
-function StatusController($scope, $injector) {
+function StatusController($scope, $injector, $filter) {
 
     // ----------
     // Self-reference
@@ -32,9 +32,9 @@ function StatusController($scope, $injector) {
      */
     function getDisplay() {
         if($scope.status == undefined) {
-            return "You need to Reserve the experiment before using it. Please, click on the Reserve button below."
+            return $filter("translate")("status.undefined");
         } else if($scope.status == 'not_ready') {
-            return "You will probably want to upload your logic file before interacting with the board."
+            return $filter("translate")("status.not.ready");
         }
         return '[STATUS: ' + $scope.status + '] ' + $scope.message
     }
