@@ -5,7 +5,7 @@ angular
     .controller('MainController', MainController);
 
 
-function MainController($scope, $rootScope, $injector, $log, $uibModal, advise) {
+function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter, advise) {
     var controller = this;
 
     // Debugging purposes.
@@ -44,9 +44,8 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, advise) 
     window.debug = debug;
 
     $scope.modals.reserveModal = openModal(1000, {
-            title: "Welcome",
-            message: "Welcome! Before sending your program or using the device, you will need to Reserve the experiment. " +
-            "You can find the Reserve button at the bottom of the page. Please, prepare your program before reserving so that you have more time. Thank you!",
+            title: $filter("translate")("welcome"),
+            message: $filter("translate")("welcomeMsg"),
             canClose: false
         });
 

@@ -67,13 +67,13 @@
 
             <div ng-show="!uploading" class="form-group">
                 <form>
-                    <input class="" type="file" id="file" name="file"/>
-                    <input class="" type="button" ng-click="doFileUpload()" value="Upload"/>
+                    <input class="" type="file" id="file" name="file" value="oo"/>
+                    <input class="" type="button" ng-click="doFileUpload()" value="{{ 'upload' | translate }}"/>
                 </form>
             </div>
 
-            <div ng-show="uploading">
-                Uploading file...
+            <div ng-show="uploading" wl-translate-me>
+                uploading
             </div>
 
         </div>
