@@ -43,7 +43,6 @@ function wlStatus($injector, $timeout, $log) {
          * Flashes the message with a CSS3 anim, to draw attention.
          */
         function flash() {
-            $log.debug("Flash");
             flashElem.removeClass("wl-status-flash");
             $timeout(function(){
                 flashElem.addClass("wl-status-flash");

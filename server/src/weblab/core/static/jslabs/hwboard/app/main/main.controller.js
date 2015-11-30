@@ -5,7 +5,7 @@ angular
     .controller('MainController', MainController);
 
 
-function MainController($scope, $rootScope, $injector, $log, $uibModal) {
+function MainController($scope, $rootScope, $injector, $log, $uibModal, advise) {
     var controller = this;
 
     // Debugging purposes.
@@ -36,12 +36,12 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
     // Scope-related
     // ---------------
     $scope.time = 0;
+    $scope.uploading = false;
     $scope.modals = {};
 
     $scope.doFileUpload = doFileUpload;
     $scope.openModal = openModal;
     window.debug = debug;
-    $scope.testButton = testButton;
 
     $scope.modals.reserveModal = openModal(1000, {
             title: "Welcome",
@@ -54,15 +54,6 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
     // ----------------
     // Implementations
     // ----------------
-
-    function testButton() {
-        $log.debug("TEST");
-
-        $("#testBox").removeClass("demo");
-        setTimeout(function(){
-            $("#testbox").addClass("demo");
-        }, 1);
-    } // !testButton
 
     function debug() {
         $scope.modals.reserveModal.dismiss();
@@ -91,6 +82,8 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
     function doFileUpload() {
         $log.debug("Trying to read file");
 
+        $scope.uploading = true;
+
         try { // Read the file content using HTML5's FileReader API
             // TODO: Make sure this is stable, consider using a wrapper.
             var inputElem = $("#file")[0];
@@ -100,6 +93,8 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
             fileReader.onload = onFileReadLoadEvent;
             fileReader.readAsBinaryString(file);
         } catch (e) {
+            $scope.uploading = false;
+
             var errorMessage = "There was an error while trying to read your file. Please, ensure that" +
                 " it is valid.";
             $log.error(errorMessage);
@@ -109,6 +104,16 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
 
         function onFileReadLoadEvent(ev) {
             var result = fileReader.result;
+
+            var name = $("#file")[0].files[0].name;
+            var content = result;
+            var evalResult = advise.evalFile(content, name);
+
+            if(evalResult.result != "ok") {
+                alert(evalResult.message);
+                $scope.uploading = false;
+                return;
+            }
 
             $log.debug("File has been read client-side.");
 
@@ -122,10 +127,14 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
 
     function onFileSent(result) {
         $log.debug("FILE SENT: " + result);
+
+        $scope.uploading = false;
     } // !onFileSend
 
     function onFileSentFail(result) {
         $log.debug("FILE SENDING ERROR: " + result);
+
+        $scope.uploading = false;
 
         alert("The server reported an error with your file. Please, ensure that you sent a valid file and" +
             " try again.");
