@@ -131,7 +131,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         # These are for virtual-worlds
         self._virtual_world = ""
-        self._virtual_world_state = "";
+        self._virtual_world_state = ""
         self._last_virtualworld_update = time.time()
         self._watertank = None
         self._watertank_time_without_demand_change = 0

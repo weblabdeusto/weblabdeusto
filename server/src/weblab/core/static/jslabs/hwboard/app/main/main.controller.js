@@ -40,6 +40,8 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
 
     $scope.doFileUpload = doFileUpload;
     $scope.openModal = openModal;
+    window.debug = debug;
+    $scope.testButton = testButton;
 
     $scope.modals.reserveModal = openModal(1000, {
             title: "Welcome",
@@ -52,6 +54,19 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal) {
     // ----------------
     // Implementations
     // ----------------
+
+    function testButton() {
+        $log.debug("TEST");
+
+        $("#testBox").removeClass("demo");
+        setTimeout(function(){
+            $("#testbox").addClass("demo");
+        }, 1);
+    } // !testButton
+
+    function debug() {
+        $scope.modals.reserveModal.dismiss();
+    } // !debug
 
     function openModal(size, params) {
         var backdrop = true;
