@@ -84,6 +84,10 @@ angular
 
         window.TRANSLATIONS = i18n[currentLanguage];
 
+        debugger;
+        console.log("Trying to load VIRTUALMODEL var: " );
+        console.log(weblab.config);
+
         // Initialize the VM logic
         try {
             $rootScope.VIRTUALMODEL = weblab.config.virtualmodel;
