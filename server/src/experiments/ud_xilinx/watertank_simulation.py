@@ -20,11 +20,22 @@ import json
 
 
 class Watertank(object):
-    def __init__(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=False):
-        self.initialize(tank_capacity, inputs, outputs, water_level, temperatures_mode)
+    """
+    Watertank Model
 
+    Changes that have been applied lately to this model (Dec 2015)
+      - There is no longer a separate temperatures mode. Now there is a single model with temperatures.
+      - There are no longer temperature working ranges, temperature warnings, or temperature overloads. The
+        model will not prevent the pumps from working. Instead, the temperature will increase indefinitely. The experiment
+        client can thus deal with temperatures however it wishes (and it can in fact ignore them), with no effect.
+      - As a result of the previous change, temperature is no longer reported as in the [0,1] range according to the range.
+        Now it is reported in raw form.
+    """
 
-    def initialize(self, tank_capacity, inputs, outputs, water_level, temperatures_mode=False):
+    def __init__(self, tank_capacity, inputs, outputs, water_level):
+        self.initialize(tank_capacity, inputs, outputs, water_level)
+
+    def initialize(self, tank_capacity, inputs, outputs, water_level):
         """
         Initializes the simulation with the specified data.
         @param tank_capacity Capacity of the water tank, in liters.
@@ -33,22 +44,16 @@ class Watertank(object):
         @param Array containing the outputs (such as a water hose or evaporation), in liters per second. 
         The flow can be modified dynamically, but no inputs can be added.
         @param water_level The starting water level. Value from 0 to 1.
-        @param temperatures_mode If the temperatures_mode is enabled the Watertank will also feature pump temperatures.
         """
         self.tank_capacity = tank_capacity
         self.inputs = inputs
         self.outputs = outputs
         self.current_volume = water_level * tank_capacity
 
-        self.temperatures_mode = temperatures_mode
-
         self.firstPumpTemperature = 20
         self.secondPumpTemperature = 20
         self.firstPumpWorkRange = [20, 200]
         self.secondPumpWorkRange = [20, 200]
-        self.firstPumpOverheated = False  # If we reached the maximum temperature
-        self.secondPumpOverheated = False
-        self.pumpWarningPercent = 0.80  # This marks the point where the warning is set. A pump cannot be started with the warning on.
         self.pumpTemperatureVariationPerSeconds = 12  # Enough for 15 seconds straight use.
 
         self.simlock = threading.RLock()
@@ -69,42 +74,24 @@ class Watertank(object):
         # Calculates how much the pumps are putting in.
         total_input = 0
 
-        # Handle inputs in the advanced, temperatures_mode.
-        if self.temperatures_mode:
-            pump1, pump2 = self.inputs
-            if pump1 > 0:
-                # Check overheat
-                if self.firstPumpTemperature > self.firstPumpWorkRange[1]:
-                    self.firstPumpOverheated = True
-                    self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
-                elif not self.firstPumpOverheated:
-                    self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
-                    total_input += pump1 * delta
-            elif self.firstPumpTemperature > self.firstPumpWorkRange[0]:
-                self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+        # Handle inputs
+        pump1, pump2 = self.inputs
 
-            if pump2 > 0:
-                # Check overheat
-                if self.secondPumpTemperature > self.secondPumpWorkRange[1]:
-                    self.secondPumpOverheated = True
-                    self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
-                elif not self.secondPumpOverheated:
-                    self.secondPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
-                    total_input += pump2 * delta
-            elif self.secondPumpTemperature > self.secondPumpWorkRange[0]:
-                self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
-
-            # Clear the overheated state if we have to.
-            if self.firstPumpOverheated and self.firstPumpTemperature <= self.firstPumpWorkRange[0] + self.pumpWarningPercent * (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]):
-                self.firstPumpOverheated = False
-
-            if self.secondPumpOverheated and self.secondPumpTemperature <= self.secondPumpWorkRange[0] + self.pumpWarningPercent * (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]):
-                self.secondPumpOverheated = False
-
-        # Handle inputs in the standard mode.
+        # If the first pump is turned on we increase the temperature and the total water input
+        if pump1 > 0:
+            self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+            total_input += pump1 * delta
         else:
-            for ins in self.inputs:
-                total_input += ins * delta
+            self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+            total_input -= pump1 * delta
+
+        # If the second pump is turned on we increase the temperature and the total water input
+        if pump2 > 0:
+            self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+            total_input += pump2 * delta
+        else:
+            self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+            total_input -= pump2 * delta
 
         increment = total_input - total_output
 
@@ -207,24 +194,6 @@ class Watertank(object):
         with self.simlock:
             return 1.0 * self.current_volume / self.tank_capacity
 
-    def get_temperature_warnings(self):
-        """
-        Gets the state of the temperature warnings.
-
-        @return: Returns the state of the temperature warning sensors as an array of 2 elements, each element being 1 or 0.
-        """
-        temp_warnings = [0, 0]
-        if self.firstPumpTemperature > (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0]) * self.pumpWarningPercent + self.firstPumpWorkRange[0]:
-            temp_warnings[0] = 1
-        else:
-            temp_warnings[0] = 0
-
-        if self.secondPumpTemperature > (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0]) * self.pumpWarningPercent + self.firstPumpWorkRange[0]:
-            temp_warnings[1] = 1
-        else:
-            temp_warnings[1] = 0
-        return temp_warnings
-
     def get_json_state(self, input_capacities, output_capacities):
         """
         Gets a json-encoded description of the simulation's state. 
@@ -245,26 +214,13 @@ class Watertank(object):
         for inp, cap in zip(self.outputs, output_capacities):
             outputs.append(1.0 * inp / cap)
 
-        # If we are in the advanced temperatures mode we have to set the inputs of a pump to zero if
-        # a bomb is currently overheating.
-        if self.temperatures_mode:
-            if self.firstPumpOverheated:
-                inputs[0] = 0
-            if self.secondPumpOverheated:
-                inputs[1] = 0
-
         state = {"water": self.get_water_level(), "inputs": inputs, "outputs": outputs}
 
-        # Whether the temp warnings are set or not.
-        if self.temperatures_mode:
-            temp_warnings = self.get_temperature_warnings()
-
-            state["temp_warnings"] = temp_warnings
-
-            temperatures = [0, 0]
-            temperatures[0] = (self.firstPumpTemperature - self.firstPumpWorkRange[0]) * 1.0 / (self.firstPumpWorkRange[1] - self.firstPumpWorkRange[0])
-            temperatures[1] = (self.secondPumpTemperature - self.secondPumpWorkRange[0]) * 1.0 / (self.secondPumpWorkRange[1] - self.secondPumpWorkRange[0])
-            state["temperatures"] = temperatures
+        # Report the RAW temperature
+        temperatures = [0, 0]
+        temperatures[0] = self.firstPumpTemperature
+        temperatures[1] = self.secondPumpTemperature
+        state["temperatures"] = temperatures
 
         return json.dumps(state)
 
@@ -272,55 +228,56 @@ class Watertank(object):
 if __name__ == '__main__':
 
     from mock import patch
+    import unittest
 
     def fake_sleep(time):
         pass
 
-    @patch("time.sleep", fake_sleep)
-    def test():
+    class TestWatertankSimulation(unittest.TestCase):
 
-        w = Watertank(1000, [100, 100], [100], 0.5, True)
-        w.autoupdater_start(1)
+        def test_nothing(self):
+            pass
 
-        i = 0
-        while (i < 15):
-            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-            time.sleep(0.5)
-            i += 1
+        @patch("time.sleep", fake_sleep)
+        def test_first(self):
+            w = Watertank(1000, [100, 100], [100], 0.5)
+            w.autoupdater_start(1)
 
-        print "...."
-        i = 0
-        w.set_outputs([100])
-        w.set_inputs([10, 10])
-        while (i < 30):
-            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-            time.sleep(0.5)
-            i += 1
+            i = 0
+            while (i < 15):
+                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+                time.sleep(0.5)
+                i += 1
 
-        w.autoupdater_join()
+            print "...."
+            i = 0
+            w.set_outputs([100])
+            w.set_inputs([10, 10])
+            while (i < 30):
+                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+                time.sleep(0.5)
+                i += 1
+
+            w.autoupdater_join()
+
+        @patch("time.sleep", fake_sleep)
+        def test_second(self):
+            w = Watertank(1000, [100, 100], [100], 0.5)
+
+            i = 0
+            while i < 15:
+                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+                w.update(1)
+                i += 1
+
+            print "...."
+            i = 0
+            w.set_outputs([100])
+            w.set_inputs([10, 10])
+            while i < 15:
+                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+                w.update(1)
+                i += 1
 
 
-    def test2():
-
-        w = Watertank(1000, [100, 100], [100], 0.5, True)
-
-        i = 0
-        while i < 15:
-            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-            w.update(1)
-            i += 1
-
-        print "...."
-        i = 0
-        w.set_outputs([100])
-        w.set_inputs([10, 10])
-        while i < 15:
-            print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-            w.update(1)
-            i += 1
-
-
-    print "FIRST TEST: "
-    test()
-    print "SECOND TEST: "
-    test2()
+    unittest.main()

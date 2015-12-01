@@ -66,6 +66,7 @@ CFG_XILINX_MAX_USE_TIME = "xilinx_max_use_time"
 
 CFG_DEBUG_FLAG = "debug"
 CFG_FAKE_FLAG = "fake"
+CFG_FAKE_LEDS_FLAG = "fake_leds" # Subset of FAKE_FLAG.
 
 DEBUG = False  # Can be overriden by the config.
 
@@ -95,6 +96,7 @@ class UdXilinxExperiment(Experiment.Experiment):
         global DEBUG
         DEBUG = self._cfg_manager.get_value(CFG_DEBUG_FLAG, DEBUG)
         self._fake = self._cfg_manager.get_value(CFG_FAKE_FLAG, False)
+        self._fake_leds = self._cfg_manager.get_value(CFG_FAKE_LEDS_FLAG, False)
 
         self.webcam_url = self._load_webcam_url()
 
@@ -545,7 +547,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
     def query_leds_from_json(self):
 
-        if self._fake:
+        if self._fake or self._fake_leds:
             return ['0']*10
 
         jsonurl = self._leds_service_url
