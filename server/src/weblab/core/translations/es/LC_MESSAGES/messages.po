@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: weblab 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-08-22 19:23+0200\n"
+"POT-Creation-Date: 2015-12-01 17:32+0100\n"
 "PO-Revision-Date: 2015-08-22 14:53+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -18,204 +18,229 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 1.3\n"
 
-#: weblab/admin/web/admin_views.py:103 weblab/core/templates/details.html:112
+#: weblab/admin/web/admin_views.py:98
+msgid "Unzip"
+msgstr ""
+
+#: weblab/admin/web/admin_views.py:98
+msgid ""
+"Are you sure you want to unzip this file? Every file with the same name "
+"will be overriden"
+msgstr ""
+
+#: weblab/admin/web/admin_views.py:103
+#, python-format
+msgid "File \"%(name)s\" does not have a .zip extension."
+msgstr ""
+
+#: weblab/admin/web/admin_views.py:114
+#, python-format
+msgid "Unable to extract file: %(name)s: %(error)s"
+msgstr ""
+
+#: weblab/admin/web/admin_views.py:116
+#, python-format
+msgid "Unable to extract file: %(name)s: it is not a zip file"
+msgstr ""
+
+#: weblab/admin/web/admin_views.py:136 weblab/core/templates/details.html:112
 #: weblab/core/templates/details.html:114
 #: weblab/core/templates/details.html:116
 #: weblab/core/templates/admin/admin-index.html:35
 msgid "View"
 msgstr "Ver"
 
-#: weblab/admin/web/admin_views.py:148
+#: weblab/admin/web/admin_views.py:181
 msgid ""
 "Detail the password (DB), Facebook ID -the number- (Facebook), OpenID "
 "identifier."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161 weblab/admin/web/admin_views.py:1655
-#: weblab/admin/web/admin_views.py:1666
+#: weblab/admin/web/admin_views.py:194 weblab/admin/web/admin_views.py:1688
+#: weblab/admin/web/admin_views.py:1699
 msgid "Role"
 msgstr "Rol"
 
-#: weblab/admin/web/admin_views.py:161 weblab/core/templates/details.html:14
+#: weblab/admin/web/admin_views.py:194 weblab/core/templates/details.html:14
 #: weblab/core/templates/interactions.html:15
 #: weblab/core/templates/admin/admin-add-students-finished.html:20
 #: weblab/core/templates/instructor/instructor_group_stats.html:134
 msgid "Login"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161 weblab/core/templates/details.html:24
+#: weblab/admin/web/admin_views.py:194 weblab/core/templates/details.html:24
 #: weblab/core/templates/interactions.html:19
 #: weblab/core/templates/admin/admin-add-students-finished.html:21
 msgid "Full name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161
+#: weblab/admin/web/admin_views.py:194
 msgid "e-mail"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161 weblab/admin/web/admin_views.py:1885
-#: weblab/admin/web/app.py:119 weblab/admin/web/app.py:184
+#: weblab/admin/web/admin_views.py:194 weblab/admin/web/admin_views.py:1918
+#: weblab/admin/web/app.py:128 weblab/admin/web/app.py:193
 #: weblab/core/templates/admin/admin-add-students.html:52
 msgid "Groups"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161 weblab/admin/web/app.py:108
+#: weblab/admin/web/admin_views.py:194 weblab/admin/web/app.py:109
 msgid "Logs"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161 weblab/admin/web/admin_views.py:508
-#: weblab/admin/web/app.py:110
+#: weblab/admin/web/admin_views.py:194 weblab/admin/web/admin_views.py:541
+#: weblab/admin/web/app.py:111
 msgid "Permissions"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:161
+#: weblab/admin/web/admin_views.py:194
 msgid "Credentials"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:166
+#: weblab/admin/web/admin_views.py:199
 msgid "Username (all letters, dots and numbers)"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:167
+#: weblab/admin/web/admin_views.py:200
 msgid "First and Last name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:168
+#: weblab/admin/web/admin_views.py:201
 msgid "Valid e-mail address"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:169
+#: weblab/admin/web/admin_views.py:202
 msgid "Not implemented yet, it should be a public URL for a user picture."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:170
+#: weblab/admin/web/admin_views.py:203
 msgid "User credentials: a password or alternative mechanisms"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:227
+#: weblab/admin/web/admin_views.py:260
 msgid "Password too short"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:233
+#: weblab/admin/web/admin_views.py:266
 msgid "Use a numeric ID for Facebook"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:240
+#: weblab/admin/web/admin_views.py:273
 #: weblab/core/templates/instructor/instructor_group_stats.html:72
 msgid "Users:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:240
+#: weblab/admin/web/admin_views.py:273
 msgid "Add the user list using the detailed format"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:241
+#: weblab/admin/web/admin_views.py:274
 msgid "New group:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:242
+#: weblab/admin/web/admin_views.py:275
 msgid "Existing group:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:246
+#: weblab/admin/web/admin_views.py:279
 msgid "Your LDAP username:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:247
+#: weblab/admin/web/admin_views.py:280
 msgid "Your LDAP password:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:248
+#: weblab/admin/web/admin_views.py:281
 msgid "Your domain:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:249
+#: weblab/admin/web/admin_views.py:282
 msgid "LDAP gateway:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:279
+#: weblab/admin/web/admin_views.py:312
 #, python-format
 msgid ""
 "Line %(n)s (%(line)s) does not have %(columns)s columns (%(cur_columns)s "
 "found)"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:288
+#: weblab/admin/web/admin_views.py:321
 #, python-format
 msgid "Login %(column)s contains invalid characters"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:292
+#: weblab/admin/web/admin_views.py:325
 #, python-format
 msgid "User %(column)s already exists"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:300
+#: weblab/admin/web/admin_views.py:333
 #, python-format
 msgid "Invalid e-mail address: %(column)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:308
+#: weblab/admin/web/admin_views.py:341
 msgid "No user provided"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:312
+#: weblab/admin/web/admin_views.py:345
 msgid "No user added due to errors detailed"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:351
+#: weblab/admin/web/admin_views.py:384
 msgid "Error: ldap libraries not installed"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:369
+#: weblab/admin/web/admin_views.py:402
 msgid "Error retrieving users from the LDAP server. Contact your administrator."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:379
+#: weblab/admin/web/admin_views.py:412
 #, python-format
 msgid "Error: could not find the following users: %(users)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:383
+#: weblab/admin/web/admin_views.py:416
 msgid "No user processed"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:427
+#: weblab/admin/web/admin_views.py:460
 msgid ""
 "In this case, you need to provide the user's login, full_name, e-mail "
 "address, and password, in this order and separated by commas."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:455
+#: weblab/admin/web/admin_views.py:488
 msgid "LDAP not registered as an Auth Type"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:458
+#: weblab/admin/web/admin_views.py:491
 msgid ""
 "In this case, you only need to provide the username of the users, "
 "separated by spaces or new lines. WebLab-Deusto will retrieve the rest of"
 " the information from the LDAP system."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:482
+#: weblab/admin/web/admin_views.py:515
 msgid ""
 "In this case, you only need to provide the username of the user, the full"
 " name, e-mail address and OpenID, in this order and separated by commas."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:508 weblab/admin/web/admin_views.py:577
-#: weblab/admin/web/admin_views.py:821 weblab/admin/web/admin_views.py:834
-#: weblab/admin/web/admin_views.py:867
+#: weblab/admin/web/admin_views.py:541 weblab/admin/web/admin_views.py:610
+#: weblab/admin/web/admin_views.py:854 weblab/admin/web/admin_views.py:867
+#: weblab/admin/web/admin_views.py:900
 msgid "Name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:508
+#: weblab/admin/web/admin_views.py:541
 msgid "Parent"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:508 weblab/admin/web/admin_views.py:1873
-#: weblab/admin/web/app.py:107 weblab/admin/web/app.py:118
-#: weblab/admin/web/app.py:183
+#: weblab/admin/web/admin_views.py:541 weblab/admin/web/admin_views.py:1906
+#: weblab/admin/web/app.py:108 weblab/admin/web/app.py:127
+#: weblab/admin/web/app.py:192
 #: weblab/core/templates/admin/admin-add-students.html:45
 #: weblab/core/templates/instructor/instructor_group_stats.html:38
 #: weblab/core/templates/instructor/instructor_group_stats.html:120
@@ -223,629 +248,640 @@ msgstr ""
 msgid "Users"
 msgstr "Usuarios"
 
-#: weblab/admin/web/admin_views.py:531
+#: weblab/admin/web/admin_views.py:564
 msgid "Name:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:531
+#: weblab/admin/web/admin_views.py:564
 msgid "Authentication name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:532
+#: weblab/admin/web/admin_views.py:565
 msgid "Priority:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:532
+#: weblab/admin/web/admin_views.py:565
 msgid ""
 "Order followed by the authentication system. Authentication mechanism "
 "with priority 1 will be checked before the one with priority 2."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:541
+#: weblab/admin/web/admin_views.py:574
 msgid "LDAP server"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:541
+#: weblab/admin/web/admin_views.py:574
 msgid "LDAP server URL"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:542
+#: weblab/admin/web/admin_views.py:575
 msgid "Domain"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:543
+#: weblab/admin/web/admin_views.py:576
 msgid "Base"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:543
+#: weblab/admin/web/admin_views.py:576
 msgid "Base, e.g.: dc=deusto,dc=es"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:547
+#: weblab/admin/web/admin_views.py:580
 msgid "Character ; not supported"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:565
+#: weblab/admin/web/admin_views.py:598
 msgid "IP addresses"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:565
+#: weblab/admin/web/admin_views.py:598
 msgid "Put an IP address or set of IP addresses separated by commas"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:577
+#: weblab/admin/web/admin_views.py:610
 msgid "Configuration"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:577 weblab/admin/web/admin_views.py:1743
+#: weblab/admin/web/admin_views.py:610 weblab/admin/web/admin_views.py:1776
 msgid "Priority"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:613
+#: weblab/admin/web/admin_views.py:646
 msgid "Already created"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:622
+#: weblab/admin/web/admin_views.py:655
 msgid "Auth type not found"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:625
+#: weblab/admin/web/admin_views.py:658
 msgid "Existing auth type"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:645 weblab/admin/web/admin_views.py:687
-#: weblab/admin/web/admin_views.py:970
+#: weblab/admin/web/admin_views.py:678 weblab/admin/web/admin_views.py:720
+#: weblab/admin/web/admin_views.py:1003
 msgid "Name already taken"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:659
+#: weblab/admin/web/admin_views.py:692
 msgid "Element not found"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:662
+#: weblab/admin/web/admin_views.py:695
 msgid "Can't modify the DB authentication mechanism"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:704
+#: weblab/admin/web/admin_views.py:737
 msgid "Can't delete this authentication system"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:718 weblab/admin/web/admin_views.py:1629
-#: weblab/admin/web/admin_views.py:1666 weblab/admin/web/app.py:129
+#: weblab/admin/web/admin_views.py:751 weblab/admin/web/admin_views.py:1662
+#: weblab/admin/web/admin_views.py:1699 weblab/admin/web/app.py:138
 #: weblab/admin/web/instructor_views.py:227
 msgid "User"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:718 weblab/admin/web/admin_views.py:1739
+#: weblab/admin/web/admin_views.py:751 weblab/admin/web/admin_views.py:1772
 #: weblab/admin/web/instructor_views.py:227
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:28
 #: weblab/core/templates/admin/admin-scheduler-create-ilab.html:34
 #: weblab/core/templates/webclient/i18n.html:12
 #: weblab/core/templates/webclient/i18n.html:65
+#: weblab/core/templates/webclient/locales.json:10
 msgid "Experiment"
 msgstr "Experimento"
 
-#: weblab/admin/web/admin_views.py:718 weblab/admin/web/admin_views.py:836
-#: weblab/admin/web/admin_views.py:867 weblab/admin/web/instructor_views.py:227
+#: weblab/admin/web/admin_views.py:751 weblab/admin/web/admin_views.py:869
+#: weblab/admin/web/admin_views.py:900 weblab/admin/web/instructor_views.py:227
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:32
 msgid "Start date"
 msgstr "Fecha de comienzo"
 
-#: weblab/admin/web/admin_views.py:718 weblab/admin/web/admin_views.py:837
-#: weblab/admin/web/admin_views.py:867 weblab/admin/web/instructor_views.py:227
+#: weblab/admin/web/admin_views.py:751 weblab/admin/web/admin_views.py:870
+#: weblab/admin/web/admin_views.py:900 weblab/admin/web/instructor_views.py:227
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:36
 msgid "End date"
 msgstr "Fecha de final"
 
-#: weblab/admin/web/admin_views.py:719 weblab/admin/web/instructor_views.py:228
+#: weblab/admin/web/admin_views.py:752 weblab/admin/web/instructor_views.py:228
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:50
 msgid "Origin"
 msgstr "Origen"
 
-#: weblab/admin/web/admin_views.py:719
+#: weblab/admin/web/admin_views.py:752
 msgid "Coord address"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:719 weblab/admin/web/admin_views.py:726
+#: weblab/admin/web/admin_views.py:752 weblab/admin/web/admin_views.py:759
 #: weblab/admin/web/profile_views.py:122 weblab/core/templates/details.html:8
 #: weblab/core/templates/interactions.html:11
+#: weblab/core/templates/webclient/labs.html:68
+#: weblab/core/templates/webclient/locales.json:21
+#: weblab/core/templates/webclient/locales.json:33
 msgid "Details"
 msgstr "Detalles"
 
-#: weblab/admin/web/admin_views.py:798
+#: weblab/admin/web/admin_views.py:831
 msgid "File not stored"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:800
+#: weblab/admin/web/admin_views.py:833
 #, python-format
 msgid "The file has not been stored. Check the %(config)s configuration value."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:809
+#: weblab/admin/web/admin_views.py:842
 msgid "Wrong configuration or file deleted"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:811
+#: weblab/admin/web/admin_views.py:844
 #, python-format
 msgid ""
 "The file was stored, but now it is not reachable. Check the %(config)s "
 "property."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:813
+#: weblab/admin/web/admin_views.py:846
 msgid "Wrong configuration"
 msgstr "Configuración incorrecta"
 
-#: weblab/admin/web/admin_views.py:815
+#: weblab/admin/web/admin_views.py:848
 #, python-format
 msgid ""
 "The file was stored, but now it is not reachable. The %(config)s "
 "directory does not exist."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:821 weblab/admin/web/app.py:109
-#: weblab/admin/web/app.py:124
+#: weblab/admin/web/admin_views.py:854 weblab/admin/web/app.py:110
+#: weblab/admin/web/app.py:133
 msgid "Experiments"
 msgstr "Experimentos"
 
-#: weblab/admin/web/admin_views.py:833 weblab/admin/web/admin_views.py:867
+#: weblab/admin/web/admin_views.py:866 weblab/admin/web/admin_views.py:900
 #: weblab/core/templates/webclient/i18n.html:13
+#: weblab/core/templates/webclient/locales.json:15
 msgid "Category"
 msgstr "Categoría"
 
-#: weblab/admin/web/admin_views.py:834
+#: weblab/admin/web/admin_views.py:867
 msgid "Name for this experiment"
 msgstr "Nombre para éste experimento"
 
-#: weblab/admin/web/admin_views.py:835 weblab/admin/web/admin_views.py:867
+#: weblab/admin/web/admin_views.py:868 weblab/admin/web/admin_views.py:900
 msgid "Client"
 msgstr "Cliente"
 
-#: weblab/admin/web/admin_views.py:835
+#: weblab/admin/web/admin_views.py:868
 msgid "Client to be used"
 msgstr "Cliente a ser utilizado"
 
-#: weblab/admin/web/admin_views.py:836
+#: weblab/admin/web/admin_views.py:869
 msgid "When the laboratory is going to start being used"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:837
+#: weblab/admin/web/admin_views.py:870
 msgid "When the laboratory is not going to be used anymore"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:840
+#: weblab/admin/web/admin_views.py:873
 msgid "Experiment description"
 msgstr "Descripción del experimento"
 
-#: weblab/admin/web/admin_views.py:841
+#: weblab/admin/web/admin_views.py:874
 msgid "HTML to be displayed under the experiment"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:842
+#: weblab/admin/web/admin_views.py:875
 msgid "Link to be provided next to the lab (e.g., docs)"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:843
+#: weblab/admin/web/admin_views.py:876
 msgid "Address to a logo of the laboratory"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:844
+#: weblab/admin/web/admin_views.py:877
 msgid ""
 "Whether it should show the reserve button (unless you're sure, leave this"
 " set)"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:867
+#: weblab/admin/web/admin_views.py:900
 #: weblab/core/templates/instructor/instructor_group_stats.html:24
 #: weblab/core/templates/instructor/instructor_group_stats.html:61
 #: weblab/core/templates/instructor/instructor_group_stats.html:135
 msgid "Uses"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:930
+#: weblab/admin/web/admin_views.py:963
 msgid "Empty property name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:940
+#: weblab/admin/web/admin_views.py:973
 #, python-format
 msgid "Invalid %(type_name)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:946 weblab/admin/web/admin_views.py:951
-#: weblab/admin/web/admin_views.py:952
+#: weblab/admin/web/admin_views.py:979 weblab/admin/web/admin_views.py:984
+#: weblab/admin/web/admin_views.py:985
 msgid "Repeated name!"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:966
+#: weblab/admin/web/admin_views.py:999
 msgid "Category doesn't exist"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:995
+#: weblab/admin/web/admin_views.py:1028
 msgid "Error storing data in the database"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1017
+#: weblab/admin/web/admin_views.py:1050
 msgid "Experiment not found"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1096
+#: weblab/admin/web/admin_views.py:1129
 msgid "Error commiting changes. Contact admin."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1098
+#: weblab/admin/web/admin_views.py:1131
 msgid "Changes saved"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1100
+#: weblab/admin/web/admin_views.py:1133
 msgid "Category not found"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1108
+#: weblab/admin/web/admin_views.py:1141
 msgid "Scheduler name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1108
+#: weblab/admin/web/admin_views.py:1141
 msgid "Unique name for this scheduler"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1111
+#: weblab/admin/web/admin_views.py:1144
 msgid "Randomize experiments"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1111
+#: weblab/admin/web/admin_views.py:1144
 msgid ""
 "First available slot is always the same or there is an internal random "
 "process"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1116
+#: weblab/admin/web/admin_views.py:1149
 msgid "Base URL"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1116
+#: weblab/admin/web/admin_views.py:1149
 msgid "Example: https://www.weblab.deusto.es/weblab/"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1117
+#: weblab/admin/web/admin_views.py:1150
 #: weblab/core/templates/webclient/i18n.html:22
 #: weblab/core/templates/webclient/login.html:33
 #: weblab/core/templates/webclient/login.html:36
 msgid "Username"
 msgstr "Usuario"
 
-#: weblab/admin/web/admin_views.py:1117
+#: weblab/admin/web/admin_views.py:1150
 msgid "Username of the remote system"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1118
+#: weblab/admin/web/admin_views.py:1151
 #: weblab/core/templates/webclient/i18n.html:23
 #: weblab/core/templates/webclient/login.html:41
 #: weblab/core/templates/webclient/login.html:44
 msgid "Password"
 msgstr "Contraseña"
 
-#: weblab/admin/web/admin_views.py:1118
+#: weblab/admin/web/admin_views.py:1151
 msgid "Password of the remote system"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1121
+#: weblab/admin/web/admin_views.py:1154
 msgid "Web service URL"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1121
+#: weblab/admin/web/admin_views.py:1154
 msgid "Example: http://weblab2.mit.edu/services/WebLabService.asmx"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1122
+#: weblab/admin/web/admin_views.py:1155
 msgid "Identifier"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1122
+#: weblab/admin/web/admin_views.py:1155
 msgid "Fake Service Broker identifier"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1123
+#: weblab/admin/web/admin_views.py:1156
 msgid "Passkey"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1123
+#: weblab/admin/web/admin_views.py:1156
 msgid "Remote Service broker passkey"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1129
+#: weblab/admin/web/admin_views.py:1162
 msgid "Experiment to add"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1150 weblab/admin/web/admin_views.py:1406
+#: weblab/admin/web/admin_views.py:1183 weblab/admin/web/admin_views.py:1439
 msgid "Repeated name"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1158
+#: weblab/admin/web/admin_views.py:1191
 #, python-format
 msgid "Queue for %(name)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1207
+#: weblab/admin/web/admin_views.py:1240
 #, python-format
 msgid "WebLab-Deusto at %(where)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1220 weblab/admin/web/admin_views.py:1431
+#: weblab/admin/web/admin_views.py:1253 weblab/admin/web/admin_views.py:1464
 msgid "Error adding resource"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1223 weblab/admin/web/admin_views.py:1434
+#: weblab/admin/web/admin_views.py:1256 weblab/admin/web/admin_views.py:1467
 msgid "Scheduler saved"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1233
+#: weblab/admin/web/admin_views.py:1266
 msgid "Invalid configuration (or server down)"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1290 weblab/admin/web/admin_views.py:1481
+#: weblab/admin/web/admin_views.py:1323 weblab/admin/web/admin_views.py:1514
 msgid "Error removing experiment"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1326
+#: weblab/admin/web/admin_views.py:1359
 msgid "Error registering weblab experiment"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1418
+#: weblab/admin/web/admin_views.py:1451
 #, python-format
 msgid "iLab batch at %(where)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1457
+#: weblab/admin/web/admin_views.py:1490
 msgid "Error registering ilab experiment"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1501
+#: weblab/admin/web/admin_views.py:1534
 msgid "No id provided"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1505
+#: weblab/admin/web/admin_views.py:1538
 msgid "Id provided does not exist"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1543
+#: weblab/admin/web/admin_views.py:1576
 msgid "A unique permanent identifier for a particular permission"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1549 weblab/core/templates/details.html:109
+#: weblab/admin/web/admin_views.py:1582 weblab/core/templates/details.html:109
 msgid "Permission"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1549
+#: weblab/admin/web/admin_views.py:1582
 msgid "Permanent ID"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1549
+#: weblab/admin/web/admin_views.py:1582
+#: weblab/core/templates/webclient/locales.json:19
+#: weblab/core/templates/webclient/locales.json:32
 msgid "Date"
 msgstr "Fecha"
 
-#: weblab/admin/web/admin_views.py:1549 weblab/admin/web/admin_views.py:1703
+#: weblab/admin/web/admin_views.py:1582 weblab/admin/web/admin_views.py:1736
 msgid "Comments"
 msgstr "Comentarios"
 
-#: weblab/admin/web/admin_views.py:1587
+#: weblab/admin/web/admin_views.py:1620
 #, python-format
 msgid "Missing arguments: %(arguments)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1591
+#: weblab/admin/web/admin_views.py:1624
 #, python-format
 msgid "Exceeded arguments: %(arguments)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1610
+#: weblab/admin/web/admin_views.py:1643
 #, python-format
 msgid "Experiment not found: %(experiment)s%"
 msgstr "Experimento no localizado: %(experiment)s%"
 
-#: weblab/admin/web/admin_views.py:1615
+#: weblab/admin/web/admin_views.py:1648
 msgid "Time allowed must be a number (in seconds)"
 msgstr "El tiempo disponible debe ser un número (en segundos)"
 
-#: weblab/admin/web/admin_views.py:1642 weblab/admin/web/admin_views.py:1666
-#: weblab/admin/web/app.py:130 weblab/admin/web/app.py:187
+#: weblab/admin/web/admin_views.py:1675 weblab/admin/web/admin_views.py:1699
+#: weblab/admin/web/app.py:139 weblab/admin/web/app.py:196
 #: weblab/core/templates/webclient/i18n.html:61
 msgid "Group"
 msgstr "Grupo"
 
-#: weblab/admin/web/admin_views.py:1663
+#: weblab/admin/web/admin_views.py:1696
 msgid "Permission type:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1666
+#: weblab/admin/web/admin_views.py:1699
 msgid "Type of recipient:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1704
+#: weblab/admin/web/admin_views.py:1737
 msgid "Recipients of the permission"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1741
+#: weblab/admin/web/admin_views.py:1774
 msgid "Time assigned"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1741
+#: weblab/admin/web/admin_views.py:1774
 msgid "Measured in seconds"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1743
+#: weblab/admin/web/admin_views.py:1776
 msgid "Priority of the user"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1745
+#: weblab/admin/web/admin_views.py:1778
 msgid "Initialization"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1746
+#: weblab/admin/web/admin_views.py:1779
 msgid "Take initialization into account"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1747
+#: weblab/admin/web/admin_views.py:1780
 msgid "Yes"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1747
+#: weblab/admin/web/admin_views.py:1780
 msgid "No"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1795
+#: weblab/admin/web/admin_views.py:1828
 msgid "Target group"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1795
+#: weblab/admin/web/admin_views.py:1828
 msgid "Group to be instructed"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1856
+#: weblab/admin/web/admin_views.py:1889
 msgid "Error saving data. May the permission be duplicated?"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1898 weblab/admin/web/app.py:131
+#: weblab/admin/web/admin_views.py:1931 weblab/admin/web/app.py:140
 msgid "Roles"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1920
+#: weblab/admin/web/admin_views.py:1953
 msgid "Demo available:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1921
+#: weblab/admin/web/admin_views.py:1954
 msgid "Demo user"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1922
+#: weblab/admin/web/admin_views.py:1955
 msgid "Demo password"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1922
+#: weblab/admin/web/admin_views.py:1955
 msgid ""
 "Password of the selected user. It will be publicly shown. Make sure that "
 "it is the valid password for the user."
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1923
+#: weblab/admin/web/admin_views.py:1956
 msgid "Entity picture:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1923 weblab/admin/web/admin_views.py:1924
+#: weblab/admin/web/admin_views.py:1956 weblab/admin/web/admin_views.py:1957
 msgid "Images only!"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1924
+#: weblab/admin/web/admin_views.py:1957
 msgid "Entity small picture:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1925
+#: weblab/admin/web/admin_views.py:1958
 msgid "Entity link:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1926
+#: weblab/admin/web/admin_views.py:1959
 msgid "Contact e-mail:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1927
+#: weblab/admin/web/admin_views.py:1960
 msgid "Admin e-mails:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1927
+#: weblab/admin/web/admin_views.py:1960
 msgid "Separated by commas"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1928
+#: weblab/admin/web/admin_views.py:1961
 msgid "Google Analytics Account:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1934
+#: weblab/admin/web/admin_views.py:1967
 msgid "Guest accounts"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1935
+#: weblab/admin/web/admin_views.py:1968
 msgid "Manage public account creation, guest accounts, etc.:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1943
+#: weblab/admin/web/admin_views.py:1976
 msgid "Entity"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1944
+#: weblab/admin/web/admin_views.py:1977
 msgid "Entity customization: logo, links, etc.:"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1954
+#: weblab/admin/web/admin_views.py:1986
 msgid "Tracking"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1955
+#: weblab/admin/web/admin_views.py:1987
 msgid "Tracking identification"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:1996
+#: weblab/admin/web/admin_views.py:2024
 #, python-format
 msgid "File %(path)s does not exist. Create it first"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:2016
+#: weblab/admin/web/admin_views.py:2044
 msgid "create one"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:2018
+#: weblab/admin/web/admin_views.py:2046
 #, python-format
 msgid "Select from the list, or %(create_one)s"
 msgstr ""
 
-#: weblab/admin/web/admin_views.py:2089
+#: weblab/admin/web/admin_views.py:2120
 msgid "Total"
 msgstr ""
 
-#: weblab/admin/web/app.py:106
+#: weblab/admin/web/app.py:107
 msgid "System"
 msgstr ""
 
-#: weblab/admin/web/app.py:111
+#: weblab/admin/web/app.py:112
 msgid "WebLab-Deusto Admin"
 msgstr ""
 
-#: weblab/admin/web/app.py:114
+#: weblab/admin/web/app.py:115
 msgid "Settings"
 msgstr ""
 
-#: weblab/admin/web/app.py:115
+#: weblab/admin/web/app.py:116
 #: weblab/core/templates/admin/admin-add-students.html:35
 msgid "Authentication"
 msgstr ""
 
-#: weblab/admin/web/app.py:117
+#: weblab/admin/web/app.py:124
+msgid "Public directory"
+msgstr ""
+
+#: weblab/admin/web/app.py:126
 msgid "Add multiple users"
 msgstr ""
 
-#: weblab/admin/web/app.py:121
+#: weblab/admin/web/app.py:130
 msgid "User logs"
 msgstr ""
 
-#: weblab/admin/web/app.py:123
+#: weblab/admin/web/app.py:132
 msgid "Categories"
 msgstr ""
 
-#: weblab/admin/web/app.py:128
+#: weblab/admin/web/app.py:137
 #: weblab/core/templates/admin/admin-auths-create.html:20
 #: weblab/core/templates/admin/admin-auths-create.html:28
 msgid "Create"
 msgstr ""
 
-#: weblab/admin/web/app.py:133
+#: weblab/admin/web/app.py:142
 msgid "Instructor panel"
 msgstr ""
 
-#: weblab/admin/web/app.py:134 weblab/admin/web/app.py:188
+#: weblab/admin/web/app.py:143 weblab/admin/web/app.py:197
 #: weblab/core/templates/profile/profile-edit.html:9
 msgid "My profile"
 msgstr ""
 
-#: weblab/admin/web/app.py:135 weblab/admin/web/app.py:153
-#: weblab/admin/web/app.py:189
+#: weblab/admin/web/app.py:144 weblab/admin/web/app.py:162
+#: weblab/admin/web/app.py:198
 #: weblab/core/templates/admin/admin-add-experiment.html:68
 #: weblab/core/templates/admin/admin-add-students.html:75
 #: weblab/core/templates/admin/admin-auths-create-individual.html:25
@@ -856,32 +892,32 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: weblab/admin/web/app.py:147
+#: weblab/admin/web/app.py:156
 msgid "WebLab-Deusto profile"
 msgstr ""
 
-#: weblab/admin/web/app.py:150
+#: weblab/admin/web/app.py:159
 msgid "Edit"
 msgstr ""
 
-#: weblab/admin/web/app.py:152
+#: weblab/admin/web/app.py:161
 msgid "My accesses"
 msgstr ""
 
-#: weblab/admin/web/app.py:178
+#: weblab/admin/web/app.py:187
 msgid "Weblab-Deusto instructor"
 msgstr ""
 
-#: weblab/admin/web/app.py:181
+#: weblab/admin/web/app.py:190
 #: weblab/core/templates/admin/admin-scheduler-create-weblab.html:9
 msgid "General"
 msgstr ""
 
-#: weblab/admin/web/app.py:182
+#: weblab/admin/web/app.py:191 weblab/core/templates/webclient/locales.json:29
 msgid "Stats"
 msgstr ""
 
-#: weblab/admin/web/app.py:185
+#: weblab/admin/web/app.py:194
 msgid "Raw accesses"
 msgstr ""
 
@@ -1166,6 +1202,7 @@ msgid "Type"
 msgstr ""
 
 #: weblab/core/templates/admin/admin-add-students-select.html:17
+#: weblab/core/templates/webclient/locales.json:16
 msgid "Description"
 msgstr ""
 
@@ -1539,16 +1576,16 @@ msgstr ""
 msgid "WebLab-Deusto authors"
 msgstr ""
 
-#: weblab/core/templates/webclient/_logged_base.html:19
+#: weblab/core/templates/webclient/_logged_base.html:28
 #: weblab/core/templates/webclient/i18n.html:19
 msgid "Log out"
 msgstr "Salir"
 
-#: weblab/core/templates/webclient/_upload.html:65
+#: weblab/core/templates/webclient/_upload.html:67
 msgid "File to Upload"
 msgstr ""
 
-#: weblab/core/templates/webclient/_upload.html:71
+#: weblab/core/templates/webclient/_upload.html:73
 msgid ""
 "Please, drag & drop here the file that you want to upload for the "
 "experiment.\n"
@@ -1556,21 +1593,31 @@ msgid ""
 "and select the file manually."
 msgstr ""
 
-#: weblab/core/templates/webclient/_upload.html:79
+#: weblab/core/templates/webclient/_upload.html:81
 msgid "Select file..."
 msgstr ""
 
+#: weblab/core/templates/webclient/error.html:2
+#: weblab/core/templates/webclient/error.html:10
+#: weblab/core/webclient/view_federated.py:32
+msgid "Error"
+msgstr ""
+
+#: weblab/core/templates/webclient/error.html:15
+#: weblab/core/templates/webclient/i18n.html:8
+#: weblab/core/templates/webclient/locales.json:27
+msgid "Go back"
+msgstr "Volver"
+
 #: weblab/core/templates/webclient/i18n.html:6
+#: weblab/core/templates/webclient/locales.json:14
 msgid "Finish"
 msgstr "Finalizar"
 
 #: weblab/core/templates/webclient/i18n.html:7
+#: weblab/core/templates/webclient/locales.json:26
 msgid "Experiment finished"
 msgstr "El experimento ha terminado"
-
-#: weblab/core/templates/webclient/i18n.html:8
-msgid "Go back"
-msgstr "Volver"
 
 #: weblab/core/templates/webclient/i18n.html:9
 msgid "Selected experiment"
@@ -1585,10 +1632,12 @@ msgid "Experiment hosted by"
 msgstr "Experimento alojado en"
 
 #: weblab/core/templates/webclient/i18n.html:14
+#: weblab/core/templates/webclient/locales.json:17
 msgid "Assigned time"
 msgstr "Tiempo disponible"
 
 #: weblab/core/templates/webclient/i18n.html:15
+#: weblab/core/templates/webclient/lab.html:25
 msgid "Back to My experiments"
 msgstr "Volver a Mis experimentos"
 
@@ -1615,7 +1664,7 @@ msgstr ""
 
 #: weblab/core/templates/webclient/i18n.html:20
 #: weblab/core/templates/webclient/labs.html:2
-#: weblab/core/templates/webclient/labs.html:8
+#: weblab/core/templates/webclient/labs.html:15
 msgid "My Experiments"
 msgstr "Mis Experimentos"
 
@@ -1638,6 +1687,7 @@ msgid "The {0} field can not be empty"
 msgstr "El campo {0} no puede estar vacío"
 
 #: weblab/core/templates/webclient/i18n.html:27
+#: weblab/core/templates/webclient/locales.json:12
 msgid "Reserve"
 msgstr "Reservar"
 
@@ -1668,7 +1718,6 @@ msgid "Choose"
 msgstr "Seleccionar"
 
 #: weblab/core/templates/webclient/i18n.html:34
-#: weblab/core/templates/webclient/apps/lab/lab.html:15
 msgid "Reserve this experiment"
 msgstr "Reserva este experimento"
 
@@ -2099,48 +2148,170 @@ msgstr "Selecciona otro código"
 msgid "Loading {0}"
 msgstr "Cargando {0}"
 
-#: weblab/core/templates/webclient/labs.html:18
-msgid "No experiments are available with the current filters"
-msgstr "No hay experimentos disponibles con los filtros seleccionados actualmente"
+#: weblab/core/templates/webclient/lab.html:33
+#, fuzzy
+msgid "Loading experiment..."
+msgstr "Experimento seleccionado"
 
-#: weblab/core/templates/webclient/labs.html:19
+#: weblab/core/templates/webclient/lab.html:36
+#: weblab/core/templates/webclient/lab.html:60
 msgid ""
-"\n"
-"                    No experiments are available which match the current "
-"filters. You might want to change the filters.\n"
-"                    If after changing the filters the experiment you seek"
-" still does not seem to be available,\n"
-"                    you may need to request access to your teacher, "
-"laboratory provider or Weblab administrator.\n"
-"                "
+"The experiment is taking longer than expected to load. If this message is"
+" shown for a long time, there might be a problem with the experiment or "
+"with the web browser you are using. Please contact the administrator."
 msgstr ""
 
+#: weblab/core/templates/webclient/lab.html:57
+#, fuzzy
+msgid "Reloading experiment..."
+msgstr "Experimento seleccionado"
+
+#: weblab/core/templates/webclient/labs.html:23
+#, fuzzy
+msgid "Go to details"
+msgstr "Detalles"
+
 #: weblab/core/templates/webclient/labs.html:27
+#, fuzzy
+msgid "Order by Category"
+msgstr "Filtrar por categoría"
+
+#: weblab/core/templates/webclient/labs.html:28
+msgid "Order Alphabetically"
+msgstr ""
+
+#: weblab/core/templates/webclient/labs.html:29
+msgid "Order by Number of Uses"
+msgstr ""
+
+#: weblab/core/templates/webclient/labs.html:30
+msgid "Order by Last Use Time"
+msgstr ""
+
+#: weblab/core/templates/webclient/labs.html:72
 msgid "Loading laboratories..."
 msgstr "Cargando laboratorios..."
 
-#: weblab/core/templates/webclient/labs.html:50
+#: weblab/core/templates/webclient/labs.html:81
+msgid "No experiments are available with the current filters"
+msgstr "No hay experimentos disponibles con los filtros seleccionados actualmente"
+
+#: weblab/core/templates/webclient/labs.html:82
+msgid ""
+"\n"
+"                            No experiments are available which match the "
+"current filters. You might want to change the filters.\n"
+"                            If after changing the filters the experiment "
+"you seek still does not seem to be available,\n"
+"                            you may need to request access to your "
+"teacher, laboratory provider or Weblab administrator.\n"
+"                        "
+msgstr ""
+
+#: weblab/core/templates/webclient/labs.html:110
 msgid "Open"
 msgstr "Abrir"
 
-#: weblab/core/templates/webclient/labs.html:67
+#: weblab/core/templates/webclient/labs.html:127
 msgid "Filter by Search"
 msgstr "Filtrar por búsqueda"
 
-#: weblab/core/templates/webclient/labs.html:75
+#: weblab/core/templates/webclient/labs.html:135
 msgid "Search..."
 msgstr "Buscar..."
 
-#: weblab/core/templates/webclient/labs.html:96
+#: weblab/core/templates/webclient/labs.html:156
 msgid "Filter by Category"
 msgstr "Filtrar por categoría"
 
 #: weblab/core/templates/webclient/locales.json:2
+msgid "Waiting in the queue. You are next."
+msgstr "Esperando en la cola. Eres el siguiente."
+
+#: weblab/core/templates/webclient/locales.json:3
+#, fuzzy
+msgid "Waiting in the queue. Your position is: {{position}}."
+msgstr "Esperando en la cola. La posición es: "
+
+#: weblab/core/templates/webclient/locales.json:4
+msgid ""
+"The experiment seems to be broken and no instances are available. Even "
+"though, you are first the queue."
+msgstr ""
+"El experimento parece estar roto y no hay instancias disponibles. Aun "
+"así, eres el primero en la cola."
+
+#: weblab/core/templates/webclient/locales.json:5
+#, fuzzy
+msgid ""
+"The experiment seems to be broken. We will keep trying, but for now, "
+"reserve will fail."
+msgstr ""
+"El experimento parece estar roto. Seguiremos intentando, pero, por el "
+"momento, la reserva probablemente fallará."
+
+#: weblab/core/templates/webclient/locales.json:6
+#: weblab/core/webclient/view_lab.py:54
+msgid "You are not logged in"
+msgstr "No has hecho login"
+
+#: weblab/core/templates/webclient/locales.json:7
+#, fuzzy
+msgid "Failed to reserve: {{ reason }}"
+msgstr "Fallo al reservar: "
+
+#: weblab/core/templates/webclient/locales.json:8
+msgid "Reserving..."
+msgstr "Reservando..."
+
+#: weblab/core/templates/webclient/locales.json:9
+msgid "Reservation done"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:11
+msgid "Reserve (in Frame)"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:13
+msgid "Reserve (in Window)"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:18
+msgid "You have not used this lab before"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:20
+#, fuzzy
+msgid "Location"
+msgstr "Información"
+
+#: weblab/core/templates/webclient/locales.json:22
+#, fuzzy
+msgid "Online"
+msgstr "Rol"
+
+#: weblab/core/templates/webclient/locales.json:23
+msgid "Offline"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:24
+msgid "My latest uses"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:25
 msgid "This is a title"
 msgstr "Esto es un título"
 
-#: weblab/core/templates/webclient/locales.json:3
+#: weblab/core/templates/webclient/locales.json:28
 msgid "Foo bar"
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:30
+msgid "Number of uses: "
+msgstr ""
+
+#: weblab/core/templates/webclient/locales.json:31
+msgid "Status: "
 msgstr ""
 
 #: weblab/core/templates/webclient/login.html:56
@@ -2170,88 +2341,35 @@ msgstr ""
 msgid "Error logging in"
 msgstr "Error haciendo login"
 
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:102
-msgid "Waiting in the queue. You are next."
-msgstr "Esperando en la cola. Eres el siguiente."
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:106
-msgid "Waiting in the queue. Your position is: "
-msgstr "Esperando en la cola. La posición es: "
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:115
-msgid ""
-"The experiment seems to be broken and no instances are available. Even "
-"though, you are first the queue."
-msgstr ""
-"El experimento parece estar roto y no hay instancias disponibles. Aun "
-"así, eres el primero en la cola."
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:119
-msgid ""
-"The experiment seems to be broken and no instances are available. Even "
-"though, you are waiting in the queue. Your position is: "
-msgstr ""
-"El experimento parece estar roto y no hay instancias disponibles. Aun "
-"así, estás en la cola. Tu posición es: "
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:125
-msgid ""
-"The experiment seems to be broken. We will keep trying, but for now, "
-"reserve will probably fail."
-msgstr ""
-"El experimento parece estar roto. Seguiremos intentando, pero, por el "
-"momento, la reserva probablemente fallará."
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:138
-msgid "You are not logged in"
-msgstr "No has hecho login"
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:145
-msgid "Failed to reserve: "
-msgstr "Fallo al reservar: "
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:163
-msgid "Reserving..."
-msgstr "Reservando..."
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:177
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:244
-msgid "Reservation done"
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:187
-msgid "The experiment does not seem to support iframe mode"
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/lab.controller.js:233
-msgid "Reserving experiment..."
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/lab.html:26
-msgid "Reserve (in Frame)"
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/lab.html:30
-msgid "Reserve (in Window)"
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/expinfo/expinfo.template.html:5
-msgid "Experiment:"
-msgstr ""
-
-#: weblab/core/templates/webclient/apps/lab/expinfo/expinfo.template.html:9
-msgid "Category:"
-msgstr ""
-
-#: weblab/core/webclient/helpers.py:26 weblab/core/webclient/helpers.py:40
+#: weblab/core/webclient/helpers.py:27 weblab/core/webclient/helpers.py:41
 msgid "Error processing request"
 msgstr ""
 
-#: weblab/core/webclient/view_lab.py:29
+#: weblab/core/webclient/view_federated.py:32
+msgid ""
+"Invalid federated URL: you're attempting to use a route not used in this "
+"WebLab-Deusto instance"
+msgstr ""
+
+#: weblab/core/webclient/view_federated.py:44
+msgid "The provided reservation identifier is not valid or has expired."
+msgstr ""
+
+#: weblab/core/webclient/view_federated.py:47
+msgid ""
+"Unexpected error on the server side while trying to get the reservation "
+"information."
+msgstr ""
+
+#: weblab/core/webclient/view_lab.py:42
+msgid "The reservation you used has expired."
+msgstr ""
+
+#: weblab/core/webclient/view_lab.py:64
 msgid "You don't have permission on this laboratory"
 msgstr ""
 
-#: weblab/core/webclient/view_lab.py:31
+#: weblab/core/webclient/view_lab.py:66
 msgid "Experiment does not exist"
 msgstr ""
 
@@ -2259,4 +2377,44 @@ msgstr ""
 #: weblab/core/webclient/view_login.py:63
 msgid "There was an unexpected error while logging in."
 msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "                    No experiments are "
+#~ "available which match the current "
+#~ "filters. You might want to change "
+#~ "the filters.\n"
+#~ "                    If after changing the "
+#~ "filters the experiment you seek still"
+#~ " does not seem to be available,\n"
+#~ ""
+#~ "                    you may need to "
+#~ "request access to your teacher, "
+#~ "laboratory provider or Weblab administrator."
+#~ "\n"
+#~ "                "
+#~ msgstr ""
+
+#~ msgid ""
+#~ "The experiment seems to be broken "
+#~ "and no instances are available. Even "
+#~ "though, you are waiting in the "
+#~ "queue. Your position is: "
+#~ msgstr ""
+#~ "El experimento parece estar roto y "
+#~ "no hay instancias disponibles. Aun así,"
+#~ " estás en la cola. Tu posición "
+#~ "es: "
+
+#~ msgid "The experiment does not seem to support iframe mode"
+#~ msgstr ""
+
+#~ msgid "Reserving experiment..."
+#~ msgstr ""
+
+#~ msgid "Experiment:"
+#~ msgstr ""
+
+#~ msgid "Category:"
+#~ msgstr ""
 
