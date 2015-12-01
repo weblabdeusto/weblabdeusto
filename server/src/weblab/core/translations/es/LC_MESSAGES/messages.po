@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: weblab 5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-12-01 17:32+0100\n"
+"POT-Creation-Date: 2015-12-01 17:40+0100\n"
 "PO-Revision-Date: 2015-08-22 14:53+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -1472,12 +1472,12 @@ msgstr ""
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:66
 msgid "Value"
-msgstr ""
+msgstr "Valor"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:77
 #: weblab/core/templates/instructor/instructor_group_stats.html:87
 msgid "Total uses"
-msgstr ""
+msgstr "Usos totales"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:78
 #, python-format
@@ -1487,7 +1487,7 @@ msgstr ""
 #: weblab/core/templates/instructor/instructor_group_stats.html:81
 #: weblab/core/templates/instructor/instructor_group_stats.html:91
 msgid "Total time"
-msgstr ""
+msgstr "Tiempo total"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:82
 #, python-format
@@ -1515,15 +1515,15 @@ msgstr[1] ""
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:133
 msgid "Student"
-msgstr ""
+msgstr "Estudiante"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:136
 msgid "Time (seconds)"
-msgstr ""
+msgstr "Tiempo (segunods)"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:137
 msgid "Average time (seconds)"
-msgstr ""
+msgstr "Tiempo medio (segundos)"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:160
 msgid ""
@@ -1546,7 +1546,7 @@ msgstr ""
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:169
 msgid "Copy timeline"
-msgstr ""
+msgstr "Copiar línea temporal"
 
 #: weblab/core/templates/instructor/instructor_group_stats.html:178
 msgid "Sorry, there has been no activity in this group"
@@ -1554,7 +1554,7 @@ msgstr ""
 
 #: weblab/core/templates/instructor/instructor_group_stats_index.html:8
 msgid "Select a group:"
-msgstr ""
+msgstr "Selecciona un grupo:"
 
 #: weblab/core/templates/instructor/instructor_group_stats_index.html:16
 msgid ""
@@ -1583,7 +1583,7 @@ msgstr "Salir"
 
 #: weblab/core/templates/webclient/_upload.html:67
 msgid "File to Upload"
-msgstr ""
+msgstr "Archivo a subir"
 
 #: weblab/core/templates/webclient/_upload.html:73
 msgid ""
@@ -1595,13 +1595,13 @@ msgstr ""
 
 #: weblab/core/templates/webclient/_upload.html:81
 msgid "Select file..."
-msgstr ""
+msgstr "Selecciona archivo..."
 
 #: weblab/core/templates/webclient/error.html:2
 #: weblab/core/templates/webclient/error.html:10
 #: weblab/core/webclient/view_federated.py:32
 msgid "Error"
-msgstr ""
+msgstr "Error"
 
 #: weblab/core/templates/webclient/error.html:15
 #: weblab/core/templates/webclient/i18n.html:8
@@ -2178,15 +2178,15 @@ msgstr "Filtrar por categoría"
 
 #: weblab/core/templates/webclient/labs.html:28
 msgid "Order Alphabetically"
-msgstr ""
+msgstr "Ordenar alfabéticamente"
 
 #: weblab/core/templates/webclient/labs.html:29
 msgid "Order by Number of Uses"
-msgstr ""
+msgstr "Ordenar por número de usos"
 
 #: weblab/core/templates/webclient/labs.html:30
 msgid "Order by Last Use Time"
-msgstr ""
+msgstr "Ordenar por último uso"
 
 #: weblab/core/templates/webclient/labs.html:72
 msgid "Loading laboratories..."
@@ -2278,7 +2278,7 @@ msgstr ""
 
 #: weblab/core/templates/webclient/locales.json:18
 msgid "You have not used this lab before"
-msgstr ""
+msgstr "No has utilizado antes éste laboratorio"
 
 #: weblab/core/templates/webclient/locales.json:20
 #, fuzzy
@@ -2292,11 +2292,11 @@ msgstr "Rol"
 
 #: weblab/core/templates/webclient/locales.json:23
 msgid "Offline"
-msgstr ""
+msgstr "Offline"
 
 #: weblab/core/templates/webclient/locales.json:24
 msgid "My latest uses"
-msgstr ""
+msgstr "Mis últimos usos"
 
 #: weblab/core/templates/webclient/locales.json:25
 msgid "This is a title"
@@ -2308,11 +2308,11 @@ msgstr ""
 
 #: weblab/core/templates/webclient/locales.json:30
 msgid "Number of uses: "
-msgstr ""
+msgstr "Número de usos: "
 
 #: weblab/core/templates/webclient/locales.json:31
 msgid "Status: "
-msgstr ""
+msgstr "Estado: "
 
 #: weblab/core/templates/webclient/login.html:56
 msgid "Logging in..."
@@ -2343,7 +2343,7 @@ msgstr "Error haciendo login"
 
 #: weblab/core/webclient/helpers.py:27 weblab/core/webclient/helpers.py:41
 msgid "Error processing request"
-msgstr ""
+msgstr "Error al procesar la petición"
 
 #: weblab/core/webclient/view_federated.py:32
 msgid ""
@@ -2353,58 +2353,33 @@ msgstr ""
 
 #: weblab/core/webclient/view_federated.py:44
 msgid "The provided reservation identifier is not valid or has expired."
-msgstr ""
+msgstr "El identificador de reserva provisto no es válido o ha expirado."
 
 #: weblab/core/webclient/view_federated.py:47
 msgid ""
 "Unexpected error on the server side while trying to get the reservation "
 "information."
-msgstr ""
+msgstr "Error inesperado en el lado del servidor al tratar de usar la información de reserva."
 
 #: weblab/core/webclient/view_lab.py:42
 msgid "The reservation you used has expired."
-msgstr ""
+msgstr "La reserva que has utilizado ha expirado"
 
 #: weblab/core/webclient/view_lab.py:64
 msgid "You don't have permission on this laboratory"
-msgstr ""
+msgstr "No tienes permiso para éste laboratorio"
 
 #: weblab/core/webclient/view_lab.py:66
 msgid "Experiment does not exist"
-msgstr ""
+msgstr "El experimento no existe"
 
 #: weblab/core/webclient/view_login.py:62
 #: weblab/core/webclient/view_login.py:63
 msgid "There was an unexpected error while logging in."
-msgstr ""
+msgstr "Ocurrió un error inesperado al intentar entrar"
 
 #~ msgid ""
-#~ "\n"
-#~ "                    No experiments are "
-#~ "available which match the current "
-#~ "filters. You might want to change "
-#~ "the filters.\n"
-#~ "                    If after changing the "
-#~ "filters the experiment you seek still"
-#~ " does not seem to be available,\n"
-#~ ""
-#~ "                    you may need to "
-#~ "request access to your teacher, "
-#~ "laboratory provider or Weblab administrator."
-#~ "\n"
-#~ "                "
 #~ msgstr ""
-
-#~ msgid ""
-#~ "The experiment seems to be broken "
-#~ "and no instances are available. Even "
-#~ "though, you are waiting in the "
-#~ "queue. Your position is: "
-#~ msgstr ""
-#~ "El experimento parece estar roto y "
-#~ "no hay instancias disponibles. Aun así,"
-#~ " estás en la cola. Tu posición "
-#~ "es: "
 
 #~ msgid "The experiment does not seem to support iframe mode"
 #~ msgstr ""
