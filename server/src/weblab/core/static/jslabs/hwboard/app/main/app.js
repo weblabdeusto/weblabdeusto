@@ -20,7 +20,7 @@ angular
         'ui.bootstrap',
         'ui.bootstrap.modal'
     ])
-    .run( function($rootScope) {
+    .run(function ($rootScope) {
 
         // Initialize the translations
         var i18n = {
@@ -73,9 +73,9 @@ angular
             }
             if (href.search("locale=eu") > 0) {
                 currentLanguage = "eu";
-            } else if(href.search("locale=es") > 0) {
+            } else if (href.search("locale=es") > 0) {
                 currentLanguage = "es";
-            } else if(href.search("locale=nl") > 0) {
+            } else if (href.search("locale=nl") > 0) {
                 currentLanguage = "nl";
             }  // Other languages
         } catch (Er) {
@@ -84,17 +84,18 @@ angular
 
         window.TRANSLATIONS = i18n[currentLanguage];
 
-        debugger;
-        console.log("Trying to load VIRTUALMODEL var: " );
-        console.log(weblab.config);
+        console.log("onConfigLoad callback set");
+        weblab.onConfigLoad(function () {
+            console.log("onConfigLoad called");
+            // Initialize the VM logic
+            try {
+                $rootScope.VIRTUALMODEL = weblab.config.virtualmodel;
+            } catch (ex) {
+                console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
+                $rootScope.VIRTUALMODEL = "";
+            }
+        });
 
-        // Initialize the VM logic
-        try {
-            $rootScope.VIRTUALMODEL = weblab.config.virtualmodel;
-        } catch(ex) {
-            console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
-            $rootScope.VIRTUALMODEL = "";
-        }
     })
     .config(function ($routeProvider) {
         $routeProvider
