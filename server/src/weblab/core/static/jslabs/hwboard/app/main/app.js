@@ -63,15 +63,33 @@ angular
         };
 
         // Load the right translation depending on the locale
-        // TODO:
-        window.TRANSLATIONS = i18n["es"];
+        var currentLanguage = "en";
+        try {
+            var href = "";
+            if (parent === window) {
+                href = window.location.href;
+            } else {
+                href = parent.window.location.href;
+            }
+            if (href.search("locale=eu") > 0) {
+                currentLanguage = "eu";
+            } else if(href.search("locale=es") > 0) {
+                currentLanguage = "es";
+            } else if(href.search("locale=nl") > 0) {
+                currentLanguage = "nl";
+            }  // Other languages
+        } catch (Er) {
+            // Error, default to English
+        }
+
+        window.TRANSLATIONS = i18n[currentLanguage];
 
         // Initialize the VM logic
         try {
             $rootScope.VIRTUALMODEL = weblab.config.virtualmodel;
         } catch(ex) {
             console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
-            $rootScope.VIRTUALMODEL = "";getProperty("virtualmodel");
+            $rootScope.VIRTUALMODEL = "";
         }
     })
     .config(function ($routeProvider) {
