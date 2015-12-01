@@ -439,7 +439,7 @@ msgstr ""
 #: weblab/core/templates/instructor/instructor_group_stats.html:61
 #: weblab/core/templates/instructor/instructor_group_stats.html:135
 msgid "Uses"
-msgstr ""
+msgstr "Usos"
 
 #: weblab/admin/web/admin_views.py:930
 msgid "Empty property name"
@@ -453,19 +453,19 @@ msgstr ""
 #: weblab/admin/web/admin_views.py:946 weblab/admin/web/admin_views.py:951
 #: weblab/admin/web/admin_views.py:952
 msgid "Repeated name!"
-msgstr ""
+msgstr "Nombre repetido!"
 
 #: weblab/admin/web/admin_views.py:966
 msgid "Category doesn't exist"
-msgstr ""
+msgstr "La categoría no existe"
 
 #: weblab/admin/web/admin_views.py:995
 msgid "Error storing data in the database"
-msgstr ""
+msgstr "Error guardando información en la base de datos"
 
 #: weblab/admin/web/admin_views.py:1017
 msgid "Experiment not found"
-msgstr ""
+msgstr "Experimento no encontrado"
 
 #: weblab/admin/web/admin_views.py:1096
 msgid "Error commiting changes. Contact admin."
