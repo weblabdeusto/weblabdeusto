@@ -25,5 +25,10 @@
     "TITLE" : {{ ng_gettext("This is a title")|tojson }},
     "EXPERIMENT_FINISHED_GO_BACK": {{ ng_gettext("Experiment finished")|tojson }},
     "GO_BACK": {{ ng_gettext("Go back")|tojson }},
-    "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }}
+    "FOOBAR" : {{ ng_gettext("Foo bar")|tojson }},
+    "STATS": {{ ng_gettext("Stats")|tojson }},
+    "NUMBER_OF_USES": {{ ng_gettext("Number of uses: ")|tojson }},
+    "STATUS": {{ ng_gettext("Status: ")|tojson }},
+    "DATE": {{ ng_gettext("Date")|tojson }},
+    "DETAILS": {{ ng_gettext("Details")|tojson }}
 }
