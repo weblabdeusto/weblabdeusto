@@ -23,6 +23,9 @@ class Watertank(object):
     """
     Watertank Model
 
+    Output example:
+    {"water": 0.0, "inputs": [0.5, 0.5], "temperatures": [716, 20], "outputs": [1.0]}
+
     Changes that have been applied lately to this model (Dec 2015)
       - There is no longer a separate temperatures mode. Now there is a single model with temperatures.
       - There are no longer temperature working ranges, temperature warnings, or temperature overloads. The
@@ -230,7 +233,10 @@ if __name__ == '__main__':
     from mock import patch
     import unittest
 
-    def fake_sleep(time):
+    def fake_sleep(t):
+        # TODO
+        a = [1 for i in range(100000)]  # very fast kludge to add minor delay
+        b = len(a)
         pass
 
     class TestWatertankSimulation(unittest.TestCase):
@@ -238,46 +244,109 @@ if __name__ == '__main__':
         def test_nothing(self):
             pass
 
+        def _get_state(self, w):
+            js = w.get_json_state([20, 20], [100])
+            d = json.loads(js)
+            return d
+
         @patch("time.sleep", fake_sleep)
-        def test_first(self):
+        def test_waterlevel_increase_decrease(self):
             w = Watertank(1000, [100, 100], [100], 0.5)
             w.autoupdater_start(1)
 
+            initial_level = self._get_state(w)["water"]
+
             i = 0
             while (i < 15):
-                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
                 time.sleep(0.5)
                 i += 1
 
-            print "...."
+            other_level = self._get_state(w)["water"]
+
+            # Check that the water level did increase
+            self.assertGreater(other_level, initial_level)
+
+            w.set_outputs([400])
+
             i = 0
-            w.set_outputs([100])
-            w.set_inputs([10, 10])
-            while (i < 30):
-                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+            while (i < 15):
                 time.sleep(0.5)
                 i += 1
 
-            w.autoupdater_join()
+            dec_level = self._get_state(w)["water"]
+
+            # Check that the water level did decrease
+            self.assertGreater(other_level, dec_level)
 
         @patch("time.sleep", fake_sleep)
-        def test_second(self):
+        def test_temperature_increase_decrease(self):
             w = Watertank(1000, [100, 100], [100], 0.5)
+            w.autoupdater_start(1)
+
+            t0 = self._get_state(w)["temperatures"][0]
 
             i = 0
-            while i < 15:
-                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-                w.update(1)
+            while (i < 15):
+                time.sleep(0.5)
                 i += 1
 
-            print "...."
+            t1 = self._get_state(w)["temperatures"][0]
+
+            # Check that the water level did increase
+            self.assertGreater(t1, t0)
+
+            w.set_inputs([0, 0])
+
             i = 0
-            w.set_outputs([100])
-            w.set_inputs([10, 10])
-            while i < 15:
-                print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
-                w.update(1)
+            while (i < 15):
+                time.sleep(0.5)
                 i += 1
+
+            t2 = self._get_state(w)["temperatures"][0]
+
+            # Check that the water level did decrease
+            self.assertGreater(t1, t2)
+
+        # @patch("time.sleep", fake_sleep)
+        # def test_first(self):
+        #     w = Watertank(1000, [100, 100], [100], 0.5)
+        #     w.autoupdater_start(1)
+        #
+        #     i = 0
+        #     while (i < 15):
+        #         print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+        #         time.sleep(0.5)
+        #         i += 1
+        #
+        #     print "...."
+        #     i = 0
+        #     w.set_outputs([100])
+        #     w.set_inputs([10, 10])
+        #     while (i < 30):
+        #         print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+        #         time.sleep(0.5)
+        #         i += 1
+        #
+        #     w.autoupdater_join()
+        #
+        # @patch("time.sleep", fake_sleep)
+        # def test_second(self):
+        #     w = Watertank(1000, [100, 100], [100], 0.5)
+        #
+        #     i = 0
+        #     while i < 15:
+        #         print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+        #         w.update(1)
+        #         i += 1
+        #
+        #     print "...."
+        #     i = 0
+        #     w.set_outputs([100])
+        #     w.set_inputs([10, 10])
+        #     while i < 15:
+        #         print w.tank_capacity, w.get_water_level(), w.get_water_volume(), w.get_json_state([20, 20], [100])
+        #         w.update(1)
+        #         i += 1
 
 
     unittest.main()
