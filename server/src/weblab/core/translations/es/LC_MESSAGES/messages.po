@@ -2286,9 +2286,8 @@ msgid "Location"
 msgstr "Información"
 
 #: weblab/core/templates/webclient/locales.json:22
-#, fuzzy
 msgid "Online"
-msgstr "Rol"
+msgstr "Online"
 
 #: weblab/core/templates/webclient/locales.json:23
 msgid "Offline"
