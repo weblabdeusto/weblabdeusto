@@ -319,6 +319,10 @@ class UdXilinxExperiment(Experiment.Experiment):
                 # sys.stdout.flush()
         except Exception as e:
 
+            if DEBUG:
+                tb = traceback.format_exc()
+                print "FULL EXCEPTION IS: {0}".format(tb)
+
             # TODO: test me
             log.log(UdXilinxExperiment, log.level.Info,
                     "Exception joining sending program to device: %s" % e.args[0])
