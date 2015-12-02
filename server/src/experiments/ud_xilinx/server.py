@@ -288,20 +288,27 @@ class UdXilinxExperiment(Experiment.Experiment):
             log.log(UdXilinxExperiment, log.level.Warning, "Error programming file: " + str(e))
             log.log_exc(UdXilinxExperiment, log.level.Warning)
 
-    # This is used in the demo experiment
     def _program_file(self, file_content):
         try:
             fd, file_name = tempfile.mkstemp(prefix='ud_xilinx_experiment_program',
                                              suffix='.' + self._programmer.get_suffix())  # Originally the Programmer wasn't the one to contain the suffix info.
+
+            if DEBUG:
+                # For debugging purposes write the file to tmp
+                df = open("/tmp/toprogram_dbg", "w")
             try:
                 try:
                     # TODO: encode? utf8?
                     if isinstance(file_content, unicode):
+                        if DEBUG: print "[DBG]: Encoding file content in utf8"
                         file_content_encoded = file_content.encode('utf8')
                     else:
+                        if DEBUG: print "[DBG]: Not encoding file content"
                         file_content_encoded = file_content
                     file_content_recovered = ExperimentUtil.deserialize(file_content_encoded)
                     os.write(fd, file_content_recovered)
+                    if DEBUG:
+                        os.write(df, file_content_recovered)
                 finally:
                     os.close(fd)
                 self._programmer.program(file_name)

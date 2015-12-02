@@ -107,6 +107,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
             var name = $("#file")[0].files[0].name;
             var content = result;
             var evalResult = advise.evalFile(content, name);
+            var extension = name.split('.').pop();
 
             if(evalResult.result != "ok") {
                 alert(evalResult.message);
@@ -117,7 +118,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
             $log.debug("File has been read client-side.");
 
             // Initialize the file ctrl
-            weblab.sendFile(result)
+            weblab.sendFile(result, extension)
                 .done(onFileSent)
                 .fail(onFileSentFail);
         } // !onFileReadLoadEvent

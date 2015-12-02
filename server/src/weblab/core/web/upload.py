@@ -106,6 +106,7 @@ def _check_arguments():
     _check_arguments()
     Retrieves the arguments which describe the file being sent.
     These areguments are the file_sent, the file-info, the sessionid, and optionally
+
     @return file_info, file_sent, reservation_id, is_async
     """
     file_info = get_argument(FILE_INFO)
