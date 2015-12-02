@@ -86,14 +86,16 @@ class Watertank(object):
             total_input += pump1 * delta
         else:
             self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+            self.firstPumpTemperature = max(20, self.firstPumpTemperature)
             total_input -= pump1 * delta
 
         # If the second pump is turned on we increase the temperature and the total water input
         if pump2 > 0:
-            self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+            self.secondPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
             total_input += pump2 * delta
         else:
-            self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+            self.secondPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
+            self.secondPumpTemperature = max(20, self.secondPumpTemperature)
             total_input -= pump2 * delta
 
         increment = total_input - total_output
