@@ -79,6 +79,10 @@ hosts:
             config_file: main_machine/main_instance/experiment_hwboard/server_config.py
             type: experiment
             class: experiments.ud_xilinx.server.UdXilinxExperiment
+          experiment_hwboard_watertank:
+            config_file: main_machine/main_instance/experiment_hwboard/server_config.py
+            type: experiment
+            class: experiments.ud_xilinx.server.UdXilinxExperiment
           experiment_visir_html5:
             config_file: main_machine/main_instance/experiment_visir_html5/server_config.py
             type: experiment

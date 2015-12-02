@@ -83,6 +83,11 @@ laboratory_assigned_experiments = {
                  'coord_address': 'experiment_hwboard:main_instance@main_machine',
                  'checkers': ()
             },
+        'exp1:hwboard-fpga-watertank@FPGA experiments':
+            {
+                'coord_address': 'experiment_hwboard_watertank:main_instance@main_machine',
+                'checkers': ()
+            },
         'exp1:visirtest@Dummy experiments':
             {
                  'coord_address': 'experiment_testvisir:main_instance@main_machine',

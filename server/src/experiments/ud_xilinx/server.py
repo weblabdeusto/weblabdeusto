@@ -383,6 +383,8 @@ class UdXilinxExperiment(Experiment.Experiment):
             self.change_switch(1, waterLevel >= 0.50)
             self.change_switch(2, waterLevel >= 0.80)
 
+            temps = self._watertank.get_
+
             # These only apply for the temperature mode, but they are always valid nonetheless.
             temp_warnings = self._watertank.get_temperature_warnings()
             self.change_switch(3, temp_warnings[0])

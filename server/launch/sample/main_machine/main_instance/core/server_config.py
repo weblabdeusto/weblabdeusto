@@ -46,6 +46,7 @@ core_coordinator_laboratory_servers = {
             "exp1|jsdummy|Dummy experiments"         : "jsdummy@jsdummy",
             "exp1|jsfpga|FPGA experiments"           : "jsfpga@jsfpga",
             "exp1|hwboard-fpga|FPGA experiments"     : "fpga@fpga",
+            "exp1|hwboard-fpga-watertank|FPGA experiments" : "fpga@fpga",
             "exp1|visirtest|Dummy experiments"       : "visir1@visir",
             "exp2|visirtest|Dummy experiments"       : "visir2@visir",
             "exp3|visirtest|Dummy experiments"       : "visir3@visir",
