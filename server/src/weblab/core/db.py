@@ -911,7 +911,7 @@ class DatabaseGateway(object):
         the number is zero.
         """
         counter = 0
-        uses_without_location = list(_current.session.query(model.DbUserUsedExperiment).filter_by(hostname = None)[:1024]) # Do it iterativelly, never process more than 1024 uses
+        uses_without_location = list(_current.session.query(model.DbUserUsedExperiment).filter_by(hostname = None).limit(1024).all()) # Do it iterativelly, never process more than 1024 uses
         origins = set()
         for use in uses_without_location:
             origins.add(use.origin)
@@ -1351,7 +1351,7 @@ class DatabaseGateway(object):
         experiment_id = experiment_row[0]
 
         data = []
-        for start_date, country, origin, use_id in _current.session.query(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.origin, model.DbUserUsedExperiment.id).filter_by(user_id=user_id, experiment_id=experiment_id)[-limit:]:
+        for start_date, country, origin, use_id in _current.session.query(model.DbUserUsedExperiment.start_date, model.DbUserUsedExperiment.country, model.DbUserUsedExperiment.origin, model.DbUserUsedExperiment.id).filter_by(user_id=user_id, experiment_id=experiment_id).order_by(model.DbUserUsedExperiment.start_date.desc()).limit(limit).all():
             data.append({
                 'id': use_id,
                 'start_date': start_date,

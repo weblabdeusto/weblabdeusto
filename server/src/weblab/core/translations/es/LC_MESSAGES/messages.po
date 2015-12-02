@@ -2229,9 +2229,8 @@ msgid "Waiting in the queue. You are next."
 msgstr "Esperando en la cola. Eres el siguiente."
 
 #: weblab/core/templates/webclient/locales.json:3
-#, fuzzy
 msgid "Waiting in the queue. Your position is: {{position}}."
-msgstr "Esperando en la cola. La posición es: "
+msgstr "Esperando en la cola. La posición es: {{position}}."
 
 #: weblab/core/templates/webclient/locales.json:4
 msgid ""
@@ -2286,9 +2285,8 @@ msgid "Location"
 msgstr "Información"
 
 #: weblab/core/templates/webclient/locales.json:22
-#, fuzzy
 msgid "Online"
-msgstr "Rol"
+msgstr "Online"
 
 #: weblab/core/templates/webclient/locales.json:23
 msgid "Offline"
