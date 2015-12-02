@@ -294,6 +294,12 @@ class UdXilinxExperiment(Experiment.Experiment):
                                              suffix='.' + self._programmer.get_suffix())  # Originally the Programmer wasn't the one to contain the suffix info.
 
             if DEBUG:
+                print "[DBG]: 2"
+                df2 = open("/tmp/orig_content", "w")
+                df2.write("---begin---\n")
+                df2.write(file_content)
+                df2.close()
+
                 # For debugging purposes write the file to tmp
                 df = open("/tmp/toprogram_dbg", "w")
             try:
@@ -308,7 +314,7 @@ class UdXilinxExperiment(Experiment.Experiment):
                     file_content_recovered = ExperimentUtil.deserialize(file_content_encoded)
                     os.write(fd, file_content_recovered)
                     if DEBUG:
-                        os.write(df, file_content_recovered)
+                        df.write(file_content_recovered)
                 finally:
                     os.close(fd)
                 self._programmer.program(file_name)
