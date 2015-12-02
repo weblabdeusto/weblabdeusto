@@ -181,6 +181,13 @@ class Watertank(object):
         with self.simlock:
             self.outputs = outputs
 
+    def get_temperatures(self):
+        """
+        Get temperatures.
+        :return:
+        """
+        return [self.firstPumpTemperature, self.secondPumpTemperature]
+
     def get_water_volume(self):
         """
         Gets the current water volume in liters. It will vary dynamically according to the 

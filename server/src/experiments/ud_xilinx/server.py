@@ -40,6 +40,7 @@ from voodoo.threaded import threaded
 
 
 
+
 # Though it would be slightly more efficient to use single characters, it's a text protocol
 # after all, so we will use words for readability.
 STATE_NOT_READY = "not_ready"
@@ -383,12 +384,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             self.change_switch(1, waterLevel >= 0.50)
             self.change_switch(2, waterLevel >= 0.80)
 
-            temps = self._watertank.get_
-
             # These only apply for the temperature mode, but they are always valid nonetheless.
-            temp_warnings = self._watertank.get_temperature_warnings()
-            self.change_switch(3, temp_warnings[0])
-            self.change_switch(4, temp_warnings[1])
+            temps = self._watertank.get_temperatures()
+            self.change_switch(3, temps[0] > 150)  # The 150 is essentially arbitrary
+            self.change_switch(4, temps[1] > 150)  # The 150 is essentially arbitrary
 
         self._watertank_time_without_demand_change += delta
 
