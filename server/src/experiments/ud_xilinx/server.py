@@ -349,11 +349,13 @@ class UdXilinxExperiment(Experiment.Experiment):
                     "Exception joining sending program to device: %s" % e.args[0])
             log.log_exc(UdXilinxExperiment, log.level.Debug)
             raise ExperimentErrors.SendingFileFailureError("Error sending file to device: %s" % e)
+
         self._clear()
 
     def _clear(self):
         try:
             self._command_sender.send_command("CleanInputs")
+            self._switches_state = [0] * 10
         except Exception as e:
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
