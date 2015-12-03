@@ -49,7 +49,14 @@ In the hardware (UCF file) led0 is the rightmost, and swi0 is also the rightmost
 For the board, however, the rightmost switch is switch 9, while the leftmost is 0 (the client thus reverses
 the numbers)
 
-The led states list
+
+
+Notes on the HARDWARE (Dec 2015)
+
+- The CleanInputs command serves some unknown purpose, but it seems to not always work.
+  Sometimes the device server does not output what the experiment server expects. That's
+  it, sometimes the expServer._switches_state does not reflect the real switches state.
+  Thus, to really Clean we specifically set the switches to 0 on occasion.
 """
 
 
