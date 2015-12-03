@@ -356,6 +356,9 @@ class UdXilinxExperiment(Experiment.Experiment):
         try:
             self._command_sender.send_command("CleanInputs")
             self._switches_state = [0] * 10
+
+            for i in range(5):
+                self.change_switch(i, False, True)
         except Exception as e:
             raise ExperimentErrors.SendingCommandFailureError(
                 "Error sending command to device: %s" % e
@@ -417,7 +420,7 @@ class UdXilinxExperiment(Experiment.Experiment):
     # sense for the user to be able to define its state. For now, it is left as-is
     # mainly for debugging convenience.
 
-    def change_switch(self, switch, on):
+    def change_switch(self, switch, on, force_update = False):
         """
         Changes the state of a switch. This can be used, for instance, for
         simulating sensors.
@@ -426,10 +429,10 @@ class UdXilinxExperiment(Experiment.Experiment):
         @param on True if we wish to turn it on, false to turn it off.
         """
         if on:
-            if self._switches_state[9 - switch] == "0":
+            if self._switches_state[9 - switch] == "0" or force_update:
                 self._command_sender.send_command("ChangeSwitch %s %d" % ("on", 9 - switch))
         else:
-            if self._switches_state[9 - switch] == "1":
+            if self._switches_state[9 - switch] == "1" or force_update:
                 self._command_sender.send_command("ChangeSwitch %s %d" % ("off", 9 - switch))
 
         if on:
