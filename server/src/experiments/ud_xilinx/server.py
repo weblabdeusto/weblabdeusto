@@ -38,6 +38,20 @@ from experiments.xilinxc.compiler import Compiler
 import watertank_simulation
 from voodoo.threaded import threaded
 
+"""
+Notes on the LEDS & SWITCHES
+
+There are 10 switches and 8 leds, though queryLeds returns more.
+The leds list goes from left to right. leds_list[0] is thus led7 and leds_list[7] is led0
+
+In the hardware (UCF file) led0 is the rightmost, and swi0 is also the rightmost.
+
+For the board, however, the rightmost switch is switch 9, while the leftmost is 0 (the client thus reverses
+the numbers)
+
+The led states list
+"""
+
 
 
 
@@ -386,8 +400,8 @@ class UdXilinxExperiment(Experiment.Experiment):
 
             # These only apply for the temperature mode, but they are always valid nonetheless.
             temps = self._watertank.get_temperatures()
-            self.change_switch(3, temps[0] > 150)  # The 150 is essentially arbitrary
-            self.change_switch(4, temps[1] > 150)  # The 150 is essentially arbitrary
+            self.change_switch(3, temps[0] > 200)  # The 150 is essentially arbitrary
+            self.change_switch(4, temps[1] > 200)  # The 150 is essentially arbitrary
 
         self._watertank_time_without_demand_change += delta
 
@@ -564,6 +578,10 @@ class UdXilinxExperiment(Experiment.Experiment):
             )
 
     def query_leds_from_json(self):
+        """
+        The server reports the LEDs from left to right (leftmost LED being 0, topmost being 9)
+        :return:
+        """
 
         if self._fake or self._fake_leds:
             return ['0']*10
@@ -579,8 +597,11 @@ class UdXilinxExperiment(Experiment.Experiment):
             number = input["inputNumber"]
             value = input["value"]
             inputsMap[int(number)] = value
+
+        # We store only the first 8. (why?).
         for i in range(8):
             inputsList.append(inputsMap[i])
+
         return inputsList
 
     def _update_watertank(self, led_state):

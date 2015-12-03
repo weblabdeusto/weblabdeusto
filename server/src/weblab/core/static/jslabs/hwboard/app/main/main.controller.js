@@ -31,7 +31,6 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     weblab.onFinish(onEndInteraction);
 
 
-
     // ---------------
     // Scope-related
     // ---------------
@@ -44,10 +43,10 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     window.debug = debug;
 
     $scope.modals.reserveModal = openModal(1000, {
-            title: $filter("translate")("welcome"),
-            message: $filter("translate")("welcomeMsg"),
-            canClose: false
-        });
+        title: $filter("translate")("welcome"),
+        message: $filter("translate")("welcomeMsg"),
+        canClose: false
+    });
 
 
     // ----------------
@@ -60,7 +59,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
 
     function openModal(size, params) {
         var backdrop = true;
-        if(!params.canClose)
+        if (!params.canClose)
             backdrop = "static";
 
         var modalInstance = $uibModal.open({
@@ -109,7 +108,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
             var evalResult = advise.evalFile(content, name);
             var extension = name.split('.').pop();
 
-            if(evalResult.result != "ok") {
+            if (evalResult.result != "ok") {
                 alert(evalResult.message);
                 $scope.uploading = false;
                 return;
@@ -147,7 +146,19 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     function onStatusUpdate(status) {
         $log.debug("Status update: " + status);
 
-        if( status != $scope.status) {
+        if (status != $scope.status) {
+
+            if (status == "ready") {
+                // If we just arrived to the ready mode we make sure to reset the virtualmodel.
+                // Initialize the Virtual Model
+                var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
+                weblab.sendCommand(command)
+                    .done(onVirtualModelSetSuccess)
+                    .fail(onVirtualModelSetFailure);
+
+                // TODO: Maybe we should only do this once.
+            }
+
             $scope.status = status;
 
             $scope.$apply();
