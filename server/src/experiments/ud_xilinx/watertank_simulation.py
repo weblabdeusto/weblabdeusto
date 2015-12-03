@@ -57,7 +57,7 @@ class Watertank(object):
         self.secondPumpTemperature = 20
         self.firstPumpWorkRange = [20, 200]
         self.secondPumpWorkRange = [20, 200]
-        self.pumpTemperatureVariationPerSeconds = 12  # Enough for 15 seconds straight use.
+        self.pumpTemperatureVariationPerSeconds = 6  # Enough for 30 seconds?
 
         self.simlock = threading.RLock()
         self._thread = None
