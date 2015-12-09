@@ -29,17 +29,17 @@ el mapeo es éste:
 
 Sensor      | Indica en el modelo              | Salida en FPGA
 ----------- | -------------------------------- | --------------
-Nivel bajo  | 20% de altura del depósito       | led_0
-Nivel medio | 50% de altura del depósito       | led_1
-Nivel alto  | 80% de altura del depósito       | led_2
-Sobrecal.   | Sobrecalentamiento bomba izq.    | led_3
-Sobrecal.   | Sobrecalentamiento bomba dcha.   | led_4
+Nivel bajo  | 20% de altura del depósito       | swi_0
+Nivel medio | 50% de altura del depósito       | swi_1
+Nivel alto  | 80% de altura del depósito       | swi_2
+Sobrecal.   | Sobrecalentamiento bomba izq.    | swi_3
+Sobrecal.   | Sobrecalentamiento bomba dcha.   | swi_4
 
 
 Actuador    | Acción                     | Entrada en FPGA
 ----------- | -------------------------- | ---------------
-Bomba Izq.  | Activa la bomba izquierda  | swi_0
-Bomba Dcha. | Activa la bomba derecha    | swi_1
+Bomba Izq.  | Activa la bomba izquierda  | led_0
+Bomba Dcha. | Activa la bomba derecha    | led_1
 
 
 ### Funcionamiento del modelo
