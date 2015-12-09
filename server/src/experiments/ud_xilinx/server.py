@@ -525,13 +525,13 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._watertank.autoupdater_stop()
 
                 if vw == "watertank":
-                    self._watertank = watertank_simulation.Watertank(1000, [20, 20], [10], 0.5)
+                    self._watertank = watertank_simulation.Watertank(1000, [30, 30], [10], 0.5)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"
                 elif vw == "watertank_temperatures":
                     self._virtual_world = "watertank"  # So that other parts of the code aren't confused. Not very tidy. TODO: Fixme.
-                    self._watertank = watertank_simulation.Watertank(1000, [20, 20], [10], 0.5, True)
+                    self._watertank = watertank_simulation.Watertank(1000, [30, 30], [10], 0.5, True)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"
@@ -541,7 +541,7 @@ class UdXilinxExperiment(Experiment.Experiment):
             elif command.startswith('VIRTUALWORLD_STATE'):
 
                 if (self._watertank != None):
-                    self._virtual_world_state = self._watertank.get_json_state([20, 20], [20])
+                    self._virtual_world_state = self._watertank.get_json_state([30, 30], [40])
 
                     now = time.time()
                     # TODO: This should not be done here. For now however, it's the easiest place to put it in.

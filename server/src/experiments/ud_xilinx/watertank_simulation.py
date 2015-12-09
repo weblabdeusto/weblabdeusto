@@ -130,6 +130,7 @@ class Watertank(object):
         self._autoupdating = True
         self._autoupdating_interval = interval
         self._thread = threading.Thread(None, self.t_updater)
+
         self._thread.start()
 
     def autoupdater_stop(self):
