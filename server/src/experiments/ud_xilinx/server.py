@@ -624,11 +624,11 @@ class UdXilinxExperiment(Experiment.Experiment):
         first_pump = led_state[7] == '1'
         second_pump = led_state[6] == '1'
         if first_pump:
-            first_pump = 10
+            first_pump = 30
         else:
             first_pump = 0
         if second_pump:
-            second_pump = 10
+            second_pump = 30
         else:
             second_pump = 0
         self._watertank.set_input(0, first_pump)
