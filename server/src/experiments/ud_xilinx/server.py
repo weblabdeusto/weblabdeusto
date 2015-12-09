@@ -419,7 +419,7 @@ class UdXilinxExperiment(Experiment.Experiment):
 
         if self._watertank_time_without_demand_change > 5:
             self._watertank_time_without_demand_change = 0
-            self._watertank.set_outputs([random.randint(0, 20)])
+            self._watertank.set_outputs([random.randint(0, 40)])
 
     # TODO: Eventually, there should be some way to limit the number of switches that a 
     # user can explicitly control depending on the VirtualWorld simulation and state.
@@ -525,13 +525,13 @@ class UdXilinxExperiment(Experiment.Experiment):
                     self._watertank.autoupdater_stop()
 
                 if vw == "watertank":
-                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5)
+                    self._watertank = watertank_simulation.Watertank(1000, [20, 20], [10], 0.5)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"
                 elif vw == "watertank_temperatures":
                     self._virtual_world = "watertank"  # So that other parts of the code aren't confused. Not very tidy. TODO: Fixme.
-                    self._watertank = watertank_simulation.Watertank(1000, [10, 10], [10], 0.5, True)
+                    self._watertank = watertank_simulation.Watertank(1000, [20, 20], [10], 0.5, True)
                     self._last_virtualworld_update = time.time()
                     self._watertank.autoupdater_start(1)
                     return "ok"

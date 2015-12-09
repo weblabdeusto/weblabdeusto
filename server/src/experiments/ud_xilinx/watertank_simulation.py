@@ -82,7 +82,8 @@ class Watertank(object):
 
         # If the first pump is turned on we increase the temperature and the total water input
         if pump1 > 0:
-            self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds
+            # We multiply by 1.1 so that its temperature raises faster.
+            self.firstPumpTemperature += delta * self.pumpTemperatureVariationPerSeconds * 1.1
             total_input += pump1 * delta
         else:
             self.firstPumpTemperature -= delta * self.pumpTemperatureVariationPerSeconds
