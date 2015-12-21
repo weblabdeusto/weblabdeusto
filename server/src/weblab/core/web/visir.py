@@ -16,7 +16,7 @@
 from __future__ import print_function, unicode_literals
 
 import StringIO
-from flask import Response, make_response, request
+from flask import Response, make_response, request, send_file
 from weblab.core.web import weblab_api, get_argument
 from weblab.util import data_filename
 import tempfile
@@ -27,7 +27,6 @@ import email.utils as eut
 import time
 
 import os
-import mimetypes
 
 import hashlib
 
@@ -62,7 +61,6 @@ def visir(fileonly = None):
     """
     This will redirect every request to serve the VISIR files.
     """
-
     # Just deny any request with an URL containing .. to prevent security issues
     if ".." in fileonly:
         if DEBUG: 
@@ -99,61 +97,17 @@ def visir(fileonly = None):
             print("Intercepted %s" % fileonly)
         return content
 
-    # We did not intercept the request, we will just serve the file.
-
-    # We will need to report the Last-Modified date. Otherwise the browser
-    # won't send if-modified-since.
-    # Getmtime returns a localtime, so we also convert it to gmt. Also, we want
-    # a timestamp and not a tuple.
-    response = make_response()
-    if os.path.exists(fname):
-        mod_time = time.mktime(time.gmtime(os.path.getmtime(fname)))
-        if fileonly != 'breadboard/library.xml':
-            response.headers['Last-Modified'] = time_to_http_date(mod_time)
-        else:
-            mod_time = None
-    else:
-        mod_time = None
-
-    # Client already has a version of the file. Check whether
-    # ours is newer.
-    if_modified_since = request.headers.get('If-Modified-Since', None)
-    if if_modified_since is not None:
-        since_time = http_date_to_time(if_modified_since)
-
-        # The file was not modified. Report as such.
-        if mod_time is not None and mod_time <= since_time:
-            if DEBUG: print("Not modified")
-            return Response("304 Not Modified", 304)
-
-    try:
-        with open(fname, "rb") as f:
-            content = f.read()
-    except:
-        if DEBUG: print("Not found")
-        return Response("404 Not found", 404)
-    
-    global MIMETYPES_LOADED
-    if not MIMETYPES_LOADED:
-        mimetypes.init()
-        MIMETYPES_LOADED = True
-
-    # Use the file path to guess the mimetype
-    mimetype = mimetypes.guess_type(fname)[0]
-    if mimetype is None:
-        mimetype = "application/octet-stream"
-
-    response.content_type = mimetype
-
     if fileonly == "breadboard/library.xml":
-        content = intercept_library(content, mimetype)
+        content = intercept_library()
         if DEBUG: print("Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest()))
-        return content
-
-    response.response = content
-    if DEBUG: print("Returning %s bytes" % len(content))
+        if content:
+            return send_file(StringIO.StringIO(content), conditional = True, add_etags = True)
+    
+    response = send_file(fname, add_etags = True, conditional = True)
+    response.cache_control.max_age = None
+    response.cache_control.must_revalidate = True
+    response.headers.pop('Expires', None)
     return response
-
 
 def http_date_to_time(datestr, want_gmt = True):
     """
@@ -189,10 +143,10 @@ def intercept_save():
     response.headers['Content-Disposition'] = 'attachment; filename=circuit.cir'
     return response
 
-def intercept_library(content, mimetype):
+def intercept_library():
     session_id = request.cookies.get('weblabsessionid')
-    if session_id:
-        weblab_api.ctx.session_id = session_id
+#     if session_id:
+#         weblab_api.ctx.session_id = session_id
 
     reservation_id = request.cookies.get('weblab_reservation_id')
     if reservation_id:
@@ -208,9 +162,9 @@ def intercept_library(content, mimetype):
 
     if reservation_id is None and session_id is not None:
         try:
-            reservation_id_str = weblab_api.api.get_reservation_id_by_session_id()
-            if reservation_id_str is not None:
-                weblab_api.ctx.reservation_id = reservation_id_str
+            reservation_id = weblab_api.api.get_reservation_id_by_session_id()
+            if reservation_id is not None:
+                weblab_api.ctx.reservation_id = reservation_id
         except:
             traceback.print_exc()
 
@@ -227,7 +181,7 @@ def intercept_library(content, mimetype):
         failed = True
 
     if failed:
-        return content
+        return ""
     else:
         return response.commandstring
 

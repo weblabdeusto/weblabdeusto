@@ -8,7 +8,7 @@ vt_login_url = """https://weblab-visir.deusto.es/electronics/index.php?sel=login
 vt_login_email = "guest"
 vt_login_password = "guest"
 
-vt_client_url = "../../weblab/web/visir/loader.swf"
+vt_client_url = "../web/visir/loader.swf"
 
 vt_debug_prints = False
 
