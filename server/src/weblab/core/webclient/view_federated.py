@@ -9,6 +9,18 @@ from weblab.core.exc import SessionNotFoundError
 
 # ../../client/index.html%(localization)s#reservation_id=%(reservation_id)s&back_url=%(back_url)s&widget=%(widget)s
 
+@weblab_api.route_webclient('/client/federated.html')
+def federated_html():
+    return render_template('webclient/federated_legacy.html')
+
+@weblab_api.route_webclient('/client/')
+def client_html():
+    return render_template('webclient/index_legacy.html')
+
+@weblab_api.route_webclient('/client/index.html')
+def client_index_html():
+    return render_template('webclient/index_legacy.html')
+
 @weblab_api.route_webclient('/federated/')
 def federated():
     redirecting = session.pop('federated_redirecting', None)
