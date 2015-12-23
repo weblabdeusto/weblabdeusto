@@ -145,11 +145,13 @@ def intercept_save():
 
 def intercept_library():
     session_id = request.cookies.get('weblabsessionid')
-#     if session_id:
-#         weblab_api.ctx.session_id = session_id
+    if session_id and '.' in session_id:
+        session_id = session_id.split('.', 1)[0]
 
     reservation_id = request.cookies.get('weblab_reservation_id')
     if reservation_id:
+        if '.' in reservation_id:
+            reservation_id = reservation_id.split('.', 1)[0]
         weblab_api.ctx.reservation_id = reservation_id
 
     try:
@@ -179,7 +181,7 @@ def intercept_library():
     else:
         print("Can not request library since reservation_id is None")
         failed = True
-
+    
     if failed:
         return ""
     else:
