@@ -614,7 +614,7 @@ class WebLabAPI(object):
 
         if self.session_id:
             session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
-            self.fill_session_cookie(response, session_id_cookie)
+            self.fill_session_cookie(response, session_id_cookie, self.reservation_id)
 
         return response
        
@@ -634,7 +634,7 @@ class WebLabAPI(object):
 
         if self.session_id:
             session_id_cookie = '%s.%s' % (self.session_id, self.ctx.route)
-            self.fill_session_cookie(response, session_id_cookie)
+            self.fill_session_cookie(response, session_id_cookie, self.reservation_id)
 
         return response
 
@@ -644,7 +644,7 @@ class WebLabAPI(object):
             self.fill_session_cookie(response)
         return response
 
-    def fill_session_cookie(self, response, value = None):
+    def fill_session_cookie(self, response, value = None, reservation_id = None):
         """
         Inserts the weblabsessionid and loginweblabsessionid cookies into the specified Flask response.
         :type response: flask.wrappers.Response
@@ -654,10 +654,16 @@ class WebLabAPI(object):
         """
         if value is None:
             value = '%s.%s' % (self.session_id, self.ctx.route)
-            
+
         now = datetime.datetime.utcnow()
         response.set_cookie('weblabsessionid', value, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
         response.set_cookie('loginweblabsessionid', value, expires = now + datetime.timedelta(hours = 1), path = self.ctx.location)
+        if reservation_id is not None:
+            response.set_cookie('weblab_reservation_id', reservation_id, expires = now + datetime.timedelta(days = 100), path = self.ctx.location)
+        else:
+            if not self.reservation_id:
+                # Delete cookie
+                response.set_cookie('weblab_reservation_id', '', expires=0)
         return response
 
     def apply_routes(self, web_context, flask_app, server_instance = None, base_path = ''):

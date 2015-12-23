@@ -145,24 +145,29 @@ def intercept_save():
 
 def intercept_library():
     session_id = request.cookies.get('weblabsessionid')
-    if session_id and '.' in session_id:
-        session_id = session_id.split('.', 1)[0]
+    if session_id and ';' in session_id:
+        session_id = session_id.split(';', 1)[0]
 
-    reservation_id = request.cookies.get('weblab_reservation_id')
-    if reservation_id:
-        if '.' in reservation_id:
-            reservation_id = reservation_id.split('.', 1)[0]
-        weblab_api.ctx.reservation_id = reservation_id
+    reservation_id = weblab_api.ctx.reservation_id
+    if not reservation_id:
+        reservation_id = request.cookies.get('weblab_reservation_id')
+        if reservation_id:
+            if ';' in reservation_id:
+                reservation_id = reservation_id.split(';', 1)[0]
+            weblab_api.ctx.reservation_id = reservation_id
 
     try:
         response = weblab_api.api.send_command(Command("GIVE_ME_LIBRARY"))
     except:
         pass
     else:
-        if response.commandstring is not None and response.commandstring != 'failed':
-            return response.commandstring
+        if response.commandstring is not None:
+            if response.commandstring == 'failed':
+                return ""
+            else:
+                return response.commandstring
 
-    if reservation_id is None and session_id is not None:
+    if session_id is not None:
         try:
             reservation_id = weblab_api.api.get_reservation_id_by_session_id()
             if reservation_id is not None:

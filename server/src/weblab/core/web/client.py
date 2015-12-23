@@ -73,7 +73,7 @@ def client():
                 reservation_id = reservation_id, back_url = back_url, 
                 locale = locale, widget = widget,
             ))
-            weblab_api.fill_session_cookie(response, partial_reservation_id)
+            weblab_api.fill_session_cookie(response, partial_reservation_id, partial_reservation_id)
             return response
 
     if reservation_id.find(';') >= 0:
@@ -82,7 +82,7 @@ def client():
         partial_reservation_id = reservation_id
 
     response = make_response()
-    weblab_api.fill_session_cookie(response, partial_reservation_id)
+    weblab_api.fill_session_cookie(response, partial_reservation_id, partial_reservation_id)
 
     # Finally, if it was passed as a POST argument, generate the proper client address
     weblab_api.ctx.reservation_id = reservation_id.split(';')[0]

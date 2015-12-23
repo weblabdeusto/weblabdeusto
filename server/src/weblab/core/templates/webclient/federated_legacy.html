@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>WebLab-Deusto redirector</title>
+    <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
     <script type="text/javascript">
     <!--
         function redirect_weblab(){
@@ -59,8 +60,11 @@
     </script>
 </head>
 <body onload="javascript:redirect_weblab();">
+    <div style="text-align: center; width: 100%">
+        <img class="rotating-ball" src="{{ url_for('.static', filename='img/flat_ball_201x201.png') }}">
+    </div>
     <span id="messages"></span><br/>
-    <div id="form_div">
+    <div id="form_div" style="display: none">
     <p>Please, click on 'Submit'</p>
     <form action="{{ url_for('core_web.client') }}" method="POST" id="reservation_form">
         <input id="reservation_id_text" type="text" name="reservation_id" value="" />
