@@ -815,6 +815,18 @@ if (window.weblab === undefined) {
             }
         };
 
+        this.hideFrame = function () {
+            $(parent.document).find('iframe#exp-frame').hide();
+        };
+
+        this.showFrame = function () {
+            $(parent.document).find('iframe#exp-frame').show();
+        };
+
+        this.setWidth = function (width) {
+            $(parent.document).find('iframe#exp-frame').width(width);
+        };
+
         /**
          * Checks whether the experiment is apparently not linked to Weblab and thus running in a local test mode.
          * @returns {boolean}
