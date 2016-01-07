@@ -8,7 +8,7 @@
 	<script type="text/javascript" src="../../weblabjs/weblab.v1.js"></script>
 	<script>
 
-	$(parent.document).find('iframe[name=wlframe]').hide();
+    $(parent.document).find('iframe#exp-frame').hide();
 
 	function init()
 	{
@@ -34,8 +34,9 @@
 		$(".measure").click( function() {
 			MakeMeasurement();
 		});
-
-		$(parent.document).find('iframe[name=wlframe]').show();
+        
+        $(parent.document).find('iframe#exp-frame').show();
+        $(parent.document).find('iframe#exp-frame').width("800px");
 	}
 	weblab.onStart(function(){ visir.Load(init); });
 </script>
