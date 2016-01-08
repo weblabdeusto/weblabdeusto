@@ -38,7 +38,22 @@
         weblab.showFrame();
         weblab.setWidth("800px");
 	}
-	weblab.onStart(function(){ visir.Load(init); });
+
+    function onFailure ()
+    {
+    }
+
+	weblab.onStart(function(time, initialConfig){ 
+        console.log(initialConfig);
+        var config = {
+            teacherMode: true,
+            instrReg: null,
+            locale: "en_UK",
+            readOnly: false,
+            oscRunnable: false
+        };
+        visir.Load(init, onFailure, "", config); 
+    });
 </script>
 </head>
 <body>
