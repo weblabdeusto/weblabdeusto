@@ -5,25 +5,31 @@ visir.ConfigClass = function()
 	this._teacherMode = true;
 	this._instrReg = null;
 	this._manualInstConfig = null;
+    this._libraryXml = null;
 
 	var base = "";
 	if (visir.BaseLocation) base = visir.BaseLocation;
 }
 
-visir.ConfigClass.prototype.GetDeferredConfigLoader = function(baseurl)
+visir.ConfigClass.prototype.GetDeferredConfigLoader = function(configUrlOrObject)
 {
 	var me = this;
 
 	var def = $.Deferred();
 
-	$.get(baseurl + "config.json", function(data) {
-		me.ReadConfig(data);
-	}, "json")
-	.error( function(obj, msg) {
-		alert("failed to read config.json. " + msg);
-	}).always( function() {
-		def.resolve();
-	});
+    if (typeof(configUrlOrObject) === 'object') {
+        me.ReadConfig(configUrlOrObject);
+        def.resolve();
+    } else {
+        $.get(configUrlOrObject, function(data) {
+            me.ReadConfig(data);
+        }, "json")
+        .error( function(obj, msg) {
+            alert("failed to read config.json. " + msg);
+        }).always( function() {
+            def.resolve();
+        });
+    }
 
 	return def;
 }
@@ -37,6 +43,7 @@ visir.ConfigClass.prototype.ReadConfig = function(config)
 	this._readOnly = config.readOnly;
 	this._transMethod = config.transMethod;
 	this._oscRunnable = config.oscRunnable;
+    this._libraryXml = config.libraryXml;
 }
 
 visir.ConfigClass.prototype.Get = function(name)
@@ -48,6 +55,7 @@ visir.ConfigClass.prototype.Get = function(name)
 		case "readOnly": return this._readOnly;
 		case "transMethod": return this._transMethod;
 		case "oscRunnable": return this._oscRunnable;
+        case "libraryXml": return this._libraryXml;
 	}
 
 	return undefined;
@@ -62,6 +70,7 @@ visir.ConfigClass.prototype.Set = function(name, value)
 		case "readOnly": this._readOnly = value;
 		case "transMethod": this._transMethod = value;
 		case "oscRunnable": this._oscRunnable = value;
+        case "libraryXml": this._libraryXml = value;
 	}
 }
 

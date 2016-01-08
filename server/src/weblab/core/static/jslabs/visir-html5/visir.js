@@ -1,6 +1,6 @@
 var visir = visir || {};
 
-visir.Load = function( onSuccess, onFailure, baseurl )
+visir.Load = function( onSuccess, onFailure, baseurl, configUrlOrObject )
 {
 	baseurl = baseurl || "";
 	visir.BaseLocation = baseurl;
@@ -109,7 +109,9 @@ visir.Load = function( onSuccess, onFailure, baseurl )
 		}
 
 		// workaround for chrome timeline bug on async requests
-		defs.push(visir.Config.GetDeferredConfigLoader(baseurl));
+        if (!configUrlOrObject) 
+            configUrlOrObject = baseurl + "config.json";
+		defs.push(visir.Config.GetDeferredConfigLoader(configUrlOrObject));
 
 		return defs;
 	}
