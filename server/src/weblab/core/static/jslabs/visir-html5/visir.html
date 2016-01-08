@@ -10,6 +10,8 @@
 
     weblab.hideFrame();
 
+    var globalSaveData = '<save version="2"><instruments htmlinstruments="Breadboard|FlukeMultimeter|HPFunctionGenerator|AgilentOscilloscope|TripleDC"></instruments><circuit></circuit></save>';
+
 	function init()
 	{
 		function MakeMeasurement()
@@ -28,8 +30,7 @@
 		var reg = new visir.InstrumentRegistry(extservice);
 		var frame = new visir.InstrumentFrame(reg, transport, $("#instrumentframe"));
 
-		emptyexperiment = '<save version="2"><instruments htmlinstruments="Breadboard|FlukeMultimeter|HPFunctionGenerator|AgilentOscilloscope|TripleDC"></instruments><circuit></circuit></save>';
-		reg.LoadExperiment(emptyexperiment, frame.GetInstrumentContainer());
+		reg.LoadExperiment(globalSaveData, frame.GetInstrumentContainer());
 
 		$(".measure").click( function() {
 			MakeMeasurement();
@@ -44,14 +45,32 @@
     }
 
 	weblab.onStart(function(time, initialConfig){ 
-        console.log(initialConfig);
+        var configObj = JSON.parse(initialConfig);
         var config = {
             teacherMode: true,
             instrReg: null,
             locale: "en_UK",
             readOnly: false,
-            oscRunnable: false
+            oscRunnable: false,
+            libraryXml: "../../../web/visir/breadboard/library.xml"
         };
+
+        if (configObj.teacher != undefined)
+            config.teacherMode = configObj.teacher;
+
+        if (configObj.savedata != undefined) {
+            if (configObj.savedata.indexOf("%3C") >= 0)
+                globalSaveData = unescape(configObj.savedata);
+            else
+                globalSaveData = configObj.savedata;
+        }
+
+        if (weblab.locale == 'en')
+            config.locale = "en_UK";
+        else if(weblab.locale == "es")
+            config.locale = "es_ES";
+        // TODO: more languages
+
         visir.Load(init, onFailure, "", config); 
     });
 </script>
