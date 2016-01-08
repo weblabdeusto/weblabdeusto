@@ -345,7 +345,25 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
 
-        if command == "login":
+        # This command is currently not used.
+        if command == "GIVE_ME_CIRCUIT_LIST":
+            circuit_list = self.get_circuits().keys()
+            circuit_list_string = ""
+            for c in circuit_list:
+                circuit_list_string += c
+                circuit_list_string += ','
+            return circuit_list_string
+
+        elif command.startswith("GIVE_ME_CIRCUIT_DATA"):
+            print "[DBG] GOT GIVE_ME_CIRCUIT_DATA_REQUEST"
+            circuit_name = command.split(' ', 1)[1]
+            circuit_data = self.get_circuits()[circuit_name]
+            return circuit_data
+        elif command == 'GIVE_ME_LIBRARY':
+            if DEBUG: dbg("[DBG] GOT GIVE_ME_LIBRARY")
+            return self.library_xml
+
+        elif command == "login":
             if DEBUG: dbg("[DBG] LOGIN")
 
             session_key = self.extract_sessionkey(self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>"))
