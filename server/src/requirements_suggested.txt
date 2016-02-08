@@ -2,6 +2,10 @@
 # Pillow (a PIL fork compatible with setuptools) is used to resize 
 # the logo image if necessary, when using weblab-admin create.
 # 
+# If you encounter this type of error: fatal error: freetype/fterrors.h: No such file or directory
+# in Ubuntu, do the following: 
+#   $ cd /usr/include
+#   $ sudo ln -s freetype2 freetype
 pillow==2.0
 
 # All these modules require a C compiler and sometimes a set of 

@@ -77,6 +77,9 @@ celery==3.1.17
 
 # geoip2 is used for retrieving information about the user IP address
 geoip2==2.1.0
+# This is recommended:
+# apt-get install libmaxminddb-dev
+maxminddb==1.2.0
 
 # Flask-DebugToolbar helps the development
 Flask-DebugToolbar==0.10.0
