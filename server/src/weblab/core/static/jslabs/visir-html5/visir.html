@@ -58,7 +58,7 @@
         if (configObj.teacher != undefined)
             config.teacherMode = configObj.teacher;
 
-        if (configObj.savedata != undefined) {
+        if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {
             if (configObj.savedata.indexOf("%3C") >= 0)
                 globalSaveData = unescape(configObj.savedata);
             else
