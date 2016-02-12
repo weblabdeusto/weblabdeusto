@@ -101,7 +101,11 @@ def visir(fileonly = None):
         content = intercept_library()
         if DEBUG: print("Intercepted %s; md5: %s" % (len(content), hashlib.new("md5", content).hexdigest()))
         if content:
-            return send_file(StringIO.StringIO(content), conditional = True, add_etags = True)
+            response = send_file(StringIO.StringIO(content), conditional = True, add_etags = True)
+            response.cache_control.max_age = None
+            response.cache_control.must_revalidate = True
+            response.headers.pop('Expires', None)
+            return response
     
     response = send_file(fname, add_etags = True, conditional = True)
     response.cache_control.max_age = None
