@@ -30,22 +30,24 @@
     {% block header %}{% endblock %}
 </head>
 <body>
-    {% with messages = get_flashed_messages(with_categories = True) %}
-    {% if messages %}
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-            {% for category, message in messages %}
-                <div class="alert alert-{% if category in ('error','danger') %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
-                    <button type="button" class="close" data-dismiss="alert">×</button>
-                    {{ message }}
+    {% macro messages() %}
+        {% with messages = get_flashed_messages(with_categories = True) %}
+        {% if messages %}
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category in ('error','danger') %}danger{% elif category == 'success' %}success{% else %}info{% endif %}">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
                 </div>
-            {% endfor %}
             </div>
         </div>
-    </div>
-    {% endif %}
-    {% endwith %}
+        {% endif %}
+        {% endwith %}
+    {% endmacro %}
 {% block body %}{% endblock %}
 
 {% if not federated_mode %}
