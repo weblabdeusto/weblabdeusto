@@ -85,15 +85,15 @@ def demo_lab(category_name, experiment_name):
 
 @weblab_api.route_webclient('/demos/')
 def demos_index():
-    return redirect(url_for('.labs'))
+    return redirect(url_for('.demo'))
 
 @weblab_api.route_webclient('/demos/labs/')
 def demos_index_labs():
-    return redirect(url_for('.labs'))
+    return redirect(url_for('.demo'))
 
 @weblab_api.route_webclient('/demos/labs/<category_name>/')
 def demos_index_labs_category(category_name):
-    return redirect(url_for('.labs'))
+    return redirect(url_for('.demo'))
 
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/config.json")
