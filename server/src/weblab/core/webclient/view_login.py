@@ -1,6 +1,6 @@
 from __future__ import print_function, unicode_literals
 import traceback
-from flask import render_template, request, flash, redirect, url_for, jsonify
+from flask import render_template, request, flash, redirect, url_for, jsonify, g
 from weblab.core.login.exc import InvalidCredentialsError
 from weblab.core.webclient.helpers import safe_redirect, WebError, json_exc, web_exc
 from weblab.core.webclient.view_labs import labs as labs_view
@@ -119,13 +119,16 @@ def demo():
         # TODO: mail the admin, use an errors template
         return "Invalid configuration! Contact the administrator so he correctly puts the username and password for the demo account"
     
-    if request.args.get('next'):
+    if hasattr(g, 'next_url') or request.args.get('next'):
         return weblab_api.make_response(redirect(get_next_url()))
 
     return labs_view()
 
 def get_next_url():
-    next_url = request.args.get("next")
+    if hasattr(g, 'next_url'):
+        next_url = g.next_url
+    else:
+        next_url = request.args.get("next")
     next_url = safe_redirect(next_url)
     return next_url or url_for(".labs", _external=True, _scheme=request.scheme)
 

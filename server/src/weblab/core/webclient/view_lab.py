@@ -1,9 +1,10 @@
 from __future__ import print_function, unicode_literals
 import os
-from flask import render_template, url_for, request, flash, redirect, session
+from flask import render_template, url_for, request, flash, redirect, session, g
 
 from weblab.core.i18n import gettext, get_locale
 from weblab.core.exc import SessionNotFoundError
+from weblab.core.webclient.view_login import demo
 from weblab.core.webclient.helpers import _get_experiment, _get_experiment_data, _hook_native_experiments
 from weblab.core.wl import weblab_api
 from weblab.core.webclient import login_required
@@ -67,6 +68,33 @@ def lab(category_name, experiment_name):
             return redirect(url_for('.labs'))
 
     return render_template("webclient/lab.html", experiment=experiment, federated_mode = federated_mode, back_url = back_url, federated_reservation_id = federated_reservation_id)
+
+@weblab_api.route_webclient("/demos/labs/<category_name>/<experiment_name>/")
+def demo_lab(category_name, experiment_name):
+    try:
+        experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
+    except SessionNotFoundError:
+        g.next_url = url_for('.lab', category_name = category_name, experiment_name = experiment_name)
+        return demo()
+    except:
+        flash(gettext("Error processing request"), 'danger')
+        return redirect(url_for('.labs'))
+    else: # User is logged in and has permissions
+        return redirect(url_for('.lab', category_name = category_name, experiment_name = experiment_name))
+
+
+@weblab_api.route_webclient('/demos/')
+def demos_index():
+    return redirect(url_for('.labs'))
+
+@weblab_api.route_webclient('/demos/labs/')
+def demos_index_labs():
+    return redirect(url_for('.labs'))
+
+@weblab_api.route_webclient('/demos/labs/<category_name>/')
+def demos_index_labs_category(category_name):
+    return redirect(url_for('.labs'))
+
 
 @weblab_api.route_webclient("/labs/<category_name>/<experiment_name>/config.json")
 def lab_config(category_name, experiment_name):
