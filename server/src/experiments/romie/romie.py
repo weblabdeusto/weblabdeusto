@@ -32,6 +32,11 @@ class RoMIExperiment(Experiment.Experiment):
         self._cfg_manager = cfg_manager
         self.read_base_config()
 
+        # ~lrg: To contain the allowed time. The client will kick the user when it has been for the specified
+        # number of seconds. THIS IS NOT YET USED. At the moment the server-side time is compared with the client-side
+        # time, which is particularly bad. This time is included here to progressively make the change.
+        self.allowed_time = None
+
     def read_base_config(self):
         """
         Reads the base config parameters from the config file.
@@ -136,13 +141,14 @@ class RoMIExperiment(Experiment.Experiment):
                 if self._cfg_manager.get_value('romie_demo') or self.get_psycho_points() > 0:
                     if self._cfg_manager.get_value('romie_demo') and count == 0:
                         self.register(self.username+"@weblab-demo.deusto.es", "Usuario", "Demo", "Escuela demo", 958305600, "Curso demo", 2)
+                    self.allowed_time = self._cfg_manager.get_value('romie_time')
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
 
                     # ~lrg: Initialize the points. This will hopefully fix the RoMIE point-overwriting bug.
                     # Minor changes here.
                     self.points = self.get_psycho_points() * 1000
 
-                    result = {'register': False, 'psycho': False, 'points': self.points, 'time': self.finish_time}
+                    result = {'register': False, 'psycho': False, 'points': self.points, 'time': self.finish_time, 'allowed_time': self.allowed_time}
                 else:
                     # Whereas this will be invoked on the first call.
                     conn = sqlite3.connect(self.database)
