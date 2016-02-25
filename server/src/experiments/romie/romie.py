@@ -130,18 +130,30 @@ class RoMIExperiment(Experiment.Experiment):
                 # This seems to work as expected.
                 result = {'register': True, 'psycho': self._cfg_manager.get_value('romie_labpsico')}
             else:
+                # ~lrg: This means that the romie_labpsico flag will only be set to the client if the psycho_points (that
+                # sounds wrong) are 0, no matter whether we are in labpsico mode or not.
+                # So, in practise, this will be invoked on labpsico mode, from the second call - on.
                 if self._cfg_manager.get_value('romie_demo') or self.get_psycho_points() > 0:
                     if self._cfg_manager.get_value('romie_demo') and count == 0:
                         self.register(self.username+"@weblab-demo.deusto.es", "Usuario", "Demo", "Escuela demo", 958305600, "Curso demo", 2)
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
-                    result = {'register': False, 'psycho': False, 'points': self.get_psycho_points()*1000, 'time': self.finish_time}
+
+                    # ~lrg: Initialize the points. This will hopefully fix the RoMIE point-overwriting bug.
+                    # Minor changes here.
+                    self.points = self.get_psycho_points() * 1000
+
+                    result = {'register': False, 'psycho': False, 'points': self.points, 'time': self.finish_time}
                 else:
+                    # Whereas this will be invoked on the first call.
                     conn = sqlite3.connect(self.database)
                     cur = conn.cursor()
                     cur.execute('SELECT gender, birthday, grade FROM '+self._cfg_manager.get_value('romie_table')+' WHERE username = ?', (self.username, ))
                     result = cur.fetchone()
                     conn.close()
 
+                    # BUG
+                    # This should probably rely on the client-side time. That would still be insecure but it would
+                    # be reliable and it would (probably) not involve changing the design.
                     self.finish_time = round(time.time()+self._cfg_manager.get_value('romie_time'), 3)
                     result = {'register': False, 'psycho': self._cfg_manager.get_value('romie_labpsico'), 'gender': result[0], 'time': self.finish_time, 'birthday': result[1], 'grade': result[2], 'user': self.username}
 
