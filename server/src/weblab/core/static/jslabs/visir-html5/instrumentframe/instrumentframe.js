@@ -19,7 +19,7 @@ visir.InstrumentFrame = function(instreg, transport, $container)
 	//XXX: should generate a iframe name with a unique id..
 	var tpl = '<div class="frame">\
 	<div style="display: none">\
-		<input id="upload" name="filename" type="file" />\
+		<input id="upload" name="filename" type="file" accept=".cir" />\
 		<input type="hidden" id="download_data" name="data" />\
 	</div>\
 	<div class="bottomaligner">\
