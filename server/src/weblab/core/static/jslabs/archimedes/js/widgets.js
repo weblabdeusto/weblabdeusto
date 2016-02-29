@@ -65,13 +65,13 @@ TimerDisplayer = function (timer_id) {
     //!
     this.hide = function () {
         $timer.hide();
-    }
+    };
 
     //! Shows the timer.
     //!
     this.show = function () {
         $timer.show();
-    }
+    };
 
     //! Starts counting down to zero automatically.
     //! @param timeChangedCallback: Callback that receives the time left as a parameter. It is called frequently
@@ -92,7 +92,7 @@ TimerDisplayer = function (timer_id) {
             else
                 this.stopCountDown();
         }.bind(this), 1000);
-    }
+    };
 
     //! Stops running the countdown.
     //! @see startCountDown
@@ -102,7 +102,7 @@ TimerDisplayer = function (timer_id) {
             clearInterval(_countdownInterval);
         }
         _countdownInterval = null;
-    }
+    };
 
     //! Updates the displayed text.
     //!
@@ -130,7 +130,7 @@ TimerDisplayer = function (timer_id) {
         } else {
             $timer.css("color", "black");
         }
-    }
+    };
 
     //! Sets the time that the timer has left.
     //! @param time New time in seconds.
