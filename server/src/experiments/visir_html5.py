@@ -345,6 +345,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
 
+        data = ""
+
         # This command is currently not used.
         if command == "GIVE_ME_CIRCUIT_LIST":
             circuit_list = self.get_circuits().keys()
