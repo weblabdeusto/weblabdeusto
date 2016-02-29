@@ -172,15 +172,20 @@ class Heartbeater(threading.Thread):
 
                 # Loop through every user that is using the experiment concurrently, and consider
                 # whether we should update it or not.
+                if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB Listing sessions..."
+
                 for session_id in self.session_manager.list_sessions():
+                    if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB checking session_id=%s" % (session_id)
                     try:
                         sessiondata = self.session_manager.get_session_locking(session_id)
                     except SessionNotFoundError:
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no session found for session_id=%s" % (session_id)
                         continue
 
 
                     if 'sessionkey' not in sessiondata:
                         self.session_manager.modify_session_unlocking(session_id, sessiondata)
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no sessionkey found in sessiondata for session_id=%s" % (session_id)
                         continue
 
                     try:
@@ -211,6 +216,9 @@ class Heartbeater(threading.Thread):
                         # requests (and if it doesn't go over the MAX).
                         time_to_sleep = min(time_left, time_to_sleep)
 
+                if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Listing sessions finished"
+                sys.stdout.flush()
+
                 # We will actually not sleep the whole time_to_sleep at once, so that
                 # we can check whether the thread has finished more often.
                 # TODO: Consider doing this through semaphores so that we do not need
@@ -221,6 +229,7 @@ class Heartbeater(threading.Thread):
                     time.sleep(step_time)
                     steps -= 1
                 if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Not sleeping anymore"
+                sys.stdout.flush()
 
             except:
                 # TODO: use log
