@@ -367,8 +367,16 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         elif command == "login":
             if DEBUG: dbg("[DBG] LOGIN")
+            data = self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>")
+            session_key = self.extract_sessionkey(data)
+            user = self._session_manager.get_session_locking(lab_session_id)
+            try:
+                # Store the session for the user
+                user['sessionkey'] = session_key
+                if DEBUG: dbg("[DBG] Extracted sessionkey: " + user['sessionkey'])
+            finally:
+                self._session_manager.modify_session_unlocking(lab_session_id, user)
 
-            session_key = self.extract_sessionkey(self.forward_request(lab_session_id, "<protocol version=\"1.3\"><login keepalive=\"1\"/></protocol>"))
             data = json.dumps({"teacher": self.teacher, "sessionkey": session_key})
         elif command.startswith("load"):
             if DEBUG: dbg("Circuit loaded: " + command[5:])
