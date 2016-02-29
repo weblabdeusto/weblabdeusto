@@ -69,7 +69,7 @@ DEFAULT_CIRCUITS = {}
 DEFAULT_DEBUG_PRINTS = False
 
 
-HEARTBEAT_REQUEST = """<protocol version="1.3"><request "%s"/></protocol>"""
+HEARTBEAT_REQUEST = """<protocol version="1.3"><request sessionkey="%s"/></protocol>"""
 HEARTBEAT_MAX_SLEEP = 5
 
 # Actually defined through the configuration.
