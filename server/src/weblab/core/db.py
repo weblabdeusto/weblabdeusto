@@ -1374,7 +1374,11 @@ class DatabaseGateway(object):
         experiment_id = experiment_row[0]
 
         now = datetime.datetime.now()
-        last_year = now.replace(year=now.year-1)
+        try:
+            last_year = now.replace(year=now.year-1)
+        except ValueError:
+            # Leap years...
+            last_year = (now + datetime.timedelta(days=1)).replace(year=now.year-1)
 
         if now.month == 1:
             last_month = now.replace(month = 12, year = now.year - 1)

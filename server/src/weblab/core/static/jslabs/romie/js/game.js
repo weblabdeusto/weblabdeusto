@@ -18,7 +18,7 @@ Game = function(time, points) {
 Game.prototype.startGame = function() {
 	this.timer = setInterval(function() {
 		time = (this.endTime.getTime()-(new Date()).getTime())/1000;
-        console.debug("[ time in startGame: " + time);
+        // console.debug("[ time in startGame: " + time);
 		updateTime(time);
 		if (time <= 0) {
 			updateTime(0);
@@ -82,6 +82,9 @@ Game.prototype.answerQuestion = function() {
 
                 if (response['correct']) {
                     this.points = response["points"];
+
+                    // BUG: THE FINISH TIME IS BEING TAKEN FROM THE SERVER, AND LATER COMPARED
+                    // TO CLIENT-SIDE TIME. THIS CAN LEAD TO MANY PROBLEMS.
                     this.endTime = new Date(response["finish_time"]*1000);
 
                     updatePoints(this.points);

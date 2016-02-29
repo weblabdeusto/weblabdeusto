@@ -1031,7 +1031,11 @@ class ExperimentPanel(AdministratorModelView):
         else:
             now = datetime.datetime.now()
             default_start_date = now
-            default_end_date = now.replace(year = now.year + 10)
+            try:
+                default_end_date = now.replace(year = now.year + 10)
+            except ValueError:
+                # Leap years...
+                default_end_date = (now + datetime.timedelta(days=1)).replace(year = now.year + 10)
 
             form.start_date.data = default_start_date
             form.end_date.data = default_end_date
