@@ -372,12 +372,19 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             data = json.dumps({"teacher": self.teacher, "sessionkey": session_key})
         elif command.startswith("load"):
             if DEBUG: dbg("Circuit loaded: " + command[5:])
+            
+            try:
+                circuit = xml.parseString(command[5:])
+            except:
+                traceback.print_exc()
 
-            circuit = xml.parseString(command[5:])
         elif command.startswith("save"):
             if DEBUG: dbg("Circuit saved: " + command[5:])
-
-            circuit = xml.parseString(command[5:])
+    
+            try:
+                circuit = xml.parseString(command[5:])
+            except:
+                traceback.print_exc()
         else:
             if DEBUG:
                 dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
