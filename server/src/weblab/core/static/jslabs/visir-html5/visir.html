@@ -11,9 +11,7 @@
     <style>
         .timer
         {
-            position: fixed;
-            left: 10px;
-            top: 10px;
+            margin-bottom: 10px;
 
             font-size: 1.6em;
             font-family: "Times New Roman", Times, serif;
@@ -101,9 +99,14 @@
         // Start the Timer Display
         var timerDisplayer = new TimerDisplayer("timer");
         timerDisplayer.setTimeLeft(time);
+        timerDisplayer.startCountDown();
+        weblab.onFinish().done(function() {
+            timerDisplayer.stopCountDown();
+        });
 
         visir.Load(init, onFailure, "", config); 
     });
+
 </script>
 </head>
 <body>
