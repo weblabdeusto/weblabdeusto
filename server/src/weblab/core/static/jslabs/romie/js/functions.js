@@ -1,4 +1,4 @@
-registering = false;
+rgistering = false;
 
 function getAge(milliseconds) {
     var today = new Date();
@@ -35,12 +35,12 @@ function start(time, initialConfig) {
 
 function psycho(gender, birthday, grade, user) {
 	$('#labpsico').modal('show');
-
+	$('#labpsicoExperiment')[0].contentWindow.inicio(function(points) {
 		weblab.sendCommand("PSYCHO "+points)
-            .done(function(response) {
-                response = JSON.parse(response);
-                init(response['time'], response['points']);
-            });
+            	.done(function(response) {
+                	response = JSON.parse(response);
+                	init(response['time'], response['points']);
+            	});
 		$('#labpsico').modal('hide');
 	}, (gender ? "H" : "M"), getAge(birthday), grade, user);
 }
