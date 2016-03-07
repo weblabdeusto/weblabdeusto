@@ -47,6 +47,9 @@ function psycho(gender, birthday, grade, user) {
 
 function register(do_psycho) {
 	$('#register .modal-footer button').click(function() {
+
+		// ~lrg: This makes no apparent sense. But we set it to false to minimize the amount of changes.
+		registering = false;
 		if ( ! registering) {
 			register_ok = true;
 			registering = true;
