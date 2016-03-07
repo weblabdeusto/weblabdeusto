@@ -51,7 +51,7 @@ class LabviewRemotePanels(Experiment):
             print(msg)
 
     def _dbg_command(self, msg):
-        if if self.debug_command:
+        if self.debug_command:
             print(msg)
 
     def _send_message(self, message):
@@ -74,11 +74,11 @@ class LabviewRemotePanels(Experiment):
     @Override(Experiment)
     @logged("info")
     def do_start_experiment(self, client_initial_data, server_initial_data):
-        raw_back_url = json.loads(serialized_client_initial_data).get('back','')
+        raw_back_url = json.loads(client_initial_data).get('back','')
         back_url = urllib2.quote(raw_back_url,'')
 
-        data = json.loads(server_initial_data)
-        username = data['request.username']
+        server_data = json.loads(server_initial_data)
+        username = server_data['request.username']
         time_slot = int(server_data['priority.queue.slot.length'])
 
         self.current_client_key = str(random.random())[2:7]
@@ -87,16 +87,16 @@ class LabviewRemotePanels(Experiment):
         response = json.loads(json_response)
 
         current_config = {
-            'url' : response['url'],
+            'url' : response.get('url'),
         }
 
         return json.dumps({"initial_configuration": json.dumps(current_config), "batch": False})
 
-    @Override(Experiment.Experiment)
+    @Override(Experiment)
     def do_should_finish(self):
-        message = '@@@'.join(('status', WEBLAB_SECRET))
+        message = '@@@'.join(('status', self.shared_secret))
 
-        json_response = _send_message(message)
+        json_response = self._send_message(message)
         if not json_response:
             return 10
         try:
@@ -106,9 +106,21 @@ class LabviewRemotePanels(Experiment):
         else:
             return response
 
-    @Override(Experiment.Experiment)
+    @Override(Experiment)
     def do_dispose(self):
-        message = '@@@'.join(('end', WEBLAB_SECRET))
-        _send_message(message)
+        message = '@@@'.join(('end', self.shared_secret))
+        self._send_message(message)
         return 'ok'
 
+if __name__ == '__main__':
+    experiment = LabviewRemotePanels(None, None, {})
+    print "Starting"
+    print experiment.do_start_experiment(json.dumps({ 'back' : 'http://back.url.after.using.the.client'}), json.dumps({'request.username' : 'pablo', 'priority.queue.slot.length' : 30}))
+    print "Started."
+    time.sleep(2)
+    print "Status?"
+    print experiment.do_should_finish()
+    time.sleep(2)
+    print "Ending"
+    experiment.do_dispose()
+    print "Done"
