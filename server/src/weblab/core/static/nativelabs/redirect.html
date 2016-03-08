@@ -16,35 +16,51 @@
             try {
                 var results = JSON.parse(initialConfig);
             } catch (E) {
-                $("messages_block").show();
-                $("messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive a JSON text, but it did not.");
+                $("#messages_block").show();
+                $("#messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive a JSON text, but it did not.");
                 console.log(E);
                 return;
             }
             var url = null;
+            var client_secret = null;
             try {
                 url = results['url'];
+                if (results['secret']) {
+                    client_secret = results['secret'];
+                }
             } catch (E) {
                 console.log(E);
             }
 
             if (url == null) {
-                $("messages_block").show();
-                $("messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive an initialization message that contains a 'url' and it did not.");
+                $("#messages_block").show();
+                $("#messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive an initialization message that contains a 'url' and it did not.");
             }
-            
+
             // Everything is fine
             weblab.disableFinishOnClose();
-            var finalUrl = url.replace("TIME_REMAINING", time);
-            if (weblab.config['link.presentation'] === 'iframe') {
-                // Load in an iframe: simply change the current frame (we're already in an iframe)
-                console.log("NOT YET SUPPORTED");
-                // TODO Not yet working: if we do this, the Finish button etc. are not maintained, since weblab expects that this iframe has a weblab instance.
-                // We need to create an iframe, manage its height, and manage other events (e.g., potentially onFinish clean the experiment and so on)
-                // location.replace(finalUrl);
+
+
+            if (secret != null && secret != undefined) {
+                $("#secret_block").show();
+                $("#secret").text(secret);
+                $("#secret_button").click(function() {
+                    var finalUrl = url.replace("TIME_REMAINING", time);
+                    parent.location.replace(finalUrl);
+                });
+            } else {
+
+                var finalUrl = url.replace("TIME_REMAINING", time);
+                if (weblab.config['link.presentation'] === 'iframe') {
+                    // Load in an iframe: simply change the current frame (we're already in an iframe)
+                    console.log("NOT YET SUPPORTED");
+                    // TODO Not yet working: if we do this, the Finish button etc. are not maintained, since weblab expects that this iframe has a weblab instance.
+                    // We need to create an iframe, manage its height, and manage other events (e.g., potentially onFinish clean the experiment and so on)
+                    // location.replace(finalUrl);
+                }
+                // Redirect
+                parent.location.replace(finalUrl);
             }
-            // Redirect
-            parent.location.replace(finalUrl);
         });
     </script>
 </head>
@@ -57,6 +73,12 @@
         <p id="messages"></p>
         <p>Did you configure a 'redirect' client with a different experiment server?</p>
     </div>
+    <div id="secret_block" class="alert alert-info col-md-6 col-md-offset-3 text-center" style="display: none">
+        <h3>Copy the secret and press the button</h3>
+        <p>Secret: <span id="secret"></span></p>
+        <button class="btn btn-primary" id="secret_button">Go to the final URL</button>
+    </div>
+
     <div id="space"></div>
 </body>
 </html>
