@@ -31,6 +31,8 @@ class LoginManager(object):
             LoginErrors.InvalidCredentialsError
         )
         """
+        if not password:
+            self._process_invalid()
         db_session_id = self._validate_simple_authn(username, password)
         return self._reserve_session(db_session_id)
 
