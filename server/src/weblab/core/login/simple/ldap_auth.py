@@ -74,6 +74,10 @@ class LdapUserAuth(SimpleAuthnUserAuth):
             log.log(self, log.level.Error, msg)
             return False
 
+        if not password:
+            # The Python LDAP module does not provide any error if the password is empty
+            return False
+
         password = str(password)
         ldap_module = _ldap_provider.get_module()
         try:
