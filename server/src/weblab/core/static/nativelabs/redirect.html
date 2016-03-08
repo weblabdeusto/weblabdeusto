@@ -2,6 +2,7 @@
 <html>
 <head>
     <title>Redirect Experiment</title>
+    <link rel="stylesheet" type="text/css" href="../bootstrap3/css/bootstrap.css"/>
 
     <script type="text/javascript" src="../js/jquery.min.js"></script>
     <script type="text/javascript" src="../weblabjs/weblab.v1.js"></script>
@@ -41,9 +42,9 @@
             weblab.disableFinishOnClose();
 
 
-            if (secret != null && secret != undefined) {
+            if (client_secret != null && client_secret != undefined) {
                 $("#secret_block").show();
-                $("#secret").text(secret);
+                $("#secret").text(client_secret);
                 $("#secret_button").click(function() {
                     var finalUrl = url.replace("TIME_REMAINING", time);
                     parent.location.replace(finalUrl);
@@ -73,9 +74,9 @@
         <p id="messages"></p>
         <p>Did you configure a 'redirect' client with a different experiment server?</p>
     </div>
-    <div id="secret_block" class="alert alert-info col-md-6 col-md-offset-3 text-center" style="display: none">
+    <div id="secret_block" class="well col-md-6 col-md-offset-3 text-center" style="display: none">
         <h3>Copy the secret and press the button</h3>
-        <p>Secret: <span id="secret"></span></p>
+        <p>Secret: <span id="secret" style="font-weight: bold"></span></p>
         <button class="btn btn-primary" id="secret_button">Go to the final URL</button>
     </div>
 
