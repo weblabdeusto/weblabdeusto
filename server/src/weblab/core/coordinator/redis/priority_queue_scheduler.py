@@ -66,7 +66,7 @@ from weblab.core.coordinator.redis.constants import (
     STATUS_WAITING_CONFIRMATION,
 )
 
-EXPIRATION_TIME  = 3600 # seconds
+EXPIRATION_TIME  = 6 * 3600 # seconds
 
 DEBUG = False
 

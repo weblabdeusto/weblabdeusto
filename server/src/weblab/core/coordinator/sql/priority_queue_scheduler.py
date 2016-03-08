@@ -40,7 +40,7 @@ import weblab.core.coordinator.status as WSS
 
 from weblab.data.experiments import ExperimentInstanceId
 
-EXPIRATION_TIME  = 3600 # seconds
+EXPIRATION_TIME  = 6 * 3600 # seconds
 
 DEBUG = False
 
