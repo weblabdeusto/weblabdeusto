@@ -141,6 +141,8 @@ For this reason, in Ubuntu GNU/Linux install the following packages::
    sudo apt-get install libsasl2-dev libsasl2-dev
    # XML libraries for validating the configuration files
    sudo apt-get install libxml2-dev libxslt1-dev 
+   # Avoid problems with freetype:
+   sudo ln -s /usr/include/freetype2 /usr/include/freetype
 
 Once installed, it is now possible to install more optimized Python libraries,
 by running::
