@@ -313,6 +313,9 @@ def reserve_experiment(experiment_id = None, client_initial_data = None, consume
 @weblab_api.route_api('/user/logout/', methods = ['POST'])
 def logout():
     server_instance = weblab_api.ctx.server_instance
+    if not weblab_api.ctx.session_id:
+        raise coreExc.SessionNotFoundError( "User Processing Server session not found")
+        
     session_id = SessionId(weblab_api.ctx.session_id)
 
     if server_instance._session_manager.has_session(session_id):
