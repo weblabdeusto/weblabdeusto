@@ -129,16 +129,24 @@ def _generate_proxy(current_path, value):
             if retry >= MAX_RETRIES:
                 raise
             time.sleep(0.5)
-    
+
+    cookies = list(req.cookies)
+   
+    headers = dict(req.headers)
+    headers.pop('set-cookie', None)
     response_kwargs = {
-        'headers' : dict(req.headers),
+        'headers' : headers,
         'status' : req.status_code,
     }
     if 'content-type' in req.headers:
         response_kwargs['content_type'] = req.headers['content-type']
+    
+    response = Response(req.content, **response_kwargs)
 
-    return Response(req.content, **response_kwargs)
+    for c in req.cookies:
+        response.set_cookie(c.name, c.value, path=c.path, expires=c.expires, secure=c.secure)
 
+    return response
 
 def generate_proxy_handler(paths):
     _validate_protocols(paths)
