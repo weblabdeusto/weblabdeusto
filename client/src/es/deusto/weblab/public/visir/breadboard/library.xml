@@ -10,16 +10,16 @@
 			</rotation>
 		</rotations>
 	</component>-->
-	<!--<component pins="2" type="R" value="100">
+	<component pins="2" type="R" value="100">
 		<rotations>
-			<rotation image="r_1k.png" ox="-26" oy="-6" rot="0">
+			<rotation image="r_100.png" ox="-26" oy="-6" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
 			</rotation>
-			<rotation image="r_1k.png" ox="-6" oy="-26" rot="90">
+			<rotation image="r_100.png" ox="-6" oy="-26" rot="90">
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	<!--<component pins="2" type="R" value="1.5k">
 		<rotations>
 			<rotation image="r_1.5k.png" ox="-27" oy="-7" rot="0">
@@ -30,7 +30,7 @@
 			</rotation>
 		</rotations>
 	</component>-->
-	<!--<component pins="2" type="R" value="210">
+	<component pins="2" type="R" value="210">
 	<rotations>
 			<rotation image="r_470.png" ox="-27" oy="-6" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
@@ -39,7 +39,8 @@
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
+
 	<component pins="2" type="R" value="470">
 	<rotations>
 			<rotation image="r_470.png" ox="-27" oy="-6" rot="0">
@@ -50,7 +51,7 @@
 			</rotation>
 		</rotations>
 	</component>
-	<!--<component pins="2" type="R" value="820">
+	<component pins="2" type="R" value="820">
 	<rotations>
 			<rotation image="r_470.png" ox="-27" oy="-6" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
@@ -59,7 +60,7 @@
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	<component pins="2" type="R" value="1k">
 		<rotations>
 			<rotation image="r_1k.png" ox="-26" oy="-6" rot="0">
@@ -189,16 +190,16 @@
 			</rotation>
 		</rotations>
 	</component>-->
-	<!--<component pins="2" type="R" value="5.6k">
+	<component pins="2" type="R" value="5.6k">
 		<rotations>
-			<rotation image="r_5.1k.png" ox="-27" oy="-7" rot="0">
+			<rotation image="r_5.6k.png" ox="-27" oy="-7" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
 			</rotation>
-			<rotation image="r_5.1k.png" ox="-7" oy="-27" rot="90">
+			<rotation image="r_5.6k.png" ox="-7" oy="-27" rot="90">
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="2" type="R" value="6.6k">
 	<rotations>
@@ -287,6 +288,17 @@
 			</rotation>
 		</rotations>
 	</component>-->
+
+	<component pins="2" type="R" value="39k">
+		<rotations>
+			<rotation image="r_39k.png" ox="-27" oy="-7" rot="0">
+				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
+			</rotation>
+			<rotation image="r_39k.png" ox="-7" oy="-27" rot="90">
+				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
+			</rotation>
+		</rotations>
+	</component>
 	
 	<!--<component pins="2" type="R" value="43.2k">
 		<rotations>
@@ -299,7 +311,7 @@
 		</rotations>
 	</component>-->
 	
-	<!--<component pins="2" type="R" value="47k">
+	<component pins="2" type="R" value="47k">
 		<rotations>
 			<rotation image="r_43.2k.png" ox="-27" oy="-7" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
@@ -308,18 +320,18 @@
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 
-	<!--<component pins="2" type="R" value="67k">
+	<component pins="2" type="R" value="68k">
 		<rotations>
-			<rotation image="r_67k.png" ox="-27" oy="-7" rot="0">
+			<rotation image="r_68k.png" ox="-27" oy="-7" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
 			</rotation>
-			<rotation image="r_67k.png" ox="-8" oy="-27" rot="90">
+			<rotation image="r_68k.png" ox="-8" oy="-27" rot="90">
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="2" type="R" value="80k">
 		<rotations>
@@ -354,7 +366,7 @@
 		</rotations>
 	</component>-->
 	
-	<!--<component pins="2" type="R" value="100k">
+	<component pins="2" type="R" value="100k">
 		<rotations>
 			<rotation image="r_100k.png" ox="-26" oy="-6" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
@@ -363,7 +375,7 @@
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="2" type="R" value="120k">
 		<rotations>
@@ -376,7 +388,7 @@
 		</rotations>
 	</component>-->
 	
-	<!--<component pins="2" type="R" value="150k">
+	<component pins="2" type="R" value="150k">
 		<rotations>
 			<rotation image="r_43.2k.png" ox="-27" oy="-7" rot="0">
 				<pins><pin x="-26" y="0"/><pin x="26" y="0"/></pins>
@@ -385,7 +397,7 @@
 				<pins><pin x="0" y="-26"/><pin x="0" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="2" type="R" value="220k">
 		<rotations>
@@ -539,6 +551,16 @@
 			</rotation>
 		</rotations>
 	</component>
+
+	<component pins="2" type="C" value="2n2">
+		<rotations>
+			<rotation image="c_2n2.png" ox="-20" oy="-35" rot="0">
+				<pins><pin x="-13" y="26"/><pin x="13" y="26"/></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
+
 	
 	<!--<component pins="2" type="C" value="1n">
 		<rotations>
@@ -620,13 +642,13 @@
 		</rotations>
 	</component>-->
 	
-	<!--<component pins="3" type="Q" value="2n2222">
+	<component pins="3" type="Q" value="2n2222">
 		<rotations>
 			<rotation image="q_bc547c.png" ox="-15" oy="-13" rot="0">
 				<pins><pin x="-13" y="26"/><pin x="0" y="26"/><pin x="13" y="26"/></pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="3" type="Q" value="BF245A">
 		<rotations>
@@ -644,7 +666,7 @@
 		</rotations>
 	</component>-->
 	
-	<!--<component pins="8" type="OP" value="UA741">
+	<component pins="8" type="OP" value="UA741">
 		<rotations>
 			<rotation image="op.png" ox="-18" oy="-14" rot="0">
 				<pins>
@@ -659,7 +681,7 @@
 				</pins>
 			</rotation>
 		</rotations>
-	</component>-->
+	</component>
 	
 	<!--<component pins="8" type="OP" value="7404">
 		<rotations>
