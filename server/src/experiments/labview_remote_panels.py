@@ -39,12 +39,13 @@ class LabviewRemotePanels(Experiment):
 
         self.host = config.get('labview_host', 'localhost')
         self.port = config.get('labview_port', 20000)
+        self.public_url = config.get('labview_url', 'http://weblab.deusto.es:12345/index.html')
         self.shared_secret = config.get('labview_shared_secret', "12345@&")
         self.debug_message = config.get('labview_debug_message', DEFAULT_DEBUG_MESSAGE)
         self.debug_command = config.get('labview_debug_command', DEFAULT_DEBUG_COMMAND)
 
         if self.debug_message or self.debug_command:
-            print("LabVIEW Configuration: {}:{}  key: {}".format(self.host, self.port, self.shared_secret))
+            print("LabVIEW Configuration: {}:{}  key: {} (public URL: {})".format(self.host, self.port, self.shared_secret, self.public_url))
 
     def _dbg_message(self, msg):
         if self.debug_message:
@@ -83,11 +84,11 @@ class LabviewRemotePanels(Experiment):
 
         self.current_client_key = str(random.random())[2:7]
         message = '@@@'.join(('start', self.shared_secret, self.current_client_key, username, back_url, str(time_slot)))
-        json_response = self._send_message(message)
-        response = json.loads(json_response)
+        self._send_message(message)
 
         current_config = {
-            'url' : response.get('url'),
+            'url' : self.public_url,
+            'secret' : self.current_client_key,
         }
 
         return json.dumps({"initial_configuration": json.dumps(current_config), "batch": False})
