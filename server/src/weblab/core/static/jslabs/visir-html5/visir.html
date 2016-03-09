@@ -69,7 +69,19 @@
     {
     }
 
+
+
 	weblab.onStart(function(time, initialConfig){ 
+        var libraryXml = "../../../web/visir/breadboard/library.xml";
+
+        if (weblab.config['library.xml'] !== undefined) {
+            if (weblab.config['library.xml'].indexOf("http") == 0) {
+                libraryXml = weblab.config['library.xml'];
+            } else {
+                libraryXml = "../../../web/static/" + weblab.config['library.xml'];
+            }
+        }
+
         var configObj = JSON.parse(initialConfig);
         var config = {
             teacherMode: true,
@@ -77,7 +89,7 @@
             locale: "en_UK",
             readOnly: false,
             oscRunnable: false,
-            libraryXml: "../../../web/visir/breadboard/library.xml"
+            libraryXml: libraryXml
         };
 
         if (configObj.teacher != undefined)
