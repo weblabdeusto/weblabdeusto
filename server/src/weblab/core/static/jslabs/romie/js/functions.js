@@ -158,6 +158,7 @@ function init(time, points) {
 	};
 
 	$('.camera1 img').on("load", function(){setTimeout(updateCam1, 400)});
+	$('.camera1 img').on("error", function(){setTimeout(updateCam1, 400)});
 	updateCam1();
 }
 

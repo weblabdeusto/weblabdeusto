@@ -98,7 +98,7 @@ Game.prototype.answerQuestion = function() {
                                 $('.camera2').unbind('click');
                                 cameraStartDate = new Date();
 
-                                $('.camera2 img').on("load", {startDate: cameraStartDate.getTime()}, function(event) {
+                                var onCameraLoad = function(event) {
                                     setTimeout(function(startDate) {
                                         d = new Date();
                                         if (startDate > (d.getTime()-15000)) {
@@ -111,7 +111,10 @@ Game.prototype.answerQuestion = function() {
                                             $('.camera2 img').off('load');
                                         }
                                     }, 400, event.data.startDate);
-                                });
+                                };
+
+                                $('.camera2 img').on("load", {startDate: cameraStartDate.getTime()}, onCameraLoad);
+                                $('.camera2 img').on("error", onCameraLoad);
 
                                 $('.camera2 img').attr("src", "https://cams.weblab.deusto.es/webcam/proxied.py/romie_top?"+cameraStartDate.getTime());
                             });
