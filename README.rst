@@ -52,3 +52,11 @@ For contacting the WebLab-Deusto team, contact us at:
 
    `weblab@deusto.es <mailto:weblab@deusto.es>`_
 
+Professional services
+=====================
+
+`LabsLand <http://labsland.com>` is a spin-off of the WebLab-Deusto project, and it provides consultancy services as well as commercial support:
+
+   http://labsland.com
+
+
