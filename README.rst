@@ -55,7 +55,7 @@ For contacting the WebLab-Deusto team, contact us at:
 Professional services
 =====================
 
-`LabsLand <http://labsland.com>` is a spin-off of the WebLab-Deusto project, and it provides consultancy services as well as commercial support:
+`LabsLand <http://labsland.com>`_ is a spin-off of the WebLab-Deusto project, and it provides consultancy services as well as commercial support:
 
    http://labsland.com
 
