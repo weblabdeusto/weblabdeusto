@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 import sha
 import random
 
-from flask import redirect, request, flash
+from flask import redirect, request, flash, url_for
 from flask.ext.admin import expose
 from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView
 
