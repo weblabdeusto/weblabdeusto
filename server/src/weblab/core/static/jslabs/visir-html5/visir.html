@@ -73,6 +73,10 @@
 
 	weblab.onStart(function(time, initialConfig){ 
         var libraryXml = "../../../web/visir/breadboard/library.xml";
+        
+        if (weblab.locale.indexOf('es') == 0) {
+            $("#docs_spanish").show();
+        }
 
         if (weblab.config['library.xml'] !== undefined) {
             if (weblab.config['library.xml'].indexOf("http") == 0) {
@@ -124,7 +128,7 @@
 <body>
 	<!--[if lt IE 9]><p style="font-weight: bold; color: #CC2222">This experiment is not supported in your current browser. We strongly recommend you to update it or to get a new browser, such as <a href="http://chrome.google.com/" alt="Download Google Chrome">Google Chrome</a></p><![endif]-->
 
-    <a target="_blank" href="https://weblab.deusto.es/weblab/web/pub/visir/Manual_usuario_VISIR.pdf">User manual / Manual de usuario [Spanish]</a>
+    <a class="btn" style="display: none" target="_blank" id="docs_spanish" href="../../../web/pub/visir/Manual_usuario_VISIR.pdf">Manual de usuario</a>
     <br>
 
     <div class="timer" id="timer"></div>
