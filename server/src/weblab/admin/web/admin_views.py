@@ -14,8 +14,8 @@ import traceback
 import threading
 import collections
 
-
 import six
+from dateutil.relativedelta import relativedelta
 
 from weblab.core.web.logo import logo_impl
 from weblab.core.i18n import gettext, lazy_gettext
@@ -1031,11 +1031,7 @@ class ExperimentPanel(AdministratorModelView):
         else:
             now = datetime.datetime.now()
             default_start_date = now
-            try:
-                default_end_date = now.replace(year = now.year + 10)
-            except ValueError:
-                # Leap years...
-                default_end_date = (now + datetime.timedelta(days=1)).replace(year = now.year + 10)
+            default_end_date = now + relativedelta(years = 10)
 
             form.start_date.data = default_start_date
             form.end_date.data = default_end_date

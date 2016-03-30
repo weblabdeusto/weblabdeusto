@@ -30,6 +30,8 @@ from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
+from dateutil.relativedelta import relativedelta
+
 import voodoo.log as log
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
@@ -962,9 +964,8 @@ class DatabaseGateway(object):
 
     @with_session
     def frontend_admin_uses_last_week(self):
-        now = datetime.date.today() # Not UTC
-        earliest_day = (now - datetime.timedelta(days=7))
-        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        now = datetime.datetime.utcnow() # Not UTC
+        since = now + relativedelta(days=-7)
         group = (model.DbUserUsedExperiment.start_date_date,)
         converter = lambda args: args[0]
         date_generator = self._frontend_sequence_day_generator
@@ -972,9 +973,8 @@ class DatabaseGateway(object):
 
     @with_session
     def frontend_admin_uses_last_year(self):
-        now = datetime.date.today() # Not UTC
-        earliest_day = now.replace(year=now.year-1,day=1)
-        since = datetime.datetime(earliest_day.year, earliest_day.month, earliest_day.day)
+        now = datetime.datetime.utcnow() # Not UTC
+        since = now + relativedelta(years=-1)
         group = (model.DbUserUsedExperiment.start_date_year,model.DbUserUsedExperiment.start_date_month)
         converter = lambda args: datetime.date(args[0], args[1], 1)
         date_generator = self._frontend_sequence_month_generator
@@ -1028,18 +1028,7 @@ class DatabaseGateway(object):
     def frontend_admin_uses_geographical_month(self):
         # This is really in the last literal month
         now = datetime.datetime.utcnow()
-        if now.month == 1:
-            since = now.replace(month = 12, year = now.year - 1)
-        else:
-            day = now.day
-            if day == 31:
-                if now.month in (5, 7, 8, 10, 12):
-                    day = 30
-                elif now.month == 3:
-                    day = 28
-            
-            since = now.replace(month = now.month - 1, day = day)
-
+        since = now + relativedelta(months = -1)
         return self.quickadmin_uses_per_country(UsesQueryParams.create(start_date=since))
 
     @with_session
@@ -1374,19 +1363,8 @@ class DatabaseGateway(object):
         experiment_id = experiment_row[0]
 
         now = datetime.datetime.now()
-        try:
-            last_year = now.replace(year=now.year-1)
-        except ValueError:
-            # Leap years...
-            last_year = (now + datetime.timedelta(days=1)).replace(year=now.year-1)
-
-        if now.month == 1:
-            last_month = now.replace(month = 12, year = now.year - 1)
-        else:
-            try:
-                last_month = now.replace(month = now.month-1)
-            except ValueError: # e.g., 31 of March => 31 of February doesn't exist
-                last_month = now.replace(day=1) - datetime.timedelta(days=1) # e.g., 1 of March - 1 day (which will be 28, 29 in February or 30 in April etc.)
+        last_year = now + relativedelta(years=-1)
+        last_month = now + relativedelta(months=-1)
 
         total_uses = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter_by(experiment_id=experiment_id).first()[0]
         total_uses_last_month = _current.session.query(func.count(model.DbUserUsedExperiment.id)).filter(model.DbUserUsedExperiment.experiment_id == experiment_id, model.DbUserUsedExperiment.start_date >= last_month).first()
