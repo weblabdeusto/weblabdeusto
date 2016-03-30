@@ -974,7 +974,7 @@ class DatabaseGateway(object):
     @with_session
     def frontend_admin_uses_last_year(self):
         now = datetime.datetime.utcnow() # Not UTC
-        since = now + relativedelta(years=-1)
+        since = (now + relativedelta(years=-1)).replace(day=1) # day=1 is important to search by start_date_month
         group = (model.DbUserUsedExperiment.start_date_year,model.DbUserUsedExperiment.start_date_month)
         converter = lambda args: datetime.date(args[0], args[1], 1)
         date_generator = self._frontend_sequence_month_generator
