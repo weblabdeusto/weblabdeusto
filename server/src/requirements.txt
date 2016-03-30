@@ -84,3 +84,5 @@ maxminddb==1.2.0
 # Flask-DebugToolbar helps the development
 Flask-DebugToolbar==0.10.0
 
+# For utilities
+python-dateutil==2.5.2
