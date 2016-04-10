@@ -146,6 +146,14 @@ ArchimedesExperiment = function (registry, view) {
 
         var that = this;
         $.each(View, function(name, data) {
+
+            // If the server has given information for an instance that does not exist in our local
+            // configuration, we want to ignore it so that the system still works.
+            if(!(name in that.instances)) {
+                console.log("Ignoring at ALLINFO command the instance: " + name);
+                return true;
+            }
+
             var instance = that.instances[name];
 
             // Do not request updates for paused instances.
