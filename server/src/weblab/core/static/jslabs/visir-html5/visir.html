@@ -73,10 +73,6 @@
 
 	weblab.onStart(function(time, initialConfig){ 
         var libraryXml = "../../../web/visir/breadboard/library.xml";
-        
-        if (weblab.config['show_docs'] !== undefined && weblab.config['show_docs'] && weblab.locale.indexOf('es') == 0) {
-            $("#docs_spanish").show();
-        }
 
         if (weblab.config['library.xml'] !== undefined) {
             if (weblab.config['library.xml'].indexOf("http") == 0) {
@@ -86,13 +82,20 @@
             }
         }
 
+        var oscRunnable = false;
+        if (weblab.config['oscilloscope.runnable'] !== undefined) {
+            if (weblab.config['oscilloscope.runnable']) {
+                oscRunnable = true;
+            }
+        }
+
         var configObj = JSON.parse(initialConfig);
         var config = {
             teacherMode: true,
             instrReg: null,
             locale: "en_UK",
             readOnly: false,
-            oscRunnable: false,
+            oscRunnable: oscRunnable,
             libraryXml: libraryXml
         };
 
@@ -127,11 +130,7 @@
 </head>
 <body>
 	<!--[if lt IE 9]><p style="font-weight: bold; color: #CC2222">This experiment is not supported in your current browser. We strongly recommend you to update it or to get a new browser, such as <a href="http://chrome.google.com/" alt="Download Google Chrome">Google Chrome</a></p><![endif]-->
-
-    <a class="btn" style="display: none" target="_blank" id="docs_spanish" href="../../../web/pub/visir/Manual_usuario_VISIR.pdf">Manual de usuario</a>
-    <br>
-
-    <div class="timer" id="timer"></div>
+	<div class="timer" id="timer"></div>
     <div id="instrumentframe"></div>
 </body>
 </html>
