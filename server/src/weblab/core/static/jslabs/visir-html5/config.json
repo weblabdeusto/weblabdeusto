@@ -5,5 +5,6 @@
 	"mesServer": "http://194.47.149.204:8080/measureserver",
 	"readOnly": false,
 	"transMethod": "http",
-	"oscRunnable": true
+	"oscRunnable": true,
+    "maxOscMeasureCount" : 10
 }

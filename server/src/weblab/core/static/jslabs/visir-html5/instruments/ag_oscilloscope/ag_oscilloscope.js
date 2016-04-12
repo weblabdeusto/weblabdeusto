@@ -18,7 +18,11 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		}
 		,CheckToContinueCalling: function() {
 			//if (me._extService) return me._extService.CanContinueMeasuring();
-			if (me._measureCount >= 10) return false;
+            var maxMeasureCount = visir.Config.Get("maxOscMeasureCount");
+            if (maxMeasureCount == undefined || maxMeasureCount == null) {
+                maxMeasureCount = 10;
+            }
+			if (me._measureCount >= maxMeasureCount) return false;
 			return visir.Config.Get("oscRunnable") && me._canContinueMeasuring;
 		}
 	}, props || {});
