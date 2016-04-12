@@ -81,12 +81,6 @@
             } else {
                 libraryXml = "../../../web/pub/" + weblab.config['library.xml'];
             }
-        } else if (configObj.libraryXml !== undefined) {
-            if (weblab.config['library.xml'].indexOf("http") == 0) {
-                libraryXml = configObj.libraryXml;
-            } else {
-                libraryXml = "../../../web/pub/" + configObj.libraryXml;
-            }
         } else {
             libraryXml = "../../../web/visir/breadboard/library.xml";
         }

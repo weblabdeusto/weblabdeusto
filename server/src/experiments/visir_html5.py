@@ -473,8 +473,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 "experiments" : self.teacher,
                 "circuits" : circuits_list,
             }
-        if self.library_xml and self.library_xml != 'failed' and self.library_xml != 'fail':
-            data['libraryXml'] = self.library_xml
+        # if self.library_xml and self.library_xml != 'failed' and self.library_xml != 'fail':
+        #     data['libraryXml'] = self.library_xml
 
         if self.oscilloscope_count:
             data['oscilloscopeCount'] = self.oscilloscope_count
