@@ -143,6 +143,16 @@
 
     {% endraw %}
 
+    {% if federated_mode %}
+    <div class="container-fluid" >
+        <div class="col-xs-6 col-xs-offset-3 col-sm-2 col-sm-offset-0">
+            <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                <img class="wl-logo" id="logo" src="{{ url_for("core_web.logo") }}"/>
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
 {% endblock %}
 
 
