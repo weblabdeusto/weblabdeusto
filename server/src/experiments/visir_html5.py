@@ -53,6 +53,8 @@ CFG_CIRCUITS = "vt_circuits"
 CFG_CIRCUITS_DIR = "vt_circuits_dir"
 CFG_DEBUG_PRINTS = "vt_debug_prints"
 CFG_LIBRARY_XML  = "vt_library"
+CFG_OSCILLOSCOPE_RUNNABLE = "vt_oscilloscope_runnable"
+CFG_OSCILLOSCOPE_COUNT = "vt_oscilloscope_count"
 
 DEFAULT_USE_VISIR_PHP = True
 DEFAULT_MEASURE_SERVER_ADDRESS = "130.206.138.35:8080"
@@ -280,6 +282,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.circuits     = self._cfg_manager.get_value(CFG_CIRCUITS, DEFAULT_CIRCUITS)
         self.circuits_dir = self._cfg_manager.get_value(CFG_CIRCUITS_DIR, None)
         self.library_xml  = self._cfg_manager.get_value(CFG_LIBRARY_XML, "failed")
+        self.oscilloscope_count = self._cfg_manager.get_value(CFG_OSCILLOSCOPE_COUNT, None)
+        self.oscilloscope_runnable = self._cfg_manager.get_value(CFG_OSCILLOSCOPE_RUNNABLE, None)
 
         global DEBUG
         DEBUG = self._cfg_manager.get_value(CFG_DEBUG_PRINTS, DEFAULT_DEBUG_PRINTS)
@@ -467,9 +471,17 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 "url"      : url,
                 "teacher"  : self.teacher,
                 "experiments" : self.teacher,
+                "circuits" : circuits_list,
+            }
+        # if self.library_xml and self.library_xml != 'failed' and self.library_xml != 'fail':
+        #     data['libraryXml'] = self.library_xml
 
-                "circuits" : circuits_list
-                }
+        if self.oscilloscope_count:
+            data['oscilloscopeCount'] = self.oscilloscope_count
+
+        if self.oscilloscope_runnable:
+            data['oscilloscopeRunnable'] = self.oscilloscope_runnable
+
         return json.dumps(data)
 
     def forward_request(self, lab_session_id, request):

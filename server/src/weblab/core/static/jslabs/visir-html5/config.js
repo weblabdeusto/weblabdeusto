@@ -43,6 +43,7 @@ visir.ConfigClass.prototype.ReadConfig = function(config)
 	this._readOnly = config.readOnly;
 	this._transMethod = config.transMethod;
 	this._oscRunnable = config.oscRunnable;
+    this._maxOscMeasureCount = config.maxOscMeasureCount || 10;
     this._libraryXml = config.libraryXml;
 }
 
@@ -55,6 +56,7 @@ visir.ConfigClass.prototype.Get = function(name)
 		case "readOnly": return this._readOnly;
 		case "transMethod": return this._transMethod;
 		case "oscRunnable": return this._oscRunnable;
+		case "maxOscMeasureCount": return this._maxOscMeasureCount;
         case "libraryXml": return this._libraryXml;
 	}
 
@@ -70,6 +72,7 @@ visir.ConfigClass.prototype.Set = function(name, value)
 		case "readOnly": this._readOnly = value;
 		case "transMethod": this._transMethod = value;
 		case "oscRunnable": this._oscRunnable = value;
+		case "maxOscMeasureCount": this._maxOscMeasureCount= value;
         case "libraryXml": this._libraryXml = value;
 	}
 }

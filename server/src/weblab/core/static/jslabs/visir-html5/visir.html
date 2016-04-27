@@ -72,32 +72,55 @@
 
 
 	weblab.onStart(function(time, initialConfig){ 
-        var libraryXml = "../../../web/visir/breadboard/library.xml";
+        var configObj = JSON.parse(initialConfig);
         
-        if (weblab.config['show_docs'] !== undefined && weblab.config['show_docs'] && weblab.locale.indexOf('es') == 0) {
-            $("#docs_spanish").show();
-        }
-
+        var libraryXml;
         if (weblab.config['library.xml'] !== undefined) {
             if (weblab.config['library.xml'].indexOf("http") == 0) {
                 libraryXml = weblab.config['library.xml'];
             } else {
                 libraryXml = "../../../web/pub/" + weblab.config['library.xml'];
             }
+        } else {
+            libraryXml = "../../../web/visir/breadboard/library.xml";
         }
 
-        var configObj = JSON.parse(initialConfig);
+        var oscRunnable;
+        if (weblab.config['oscilloscope.runnable'] !== undefined) {
+            oscRunnable = weblab.config['oscilloscope.runnable'];
+        } else if (configObj.oscilloscopeRunnable !== undefined) {
+            oscRunnable = configObj.oscilloscopeRunnable;
+        } else {
+            oscRunnable = false;
+        }
+
+        var maxOscMeasureCount;
+        if (weblab.config['oscilloscope.count'] !== undefined) {
+            maxOscMeasureCount = weblab.config['oscilloscope.count'];
+        } else if (configObj.oscilloscopeCount !== undefined) {
+            maxOscMeasureCount = configObj.oscilloscopeCount;
+        } else {
+            maxOscMeasureCount = 10; // default
+        }
+
+        var teacherMode;
+        if (weblab.config['teacher'] !== undefined) {
+            teacherMode = weblab.config['teacher'];
+        } else if (configObj.teacher !== undefined) {
+            teacherMode = configObj.teacher;
+        } else {
+            teacherMode = true;
+        }
+
         var config = {
-            teacherMode: true,
+            teacherMode: teacherMode,
             instrReg: null,
             locale: "en_UK",
             readOnly: false,
-            oscRunnable: false,
+            oscRunnable: oscRunnable,
+            maxOscMeasureCount: maxOscMeasureCount,
             libraryXml: libraryXml
         };
-
-        if (configObj.teacher != undefined)
-            config.teacherMode = configObj.teacher;
 
         if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {
             if (configObj.savedata.indexOf("%3C") >= 0)
@@ -127,11 +150,7 @@
 </head>
 <body>
 	<!--[if lt IE 9]><p style="font-weight: bold; color: #CC2222">This experiment is not supported in your current browser. We strongly recommend you to update it or to get a new browser, such as <a href="http://chrome.google.com/" alt="Download Google Chrome">Google Chrome</a></p><![endif]-->
-
-    <a class="btn" style="display: none" target="_blank" id="docs_spanish" href="../../../web/pub/visir/Manual_usuario_VISIR.pdf">Manual de usuario</a>
-    <br>
-
-    <div class="timer" id="timer"></div>
+	<div class="timer" id="timer"></div>
     <div id="instrumentframe"></div>
 </body>
 </html>
