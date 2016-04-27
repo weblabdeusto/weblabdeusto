@@ -159,7 +159,7 @@ def compiserve_queue_get(uid):
             binary_file = jsresp['BinaryFile']
             completed_date = jsresp['CompletedDate']
             log_file = jsresp['LogFile']
-            compile_result = 'success' if completed_date is not None else 'error'
+            compile_result = 'success' if binary_file is not None else 'error'
 
             # Store the binary file as a byte array.
             # TODO: Check whether flask supports bytearray
@@ -174,7 +174,7 @@ def compiserve_queue_get(uid):
             _redis.hset(job_key, "result", compile_result)
 
             if compile_result == 'error':
-                result['state'] == 'failed'
+                result['state'] = 'failed'
             else:
                 result['state'] = 'done'
 
