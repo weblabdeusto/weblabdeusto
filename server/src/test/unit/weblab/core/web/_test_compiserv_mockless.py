@@ -157,3 +157,7 @@ class TestCompiservMockless(unittest.TestCase):
         self.assertEqual(rv.status_code, 302, "Login POST with right pass does not return 302")
 
         self.handler.stop()
+
+
+if __name__ == '__main__':
+    unittest.main()
