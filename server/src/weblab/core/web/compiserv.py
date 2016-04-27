@@ -173,7 +173,10 @@ def compiserve_queue_get(uid):
             _redis.hset(job_key, "log_file", log_file)
             _redis.hset(job_key, "result", compile_result)
 
-            result['state'] = 'done'
+            if compile_result == 'error':
+                result['state'] == 'failed'
+            else:
+                result['state'] = 'done'
 
             print("[DEBUG] Compiserv result saved.")
 
