@@ -103,7 +103,7 @@ class Locator(object):
         else:
             raise FailingConnectionError("Couldn't find a connection to %s" % coord_address)
 
-    def get(self, coord_address):
+    def get(self, coord_address, timeout = None):
         """ Return the most efficient client to that component, or None """
         if not isinstance(coord_address, CoordAddress):
             raise ValueError("coord_address %r must be of type CoordAddress" % coord_address)
@@ -111,7 +111,7 @@ class Locator(object):
         connection_config = self.get_connection(coord_address)
         if connection_config:
             component_type = self.global_config[coord_address].component_type
-            return _create_client(component_type, connection_config)
+            return _create_client(component_type, connection_config, timeout)
 
     def __getitem__(self, coord_address):
         """ Returns the most efficient client to that component, or raises a KeyError """
