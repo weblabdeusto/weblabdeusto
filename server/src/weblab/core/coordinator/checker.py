@@ -83,7 +83,7 @@ class ResourcesChecker(object):
 
         try:
             address = CoordAddress.translate(address_str)
-            server = self.locator[address]
+            server = self.locator.get(address, timeout=1800) # Extended timeout for this method
             failing_experiments = server.check_experiments_resources()
             #
             # failing_experiments is a dictionary such as:
