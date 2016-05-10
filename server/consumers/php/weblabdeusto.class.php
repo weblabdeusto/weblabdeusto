@@ -153,6 +153,55 @@ class WebLabDeusto
     {
         return $this->baseurl . "client/federated.html#reservation_id=" . $reservation_status->reservation_id;
     }
+
+
+    public function get_experiment_use_by_id( $session_id, $reservation_id )
+    {
+        $response_data = $this->core_call("get_experiment_uses_by_id", array(
+                        "session_id" => array(
+                            "id" => $session_id,
+                        ),
+                        "reservation_id" => array(
+                            "id" => $reservation_id,
+                        ),
+                    ));
+
+        if(!$response_data['is_exception'])
+        {
+            return $response_data['result'];
+        }else
+        {
+            die("ERROR: " . $response_data['message'] . "\n");
+        }
+    }
+
+
+    public function get_experiment_uses_by_id( $session_id, $reservation_ids )
+    {
+        $formatted_reservation_ids = array();
+
+        foreach($reservation_ids as $pos => $reservation_id) {
+            $formatted_reservation_ids[$pos] = array(
+                "id" => $reservation_id,
+            );
+        }
+
+        $response_data = $this->core_call("get_experiment_uses_by_id", array(
+                        "session_id" => array(
+                            "id" => $session_id,
+                        ),
+                        "reservation_ids" => $formatted_reservation_ids
+                    ));
+
+        if(!$response_data['is_exception'])
+        {
+            return $response_data['result'];
+        }else
+        {
+            die("ERROR: " . $response_data['message'] . "\n");
+        }
+    }
+
 }
 
 ?>
