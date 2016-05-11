@@ -86,6 +86,9 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         finally:
             s.close()
 
+    def __repr__(self):
+        return "HostIsUpAndRunningHandler(hostname=%r, port=%r)" % (self.hostname, self.port)
+
 HANDLERS += (HostIsUpAndRunningHandler.__name__,)
 
 
@@ -101,11 +104,14 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:
-            response = self._urllib2.urlopen(self.img_url)
+            response = self._urllib2.urlopen(self.img_url, timeout = 10)
         except urllib2.URLError as e:
             raise labExc.ImageURLDidNotRetrieveAResponseError(self.img_url, e)
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
             raise labExc.InvalidContentTypeRetrievedFromImageURLError(self.img_url)
+
+    def __repr__(self):
+        return "WebcamIsUpAndRunningHandler(img_url=%r)" % self.img_url
 
 HANDLERS += (WebcamIsUpAndRunningHandler.__name__,)
 

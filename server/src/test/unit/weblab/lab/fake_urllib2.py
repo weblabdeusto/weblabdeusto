@@ -28,7 +28,7 @@ def reset():
     global expected_action
     expected_action = HTTP_OK
 
-def urlopen(url):
+def urlopen(url, timeout = None):
     if expected_action == HTTP_OK:
         return HttpResponseOk()
     elif expected_action == HTTP_URL_ERROR:

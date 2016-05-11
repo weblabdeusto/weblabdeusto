@@ -46,7 +46,7 @@ class AbstractClient(object):
 
 class DirectClient(AbstractClient):
     
-    def __init__(self, component_type, server_config):
+    def __init__(self, component_type, server_config, timeout):
         super(DirectClient, self).__init__(component_type)
         self.coord_address_str = server_config['address']
 
@@ -74,11 +74,12 @@ class DirectClient(AbstractClient):
 
 class HttpClient(AbstractClient):
 
-    def __init__(self, component_type, server_config):
+    def __init__(self, component_type, server_config, timeout):
         super(HttpClient, self).__init__(component_type)
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
+        self.timeout = timeout
         self.url = "http://%s:%s%s" % (host, port, path)
 
     def _call(self, name, *args):
@@ -98,7 +99,7 @@ class HttpClient(AbstractClient):
             if name == 'test_me':
                 kwargs['timeout'] = (10, 60)
             else:
-                kwargs['timeout'] = (60, 600)
+                kwargs['timeout'] = (60, self.timeout or 600)
             content = requests.post(self.url + '/' + name, data = request_data, **kwargs).content
             result = pickle.loads(content)
         except:
@@ -146,7 +147,7 @@ class TimeoutTransport(xmlrpclib.Transport):
 
 class XmlRpcClient(AbstractClient):
 
-    def __init__(self, component_type, server_config):
+    def __init__(self, component_type, server_config, timeout):
         super(XmlRpcClient, self).__init__(component_type)
         path = server_config.get('path', '/')
         host = server_config.get('host')
@@ -154,7 +155,7 @@ class XmlRpcClient(AbstractClient):
         self.url = "http://%s:%s%s" % (host, port, path)
 
         long_transport = TimeoutTransport()
-        long_transport.set_timeout(600.0)
+        long_transport.set_timeout(timeout or 600.0)
         self.server = xmlrpclib.Server(self.url, transport = long_transport)
 
         short_transport = TimeoutTransport()
@@ -180,10 +181,10 @@ _SERVER_CLIENTS = {
     'xmlrpc' : XmlRpcClient,
 }
 
-def _create_client(component_type, server_config):
+def _create_client(component_type, server_config, timeout = None):
     protocol = server_config.get('type')
     if protocol not in _SERVER_CLIENTS:
         raise Exception("Unregistered protocol in _SERVER_CLIENTS: %s" % protocol)
 
-    return _SERVER_CLIENTS[protocol](component_type, server_config)
+    return _SERVER_CLIENTS[protocol](component_type, server_config, timeout)
 

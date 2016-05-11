@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*-*- encoding: utf-8 -*-*-
+# -*-*- encoding: utf-8 -*-*-
 #
 # Copyright (C) 2012 onwards University of Deusto
 # All rights reserved.
@@ -12,6 +12,7 @@
 #
 # Author: Luis Rodriguez Gil <luis.rodriguezgil@deusto.es>
 #
+import base64
 import json
 import time
 import traceback
@@ -23,7 +24,6 @@ from flask import make_response, request, jsonify
 import redis
 
 from weblab.core.wl import weblab_api
-
 
 # # PROTOCOL
 #
@@ -57,19 +57,16 @@ BASE_URL = "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.
 POST_URL = BASE_URL + "/PutCompilerTask/uvision"
 GET_URL = BASE_URL + "/GetCompilerTask/{0}/{1}"
 
-
-
 # Connect forever to the redis server
 _redis = redis.Redis("localhost")
 """ type : redis.Redis """
-
 
 
 @weblab_api.route_web('/compiserv/')
 def compiserve():
     msg = "Welcome to the Compiler Service. This is not yet implemented."
     data = {"msg": msg}
-    contents = json.dumps(data, indent = 4)
+    contents = json.dumps(data, indent=4)
     response = make_response(contents)
     response.content_type = 'application/json'
     return response
@@ -111,7 +108,6 @@ def compiserve_queue_armc_post():
         response['uid'] = uid
 
         job_key = "compiserv::jobs::{0}".format(uid)
-
 
         # Store the JOB.
         _redis.hset(job_key, "state", "queued")
@@ -156,11 +152,14 @@ def compiserve_queue_get(uid):
 
         if state == 'finished':
 
+            # The job is not active anymore, but it may have succeeded or failed.
+
             print "[DEBUG]: CompiServ finished with {0}. From thread: {1}".format(uid, threading.current_thread())
 
             binary_file = jsresp['BinaryFile']
             completed_date = jsresp['CompletedDate']
             log_file = jsresp['LogFile']
+            compile_result = 'success' if binary_file is not None else 'error'
 
             # Store the binary file as a byte array.
             # TODO: Check whether flask supports bytearray
@@ -172,8 +171,12 @@ def compiserve_queue_get(uid):
             _redis.hset(job_key, "binary_file", binary_file)
             _redis.hset(job_key, "completed_date", completed_date)
             _redis.hset(job_key, "log_file", log_file)
+            _redis.hset(job_key, "result", compile_result)
 
-            result['state'] = 'done'
+            if compile_result == 'error':
+                result['state'] = 'failed'
+            else:
+                result['state'] = 'done'
 
             print("[DEBUG] Compiserv result saved.")
 
@@ -182,8 +185,6 @@ def compiserve_queue_get(uid):
             number = int(splits[1].strip())
             result['state'] = 'queued'
             result['position'] = number
-
-        # TODO: How are failures reported?
 
         else:
             raise Exception("Unrecognized job state: " + state)
@@ -196,6 +197,7 @@ def compiserve_queue_get(uid):
     except Exception as ex:
         tb = traceback.format_exc()
         return jsonify(state='error', traceback=tb)
+
 
 @weblab_api.route_web('/compiserv/result/<uid>/outputfile', methods=["GET"])
 def compiserve_result_outputfile(uid):
@@ -224,18 +226,24 @@ def compiserve_result_outputfile(uid):
             response.headers["Content-Type"] = "application/json"
             return response
 
+        job_result = _redis.hget(job_key, "result")
+
         # Find the file in redis
         binary_file = _redis.hget(job_key, "binary_file")
 
-        if binary_file is not None:  # TODO: IF FILE IS INDEED READY
+        if binary_file is not None and job_result == "success":
             file_contents = binary_file
             response = make_response(file_contents)
             response.headers["Content-Disposition"] = "attachment; filename=result.bin"
             response.headers["Content-Type"] = "application/octet-stream"
         else:  #
+            log_file = _redis.hget(job_key, "log_file")
+            if log_file is not None:
+                log_file = base64.b64encode(log_file)
             result = {
                 'result': 'error',
-                'msg': 'result not found'
+                'msg': 'result not found',
+                'log_file': log_file
             }
             result = json.dumps(result, indent=4)
             response = make_response(result)
@@ -246,6 +254,7 @@ def compiserve_result_outputfile(uid):
     except Exception as ex:
         tb = traceback.format_exc()
         return jsonify(state='error', traceback=tb)
+
 
 @weblab_api.route_web('/compiserv/result/<uid>/logfile', methods=["GET"])
 def compiserve_result_logfile(uid):
@@ -294,7 +303,6 @@ def compiserve_result_logfile(uid):
     return response
 
 
-
 if __name__ == "__main__":
     print("Testing external service")
 
@@ -308,16 +316,20 @@ if __name__ == "__main__":
     }
     """
 
-    resp = requests.post("http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/PutCompilerTask/uvision", files={"main.c": ("main.c", program, "text/plain")})
+    resp = requests.post(
+        "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/PutCompilerTask/uvision",
+        files={"main.c": ("main.c", program, "text/plain")})
     resp = resp.json()
 
     id = resp["ID"]
     tid = resp["TokenID"]
 
     time.sleep(10)
-    resp = requests.get("http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(id, tid))
-    print "Req to: " + "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(id, tid)
+    resp = requests.get(
+        "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(id,
+                                                                                                                 tid))
+    print "Req to: " + "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/{0}/{1}".format(
+        id, tid)
     data = resp.content
     print len(data)
     print data
-
