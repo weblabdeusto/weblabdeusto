@@ -6,6 +6,7 @@ import os
 import re
 import time
 import urlparse
+import traceback
 
 from weblab.core.wl import weblab_api
 from flask import current_app, url_for, request
