@@ -52,7 +52,7 @@ if LDAP_AVAILABLE:
 class LdapUserAuth(SimpleAuthnUserAuth):
 
     NAME = 'LDAP'
-    REGEX = 'ldap_uri=(ldaps?://[a-zA-Z0-9\./_-]+);domain=([a-zA-Z0-9\._-]+);base=([a-zA-Z0-9=\,_-]+)'
+    REGEX = 'ldap_uri=(ldaps?://[a-zA-Z0-9\./_:-]+);domain=([a-zA-Z0-9\._-]+);base=([a-zA-Z0-9=\,_-]+)'
 
     def __init__(self, auth_configuration, user_auth_configuration):
         mo = re.match(LdapUserAuth.REGEX, auth_configuration)
