@@ -1,5 +1,6 @@
 from __future__ import print_function, unicode_literals
 import datetime
+import calendar
 from flask import render_template, request, send_file, Response, url_for
 from functools import wraps, partial
 from weblab.core.web import weblab_api
@@ -172,7 +173,7 @@ def _per_country_by_to_d3(per_time):
                 date_key = datetime.date(year = key[0], month = key[1], day = 1)
             else:
                 continue
-            time_in_millis = int(date_key.strftime("%s")) * 1000
+            time_in_millis = calendar.gmtime(date_key.timetuple()) * 1000
             times_in_millis[time_in_millis] = key
 
     for country in per_time:

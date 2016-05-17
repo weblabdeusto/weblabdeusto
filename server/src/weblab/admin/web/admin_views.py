@@ -10,6 +10,7 @@ import random
 import zipfile
 import urlparse
 import datetime
+import calendar
 import traceback
 import threading
 import collections
@@ -2121,7 +2122,7 @@ class HomeView(AdminAuthnMixIn, WebLabAdminIndexView):
             'values' : []
         }
         for date in sorted(total_values.keys()):
-            total_data['values'].append([int(date.strftime('%s') + '000'), total_values[date]])
+            total_data['values'].append([calendar.gmtime(date.timetuple()) * 1000, total_values[date]])
         formatted.append(total_data)
 
         for experiment_name, total_value in collections.Counter(total_experiments_value).most_common(9):
@@ -2130,7 +2131,7 @@ class HomeView(AdminAuthnMixIn, WebLabAdminIndexView):
                 'values' : []
             }
             for date in sorted(data[experiment_name].keys()):
-                experiment_data['values'].append([int(date.strftime('%s') + '000'), data[experiment_name][date]])
+                experiment_data['values'].append([calendar.gmtime(date.timetuple()) * 1000, data[experiment_name][date]])
             formatted.append(experiment_data)
 
         return formatted
