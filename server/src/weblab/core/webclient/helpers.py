@@ -151,7 +151,7 @@ def _get_experiment(experiment_raw):
         display_time = display_time[1:]
 
     exp['display_time'] = display_time 
-    exp['latest_use_epoch'] = calendar.gmtime(experiment_raw.latest_use.timetuple()) if experiment_raw.latest_use is not None else 0
+    exp['latest_use_epoch'] = calendar.timegm(experiment_raw.latest_use.timetuple()) if experiment_raw.latest_use is not None else 0
     exp['user_uses'] = experiment_raw.total_uses
     return exp
 
