@@ -44,7 +44,7 @@ def weblab_locations(directory):
 
             if args.redownload or not os.path.exists(filename):
                 r = requests.get("http://geolite.maxmind.com/download/geoip/database/%s.gz" % filename)
-                open('%s.gz' % filename,'w').write(r.content)
+                open('%s.gz' % filename,'wb').write(r.content)
                 uncompressed = gzip.open('%s.gz' % filename).read()
                 open(filename, 'w').write(uncompressed)
                 print("Downloaded")
