@@ -46,7 +46,7 @@ def weblab_locations(directory):
                 r = requests.get("http://geolite.maxmind.com/download/geoip/database/%s.gz" % filename)
                 open('%s.gz' % filename,'wb').write(r.content)
                 uncompressed = gzip.open('%s.gz' % filename).read()
-                open(filename, 'w').write(uncompressed)
+                open(filename, 'wb').write(uncompressed)
                 print("Downloaded")
 
         db = DatabaseGateway(config)
