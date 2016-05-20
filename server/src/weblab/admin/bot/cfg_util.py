@@ -84,7 +84,9 @@ def generate_revision():
     try:
         p = subprocess.Popen("git show",shell=True,stdout=subprocess.PIPE)
         p.wait()
-        return p.stdout.read().split('\n')[0].split()[1]
+        # u'\n'.encode('ascii') to avoid problems in Windows / Linux with "ñ" in git show trying
+        # to be converted to unicode unnecessarily
+        return p.stdout.read().split(u'\n'.encode('ascii'))[0].split()[1]
     except Exception, e:
         print("Could not gather revision:",e)
         traceback.print_exc()
