@@ -102,7 +102,7 @@ def retrieve_system(SYSTEMS):
         if hostname in SYSTEMS:
             return SYSTEMS[hostname]
         else:
-            print("Couldn't retrieve machine information in SYSTEMS dictionary for hostname %s" % hostname, file=sys.stderr)
+            print("Couldn't retrieve machine information in SYSTEMS dictionary for hostname %s. Check your Bot configuration file to see if you have a SYSTEMS dictionary such as SYSTEM[%r] = 'Whatever features of this system'." % (hostname, hostname), file=sys.stderr)
             return "Unknown system"
 
 def create_new_scenario():
