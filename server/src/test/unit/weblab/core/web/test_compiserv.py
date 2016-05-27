@@ -100,7 +100,7 @@ class TestCompiserv(unittest.TestCase):
 
         if url == "http://llcompilerservice.azurewebsites.net/CompilerGeneratorService.svc/GetCompilerTask/20/abcdef":
             resp = requests.Response()
-            respobj = {"State": "finished", "BinaryFile": str("Binary File Contents"), "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
+            respobj = {"State": "finished", "BinaryFile": [ord(c) for c in b"Binary File Contents"], "CompletedDate": "20/02/2015", "LogFile": "Log File Contents"}
             resp._content = json.dumps(respobj)
             return resp
         else:

@@ -156,7 +156,7 @@ def compiserve_queue_get(uid):
 
             print "[DEBUG]: CompiServ finished with {0}. From thread: {1}".format(uid, threading.current_thread())
 
-            binary_file = jsresp['BinaryFile']
+            binary_file = jsresp['BinaryFile']  # type: list[int]
             completed_date = jsresp['CompletedDate']
             log_file = jsresp['LogFile']
             compile_result = 'success' if binary_file is not None else 'error'
@@ -164,6 +164,9 @@ def compiserve_queue_get(uid):
             # Store the binary file as a byte array.
             # TODO: Check whether flask supports bytearray
 
+            # This converts from an array of integers representing the bytes, to a bytes str (or in
+            # Python 3, to a 'bytes'.
+            binary_file = array.array('B', binary_file).tostring()
             binary_file = array.array('B', str(binary_file)).tostring()
             log_file = array.array('B', str(log_file)).tostring()
 
@@ -229,7 +232,8 @@ def compiserve_result_outputfile(uid):
         job_result = _redis.hget(job_key, "result")
 
         # Find the file in redis
-        binary_file = _redis.hget(job_key, "binary_file")
+        # It should return a binary str (which is what was stored).
+        binary_file = _redis.hget(job_key, "binary_file")  # type: str
 
         if binary_file is not None and job_result == "success":
             file_contents = binary_file
