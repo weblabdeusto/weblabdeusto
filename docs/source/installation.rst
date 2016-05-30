@@ -48,7 +48,7 @@ There are two ways to obtain WebLab-Deusto:
 
 #. Downloading it from github using git. That's the **recommended** version, since that allows you to upgrade WebLab-Deusto automatically in the future, and even contribute easily. However, it requires installing git. 
     * This process is detailed in :ref:`sec-download-git`.
-#. Downloading it from github using the web browser. That's the simplest and **easiest** version. Just go to the `github repository <https://github.com/weblabdeusto/weblabdeusto>`_ and click on the ZIP link. Uncompress the file. 
+#. Downloading it from github using the web browser. That's the simplest version, but we **do not recommend it** (since you lose useful information about the running version and the upgrade process is very complicated). If you still try to use it, go to the `github repository <https://github.com/weblabdeusto/weblabdeusto>`_ and click on the ZIP link. Uncompress the file. 
     * **Windows users:** in certain versions of Microsoft Windows, sometimes there are problems with too-long file paths, so if any problem is reported by your uncompressing program, just make sure that the directory where you are uncompressing WebLab is not very long (for instance, uncompressing it in ``C:\weblab`` or ``C:\Users\Tom\weblab`` will surely work, whereas downloading it in ``C:\Users\My full name\Downloads\Other downloads\Yet other downloads\weblabdeusto-long-name`` might fail).
 
 .. image:: /_static/download_weblabdeusto_zip.png
