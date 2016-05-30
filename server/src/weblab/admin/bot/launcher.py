@@ -15,6 +15,7 @@
 #
 from __future__ import print_function, unicode_literals
 
+import os
 import sys
 
 import time
@@ -36,6 +37,10 @@ class BotLauncher(object):
             self.launch_files = [ configuration ]
         else:
             self.launch_files = configuration
+        for launch_file in self.launch_files:
+            if not os.path.exists(launch_file):
+                print("ERROR: launch file {} does not exist. Did you create the environment you wanted to test? (e.g., weblab-admin.py create example)".format(launch_file))
+                sys.exit(-1)
         self.host = host
         self.pickle_file_name = pickle_file_name
         self.logging_cfg_file_name = logging_cfg_file_name
