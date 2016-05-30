@@ -68,37 +68,6 @@ _sorted_variables.extend([
 ])
 
 # 
-# Database 
-#
-
-DATABASE = (COMMON, 'Database')
-DESCRIPTIONS[DATABASE] = """The database configuration applies to the Core Server and the Login Server (which both connect to the same database)."""
-
-DB_HOST                  = 'db_host'
-DB_PORT                  = 'db_port'
-DB_DATABASE              = 'db_database'
-DB_ENGINE                = 'db_engine'
-DB_ECHO                  = 'db_echo'
-DB_POOL_SIZE             = 'db_pool_size'
-DB_MAX_OVERFLOW          = 'db_max_overflow'
-DB_USERNAME              = 'weblab_db_username'
-DB_PASSWORD              = 'weblab_db_password'
-DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
-
-_sorted_variables.extend([
-    (DB_HOST,                         _Argument(DATABASE, basestring, 'localhost',  "Location of the database server")),
-    (DB_PORT,                         _Argument(DATABASE, int,               None,  "Port where the database is listening, if any")),
-    (DB_DATABASE,                     _Argument(DATABASE, basestring,    'WebLab',  "Name of the main database")),
-    (DB_ENGINE,                       _Argument(DATABASE, basestring,     'mysql',  "Engine used. Example: mysql, sqlite")),
-    (DB_ECHO,                         _Argument(DATABASE, bool,             False,  "Display in stdout all the SQL sentences")),
-    (DB_POOL_SIZE,                    _Argument(DATABASE, int,                  5,  "Maximum number of spare connections to the database.")),
-    (DB_MAX_OVERFLOW,                 _Argument(DATABASE, int,                 35,  "Maximum number of connections to the database.")),
-    (DB_USERNAME,                     _Argument(DATABASE, basestring,    "weblab",  "WebLab database username")),
-    (DB_PASSWORD,                     _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
-    (DB_FORCE_ENGINE_CREATION,        _Argument(DATABASE, bool,             False,  "Force the creation of an engine each time")),
-])
-
-# 
 # Sessions
 # 
 
@@ -159,7 +128,7 @@ DESCRIPTIONS[CORE_SERVER] = """This configuration is used only by the Core serve
 # General
 # 
 
-CORE = (CORE_SERVER,'General')
+CORE = (CORE_SERVER, 'General')
 DESCRIPTIONS[CORE] = """General variables for the Core server: what type of session, should we store students programs, etc."""
 
 # || core_checking_time || int || 3 || How often the server will check what sessions have expired and delete them. Expressed in seconds. || 
@@ -199,6 +168,39 @@ _sorted_variables.extend([
     (CORE_LOGO_PATH,                     _Argument(CORE, basestring, 'client/images/logo.jpg', "File path of the logo.")),
     (CORE_LOGO_SMALL_PATH,               _Argument(CORE, basestring, 'client/images/logo-mobile.jpg', "File path of the small version of the logo.")),
 ])
+
+
+# 
+# Database 
+#
+
+DATABASE = (CORE_SERVER, 'Database')
+DESCRIPTIONS[DATABASE] = """The database configuration stores the users, groups, uses, etc."""
+
+DB_HOST                  = 'db_host'
+DB_PORT                  = 'db_port'
+DB_DATABASE              = 'db_database'
+DB_ENGINE                = 'db_engine'
+DB_ECHO                  = 'db_echo'
+DB_POOL_SIZE             = 'db_pool_size'
+DB_MAX_OVERFLOW          = 'db_max_overflow'
+DB_USERNAME              = 'weblab_db_username'
+DB_PASSWORD              = 'weblab_db_password'
+DB_FORCE_ENGINE_CREATION = 'weblab_db_force_engine_creation'
+
+_sorted_variables.extend([
+    (DB_HOST,                         _Argument(DATABASE, basestring, 'localhost',  "Location of the database server")),
+    (DB_PORT,                         _Argument(DATABASE, int,               None,  "Port where the database is listening, if any")),
+    (DB_DATABASE,                     _Argument(DATABASE, basestring,    'WebLab',  "Name of the main database")),
+    (DB_ENGINE,                       _Argument(DATABASE, basestring,     'mysql',  "Engine used. Example: mysql, sqlite")),
+    (DB_ECHO,                         _Argument(DATABASE, bool,             False,  "Display in stdout all the SQL sentences")),
+    (DB_POOL_SIZE,                    _Argument(DATABASE, int,                  5,  "Maximum number of spare connections to the database.")),
+    (DB_MAX_OVERFLOW,                 _Argument(DATABASE, int,                 35,  "Maximum number of connections to the database.")),
+    (DB_USERNAME,                     _Argument(DATABASE, basestring,    "weblab",  "WebLab database username")),
+    (DB_PASSWORD,                     _Argument(DATABASE, basestring,  NO_DEFAULT,  "WebLab database user password")),
+    (DB_FORCE_ENGINE_CREATION,        _Argument(DATABASE, bool,             False,  "Force the creation of an engine each time")),
+])
+
 
 # 
 # Core Facade
@@ -244,32 +246,6 @@ _sorted_variables.extend([
     (COORDINATOR_DB_ENGINE,          _Argument(COORDINATOR, basestring, "mysql", """Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.""")), 
     (COORDINATOR_LABORATORY_SERVERS, _Argument(COORDINATOR, list, NO_DEFAULT, """Available laboratory servers. It's a list of strings, having each string this format: "lab1:inst@mach;exp1|ud-fpga|FPGA experiments", for the "lab1" in the instance "inst" at the machine "mach", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").""")), 
 ])
-
-
-######################################
-# 
-# LOGIN SERVER
-#
-
-LOGIN_SERVER = 'Login Server'
-
-DESCRIPTIONS[LOGIN_SERVER] = """This configuration is used only by the Login servers. The Login server manages the authentication requests and check the credentials (e.g. LDAP, OpenID, OAuth 2.0 or using the database). It is the only server which ever transports a password. Note that there is other common configuration which affects the Login server, so also take a look at the Common Configuration in this document."""
-
-# 
-# Facade
-# 
-
-LOGIN_FACADE = (LOGIN_SERVER, 'Facade')
-DESCRIPTIONS[LOGIN_FACADE] = """The login facade configuration variables are used by the web services interface. You can change the ports, etc., but take into account the final web server (e.g. Apache) configuration."""
-
-LOGIN_FACADE_TRUSTED_ADDRESSES       = 'login_facade_trusted_addresses'
-LOGIN_FACADE_SERVER_ROUTE            = 'login_facade_server_route'
-
-_sorted_variables.extend([
-    (LOGIN_FACADE_TRUSTED_ADDRESSES,       _Argument(LOGIN_FACADE, tuple, ('127.0.0.1',), """The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.""")), 
-    (LOGIN_FACADE_SERVER_ROUTE,            _Argument(LOGIN_FACADE, basestring, 'default-route-to-server', """Identifier of the server or groups of servers that will receive requests, for load balancing purposes.""")),
-])
-
 
 
 ######################################

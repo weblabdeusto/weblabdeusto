@@ -16,23 +16,6 @@ different servers described here.
 
 .. contents:: Table of Contents
 
-Login Server
-------------
-
-This configuration is used only by the Login servers. The Login server manages the authentication requests and check the credentials (e.g. LDAP, OpenID, OAuth 2.0 or using the database). It is the only server which ever transports a password. Note that there is other common configuration which affects the Login server, so also take a look at the Common Configuration in this document.
-
-Facade
-^^^^^^
-
-The login facade configuration variables are used by the web services interface. You can change the ports, etc., but take into account the final web server (e.g. Apache) configuration.
-
-============================== ========== ======================= ===============================================================================================================================================================================================================================================================================================================
-*Property*                     *Type*     *Default value*         *Description*                                                                                                                                                                                                                                                                                                  
-============================== ========== ======================= ===============================================================================================================================================================================================================================================================================================================
-login_facade_trusted_addresses tuple      (u'127.0.0.1',)         The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.
-login_facade_server_route      basestring default-route-to-server Identifier of the server or groups of servers that will receive requests, for load balancing purposes.                                                                                                                                                                                                         
-============================== ========== ======================= ===============================================================================================================================================================================================================================================================================================================
-
 Laboratory Server
 -----------------
 
@@ -89,25 +72,21 @@ propagate_stack_traces_to_client bool       False           If True, stacktraces
 facade_timeout                   float      0.5             Seconds that the facade will wait accepting a connection before checking again for shutdown requests.
 ================================ ========== =============== =====================================================================================================
 
-Database
-^^^^^^^^
+Admin Notifier
+^^^^^^^^^^^^^^
 
-The database configuration applies to the Core Server and the Login Server (which both connect to the same database).
+The Admin notifier is mainly used by the core server for notifying administrators of certain activity such as broken laboratories.
 
-=============================== ========== =============== ====================================================
-*Property*                      *Type*     *Default value* *Description*                                       
-=============================== ========== =============== ====================================================
-db_host                         basestring localhost       Location of the database server                     
-db_port                         int        None            Port where the database is listening, if any        
-db_database                     basestring WebLab          Name of the main database                           
-db_engine                       basestring mysql           Engine used. Example: mysql, sqlite                 
-db_echo                         bool       False           Display in stdout all the SQL sentences             
-db_pool_size                    int        5               Maximum number of spare connections to the database.
-db_max_overflow                 int        35              Maximum number of connections to the database.      
-weblab_db_username              basestring weblab          WebLab database username                            
-weblab_db_password              basestring                 WebLab database user password                       
-weblab_db_force_engine_creation bool       False           Force the creation of an engine each time           
-=============================== ========== =============== ====================================================
+========================= ========== ======================== ===========================================
+*Property*                *Type*     *Default value*          *Description*                              
+========================= ========== ======================== ===========================================
+mail_notification_enabled bool                                Enables or Disables mail notifications     
+mail_server_host          basestring                          Host to use for sending mail               
+mail_server_helo          basestring                          Address to be used on the mail's HELO      
+mail_server_use_tls       basestring no                       Use TLS or not. Values: 'yes' or 'no'      
+mail_notification_sender  basestring                          Address of the mail's sender               
+mail_notification_subject basestring [WebLab] CRITICAL ERROR! (Optional) Subject of the notification mail
+========================= ========== ======================== ===========================================
 
 Sessions
 ^^^^^^^^
@@ -132,22 +111,6 @@ session_lock_sqlalchemy_password basestring                 Password for connect
 session_manager_default_timeout  int        7200            Maximum time that a session will be stored in a Session Manager. In seconds.                                                                    
 session_memory_gateway_serialize bool       False           Sessions can be stored in a database or in memory. If they are stored in memory, they can be serialized in memory or not, to check the behaviour
 ================================ ========== =============== ================================================================================================================================================
-
-Admin Notifier
-^^^^^^^^^^^^^^
-
-The Admin notifier is mainly used by the core server for notifying administrators of certain activity such as broken laboratories.
-
-========================= ========== ======================== ===========================================
-*Property*                *Type*     *Default value*          *Description*                              
-========================= ========== ======================== ===========================================
-mail_notification_enabled bool                                Enables or Disables mail notifications     
-mail_server_host          basestring                          Host to use for sending mail               
-mail_server_helo          basestring                          Address to be used on the mail's HELO      
-mail_server_use_tls       basestring no                       Use TLS or not. Values: 'yes' or 'no'      
-mail_notification_sender  basestring                          Address of the mail's sender               
-mail_notification_subject basestring [WebLab] CRITICAL ERROR! (Optional) Subject of the notification mail
-========================= ========== ======================== ===========================================
 
 Core Server
 -----------
@@ -208,4 +171,24 @@ core_facade_server_route basestring default-route-to-server Identifier of the se
 core_facade_bind         basestring                         Binding address for the main facade at Core server                                                    
 core_facade_port         int                                Binding address for the main facade at Core Server                                                    
 ======================== ========== ======================= ======================================================================================================
+
+Database
+^^^^^^^^
+
+The database configuration stores the users, groups, uses, etc.
+
+=============================== ========== =============== ====================================================
+*Property*                      *Type*     *Default value* *Description*                                       
+=============================== ========== =============== ====================================================
+db_host                         basestring localhost       Location of the database server                     
+db_port                         int        None            Port where the database is listening, if any        
+db_database                     basestring WebLab          Name of the main database                           
+db_engine                       basestring mysql           Engine used. Example: mysql, sqlite                 
+db_echo                         bool       False           Display in stdout all the SQL sentences             
+db_pool_size                    int        5               Maximum number of spare connections to the database.
+db_max_overflow                 int        35              Maximum number of connections to the database.      
+weblab_db_username              basestring weblab          WebLab database username                            
+weblab_db_password              basestring                 WebLab database user password                       
+weblab_db_force_engine_creation bool       False           Force the creation of an engine each time           
+=============================== ========== =============== ====================================================
 
