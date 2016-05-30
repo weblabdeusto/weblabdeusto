@@ -245,7 +245,7 @@ requires. It communicates with WebLab and the experiment server through a very s
 
 When you create a WebLab-Deusto environment, it creates a ``pub`` directory. Whatever you put on this directory is available in http://localhost/weblab/web/pub/ . You can put HTML/JS/CSS files there. The most basic version of your first JavaScript lab will look like this:
 
-.. block:: html
+.. code-block:: html
 
    <html>
       <head>
