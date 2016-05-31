@@ -594,7 +594,7 @@ the previous step you have located them in the ``laboratory1`` instance in the
                     'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
-            'exp1:electronics@Dummy experiments' : {
+            'exp1:electronics@Electronics experiments' : {
                     'coord_address' : 'electronics:laboratory1@core_host',
                     'checkers' : (),
                     'api'      : '2',
@@ -613,7 +613,7 @@ something like:
                     'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
-            'exp1:electronics@Dummy experiments' : {
+            'exp1:electronics@Electronics experiments' : {
                     'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
@@ -766,7 +766,7 @@ existing Laboratory server, you can safely add:
     core_coordinator_laboratory_servers = {
         'laboratory1:laboratory1@core_host' : {
                 'exp1|dummy|Dummy experiments'       : 'dummy1@dummy_queue',
-                'exp1|electronics|Dummy experiments' : 'electronics1@electronics_queue',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics_queue',
             },
     }
 
@@ -774,12 +774,12 @@ In the near future, all this will be in the database and therefore it
 will not be dealt with file-based configurations. However, in the meanwhile it's
 very important to understand what names are mapped among the different files.
 
-The name ``exp1|electronics|Dummy experiments`` is mapped to the name
-``exp1:electronics@Dummy experiments`` that we used in the previous section in
+The name ``exp1|electronics|Electronics experiments`` is mapped to the name
+``exp1:electronics@Electronics experiments`` that we used in the previous section in
 the Laboratory Server. However, the separators are changed from ``:`` or ``@``
 to ``|``. The name ``exp1`` is only used in those two files. However, the other
 two components are the experiment name (``electronics``) and category name
-(``Dummy experiments``) in the database.
+(``Electronics experiments``) in the database.
 
 The name ``electronics1`` is not used anywhere else, so feel free to use any
 other name (e.g., ``slot1``, etc.).
@@ -982,14 +982,17 @@ the Laboratory server must use the following ``api``:
 Step 4: Add the experiment server to the database and grant permissions
 -----------------------------------------------------------------------
 
-At this point, we have the Experiment server running, the Experiment client
-configured, the Laboratory has registered the Experiment server and the Core
-server has registered that this experiment has an associated scheduling scheme
-(queue) and knows in which Laboratory server it is located.
+At this point, we have the Experiment server running, the Laboratory has
+registered the Experiment server and the Core server has registered that this
+experiment has an associated scheduling scheme (queue) and knows in which
+Laboratory server it is located.
 
 Now we need to make it accessible for the users. The first thing is to register
-the remote laboratory in the database. Go to the administrator panel by clicking
-on the top right corner the following icon:
+the remote laboratory in the database. So, start the WebLab-Deusto instance::
+
+   $ weblab-admin.py start sample
+
+Go to the administrator panel by clicking on the top right corner the following icon:
 
 .. image:: /_static/click_on_admin_panel.png
    :width: 300 px
@@ -1015,17 +1018,26 @@ Then, go back to ``Experiments``, then ``Experiments``, and then on ``Create``.
 You will be able to add a new experiment, such as ``electronics``, using the
 category just created. The Start and End dates refer to the usage data. At this
 moment, no more action is taken on these data, but you should define since when
-the experiment is available and until when:
+the experiment is available and until when. For now, make sure that the ``client``
+is ``js``:
 
-.. image:: /_static/add_new_experiment.png
+.. image:: /_static/weblab_deployment_add_experiment1.png
    :width: 450 px
    :align: center
 
 
-At this moment, the laboratory has been added to the database. Now you can
-guarantee the permissions on users. So as to do this, click on ``Permissions``,
-``Create``. Select that you want to grant permission to a Group, of permission
-type ``experiment_allowed``.
+And also make sure that later you select ``builtin`` and in ``html.file`` you
+type ``nativelabs/dummy.html``:
+
+.. image:: /_static/weblab_deployment_add_experiment2.png
+   :width: 450 px
+   :align: center
+
+
+Then click on ``Save``. At this moment, the laboratory has been added to the
+database. Now you can guarantee the permissions on users. So as to do this,
+click on ``Permissions``, ``Create``. Select that you want to grant permission
+to a Group, of permission type ``experiment_allowed``.
 
 .. image:: /_static/weblab_admin_grant_permission1.jpg
    :width: 450 px
@@ -1039,17 +1051,51 @@ particular group (such as Administrators):
    :align: center
 
 From this point, you will be able to use this experiment from the main user
-interface.
+interface. If you see this:
 
+.. image:: /_static/weblab_deployment_add_experiment3.png
+   :width: 450 px
+   :align: center
+
+And once you click on reserve you're sending commands to the experiment and
+receiving them back, everything is fine.
+
+However, you should create your own client, and you have to configure it in the
+page where you added the lab. You can edit it by going to ``Experiments`` and
+clicking on the edit button next to the lab you have just created. However, the
+particular configuration depends on the approach taken:
+
+* If you are developing a managed laboratory (regardless if you are using Python
+  or an XML-RPC experiment), jump to :ref:`remote_lab_deployment_db_managed`.
+* If you are developing an unmanaged laboratory, jump to
+  :ref:`remote_lab_deployment_db_unmanaged`.
+
+.. _remote_lab_deployment_db_managed:
+
+Configuring the client in a managed laboratory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We strongly encourage you to develop clients in JavaScript. However, we also
+support Adobe Flash (while most mobile devices do not support it) and Java
+applets (while most web browsers do not support them nowadays). This section
+explains how to modify the configuration to support the three options:
+
+* :ref:`remote_lab_deployment_db_managed_js`
+* :ref:`remote_lab_deployment_db_managed_java`
+* :ref:`remote_lab_deployment_db_managed_flash`
+
+.. _remote_lab_deployment_db_managed_js:
 
 JavaScript
-^^^^^^^^^^
-.. note::
+~~~~~~~~~~
 
-    To be written (June 2016).
+By default, in the previuos steps we selected that the client would be ``js``,
+which is fine if you are developing a JavaScript laboratory.
+
+.. _remote_lab_deployment_db_managed_java:
 
 Java applets
-^^^^^^^^^^^^
+~~~~~~~~~~~~
 
 In the case of Java applets, the identifier is simply ``java``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
@@ -1116,8 +1162,10 @@ Those JAR files should be located in the ``public`` directory (`see here
 <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
 which will require you to re-compile and re-run the ``setup`` script.
 
+.. _remote_lab_deployment_db_managed_flash:
+
 Flash
-^^^^^
+~~~~~
 
 In the case of Flash applications, the identifier is simply ``flash``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
@@ -1185,27 +1233,19 @@ Those SWF files should be located in the ``public`` directory (`see here
 <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
 which will require you to re-compile and re-run the ``setup`` script.
 
+.. _remote_lab_deployment_db_unmanaged:
+
+Configuring the client in an unmanaged laboratory
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+TO BE WRITTEN 
 
 .. _remote_lab_deployment_troubleshooting:
-
-Troubleshooting
----------------
-
-Take into account the following issues:
-
-* Everything in the client's *public* directory will not be available until you re-compile the client (``ant gwtc``) **AND** you re-install the codebase (``python setup.py install``).
-* Web browsers tend to cache information. If you have changed the configuration.js document and the changes are not shown, go manually to ``/weblab/client/weblabclientlab/configuration.js``, verify if it was updated, and if not refresh the page (e.g., using Control + F5).
-
-.. note::
-
-    More errors will be added in this section.
-
-In case of further errors, please :ref:`contact us <contact>`.
 
 Summary
 -------
 
-WebLab-Deusto requires five actions to add a new experiment, explained in this
+WebLab-Deusto requires four actions to add a new experiment, explained in this
 section and on this figure:
 
 .. figure:: /_static/weblab_deployment.png
@@ -1214,8 +1254,7 @@ section and on this figure:
 
    Steps to deploy a remote laboratory in WebLab-Deusto.
 
-These five actions are registering the new client by modifying the
-``configuration.js`` file, deploying the new server, modifying the
+These four actions are registering the new Experiment server, modifying the
 configuration of the Laboratory server and the Core server and adding the
 experiment to the database using the Admin panel.
 

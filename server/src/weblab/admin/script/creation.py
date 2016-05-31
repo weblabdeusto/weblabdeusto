@@ -1162,7 +1162,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "}\n"
                         "\n"
                         "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
-                        "                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
+                        "                                    'baseurl' : 'https://weblab.deusto.es/weblab/',\n"
                         "                                    'username' : 'weblabfed',\n"
                         "                                    'password' : 'password',\n"
                         "                                    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}\n"

@@ -48,7 +48,7 @@ later).
 
 This section explains the technical details of how to do this. We will assume
 that the experiment in ``UniB`` is called ``visir@Visir experiments``, and in
-``UniA`` we want to call it ``electronics@Electronics experiments``.
+``UniA`` we want to call it ``ud-electronics@Electronics experiments``.
 
 .. warning::
 
@@ -62,7 +62,7 @@ Consuming other remote laboratories
 
 So as to consume a remote laboratory, the first step is that the external system
 creates a federated user. So as to test this, we will use the `WebLab-Deusto
-system in production <https://www.weblab.deusto.es/weblab/>`_ with the following
+system in production <https://weblab.deusto.es/weblab/>`_ with the following
 public credentials: ``weblabfed`` and ``password``. If you go there with your
 web browser, you will see the laboratories available for that account, and you
 can even use them as a regular user.
@@ -73,7 +73,6 @@ the Experiment server, since they are already configured in the provider system.
 
 Basically, we have to:
 
-#. :ref:`remote_lab_sharing_register_client`
 #. :ref:`remote_lab_sharing_register_scheduling`
 #. :ref:`remote_lab_sharing_add_to_database`
 
@@ -83,65 +82,6 @@ Basically, we have to:
     you will need to restart the WebLab-Deusto instance after applying all the
     changes.
 
-.. _remote_lab_sharing_register_client:
-
-Register it in the local client
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-As explained in :ref:`remote_lab_deployment_register_experiment_client`,
-there is a configuration file called ``configuration.js``, located in the
-``client`` directory, which maps which clients will be loaded for each
-experiment. Refer to that section for more details on that file.
-
-When consuming external laboratories, it may happen that we do not have the
-client in our local system. This may happen if ``UniB`` has developed it and did
-not provide the source code, or ``UniA`` did not upgrade the system.
-
-For this reason, WebLab-Deusto provides a particular client type (called
-``blank``), which simply shows a pre-configured message. Using it, local users
-will simply see the message and the reserve button. Once they reserve, they will
-be redirected to the final remote system, where the valid client is deployed. As
-long as there is no initial information that the developer wants to ask before
-reserving (e.g., initial information), this is fine.
-
-So as to use it, modify the ``configuration.js`` to add it:
-
-.. code-block:: javascript
-
-    "blank" : [
-               {
-                   "experiment.name"     : "electronics",
-                   "experiment.category" : "Electronics experiments",
-                   "experiment.picture"  : "/img/experiments/robot.jpg",
-                   "html"                : "This is the message that will be displayed"
-               }
-            ],
-
-
-.. note::
-
-    Check that you're not adding it if there is already a ``blank`` item in the
-    ``configuration.js``. If that is the case, just append it to the list as
-    follows:
-
-    .. code-block:: javascript
-
-        "blank" : [
-                   {
-                       "experiment.name"     : "external-robot-movement",
-                       "experiment.category" : "Robot experiments",
-                       "experiment.picture"  : "/img/experiments/robot.jpg",
-                       "html"                : "This is an experiment which we know that it is only in external systems. Therefore, unless we want to use the initialization API, we don't need to have the client installed in the consumer system. We can just use a blank client and whenever the experiment is reserved, we'll use the remote client."
-                   },
-                   {
-                       "experiment.name"     : "electronics",
-                       "experiment.category" : "Electronics experiments",
-                       "experiment.picture"  : "/img/experiments/robot.jpg",
-                       "html"                : "This is the message that will be displayed"
-                   }
-                ],
-
-
 .. _remote_lab_sharing_register_scheduling:
 
 Registering a scheduling system for the experiment
@@ -150,7 +90,7 @@ Registering a scheduling system for the experiment
 We have to configure the Core server to manage this remote laboratory. As
 explained in :ref:`remote_lab_deployment_register_scheduling`, the
 entire configuration of the Core server related to scheduling is by default in
-the ``core_machine/machine_config.py`` file. It is placed there so if you have 4
+the ``core_host_config.py`` file. It is placed there so if you have 4
 Core servers in different instances (:ref:`which is highly recommended
 <performance>`), you have the configuration in a single location. In this file,
 you will find information about the database, the scheduling backend, etc.
@@ -161,23 +101,22 @@ follows:
 .. code-block:: python
 
     core_scheduling_systems = {
-            'dummy'            : ('PRIORITY_QUEUE', {}),
+            'dummy_queue'      : ('PRIORITY_QUEUE', {}),
             'robot_external'   : weblabdeusto_federation_demo,
     }
 
-There, we have to add a new scheduler called ``electronics``. We can do it directly:
+There, we have to add a new scheduler called ``external_electronics``. We can do it directly:
 
 .. code-block:: python
 
     core_scheduling_systems = {
-            'dummy'            : ('PRIORITY_QUEUE', {}),
+            'dummy_queue'      : ('PRIORITY_QUEUE', {}),
             'robot_external'   : weblabdeusto_federation_demo,
-            'electronics'      : ('EXTERNAL_WEBLAB_DEUSTO', {
-                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',
-                                    'login_baseurl' : 'https://www.weblab.deusto.es/weblab/',
+            'external_electronics' : ('EXTERNAL_WEBLAB_DEUSTO', {
+                                    'baseurl' : 'https://weblab.deusto.es/weblab/',
                                     'username' : 'weblabfed',
                                     'password' : 'password',
-                                    'experiments_map' : {'electronics@Electronics experiments' : 'visir@Visir experiments'}
+                                    'experiments_map' : {'ud-electronics@Electronics experiments' : 'visir@Visir experiments'}
                             })
     }
 
@@ -186,29 +125,28 @@ Or, more commonly, create other variable for that:
 .. code-block:: python
 
     electronics_federation = ('EXTERNAL_WEBLAB_DEUSTO', {
-                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',
-                                    'login_baseurl' : 'https://www.weblab.deusto.es/weblab/',
+                                    'baseurl' : 'https://weblab.deusto.es/weblab/',
                                     'username' : 'weblabfed',
                                     'password' : 'password',
-                                    'experiments_map' : {'electronics@Electronics experiments' : 'visir@Visir experiments'}
+                                    'experiments_map' : {'ud-electronics@Electronics experiments' : 'visir@Visir experiments'}
                             })
 
 
     core_scheduling_systems = {
-            'dummy'            : ('PRIORITY_QUEUE', {}),
+            'dummy_queue'      : ('PRIORITY_QUEUE', {}),
             'robot_external'   : weblabdeusto_federation_demo,
-            'electronics'      : electronics_federation,
+            'external_electronics' : electronics_federation,
     }
 
-There, what we are detailing is that the scheduler identified by ``electronics``
+There, what we are detailing is that the scheduler identified by ``external_electronics``
 will rely on the external server with the URL and credentials defined in the
 other variable. Note that there is a variable called ``experiments_map``, which
 maps local names with names in the foreign system. In this case, we are
 definining that when using this scheduler for the local
-``electronics@Electronics experiments``, it will instead call the
+``ud-electronics@Electronics experiments``, it will instead call the
 foreign system asking for ``visir@Visir experiments``. If this variable is not
 provided or is empty (``{}``), it will simply ask for the same name as local (in
-this case, it would call ``electronics@Electronics experiment``, which
+this case, it would call ``ud-electronics@Electronics experiment``, which
 would not exist in the foreign system).
 
 Now we have to register that we actually want to use this scheduler. For local
@@ -220,7 +158,7 @@ servers manage which Experiment servers:
 
     core_coordinator_laboratory_servers = {
         'laboratory1:laboratory1@core_machine' : {
-                'exp1|dummy|Dummy experiments' : 'dummy1@dummy',
+                'exp1|dummy|Dummy experiments' : 'dummy1@dummy_queue',
             },
     }
 
@@ -232,11 +170,11 @@ variable as follows:
 
     core_coordinator_external_servers = {
         'external-robot-movement@Robot experiments'     : [ 'robot_external' ],
-        'electronics@Electronics experiments'   : [ 'electronics' ],
+        'ud-electronics@Electronics experiments'   : [ 'external_electronics' ],
     }
 
-This is basically defining that the ``electronics-lessson1@Electronics
-experiments`` will be managed by the scheduler ``electronics`` that we just
+This is basically defining that the ``ud-electronics@Electronics
+experiments`` will be managed by the scheduler ``external_electronics`` that we just
 defined. 
 
 .. note::
@@ -249,7 +187,7 @@ defined.
 
         core_coordinator_external_servers = {
             'external-robot-movement@Robot experiments'     : [ 'robot_external' ],
-            'electronics@Electronics experiments'   : [ 'electronics-deusto', 'electronics-uned' ],
+            'ud-electronics@Electronics experiments'   : [ 'electronics-deusto', 'electronics-uned' ],
         }
 
     And your system will use both universities (as long as you have the
@@ -294,12 +232,14 @@ You will be able to add a new category (if it did not exist), such as
    :align: center
 
 Then, go back to ``Experiments``, then ``Experiments``, and then on ``Create``.
-You will be able to add a new experiment, such as ``electronics``, using the
+You will be able to add a new experiment, such as ``ud-electronics``, using the
 category just created. The Start and End dates refer to the usage data. At this
 moment, no more action is taken on these data, but you should define since when
-the experiment is available and until when:
+the experiment is available and until when. You can provide your own client if
+you want to provide further instructions in the beginning, but typically here
+you will want to leave the ``blank`` client:
 
-.. image:: /_static/add_new_experiment.png
+.. image:: /_static/weblab_deployment_federated_add.png
    :width: 450 px
    :align: center
 
