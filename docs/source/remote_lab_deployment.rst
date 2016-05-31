@@ -372,11 +372,11 @@ The generated configuration is the following:
 
 So as to run the first one, you should run::
 
-    weblab-admin.py start sample --host core_machine
+    weblab-admin.py start sample --host core_host
 
 You may also run::
 
-    weblab-admin.py start sample --host exp_machine
+    weblab-admin.py start sample --host exp_host
 
 In other console at the same time. That way, there would be a Python Experiment
 server listening on port ``10039``. However, this is not what we want here. What
@@ -523,7 +523,9 @@ You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
 Unmanaged server
 ^^^^^^^^^^^^^^^^
 
-Foo bar
+.. warning::
+
+    DOCUMENTATION BEING WRITTEN AT THIS MOMENT (June 2016)
 
 
 You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
@@ -533,10 +535,10 @@ You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
 Step 2: Registering the experiment server in a Laboratory server
 ----------------------------------------------------------------
 
-In the following figure, we have already finished steps 1 and 2, which are the
+In the following figure, we have already finished step 1, which is the
 most complex. The rest of the steps are independent of the technology used, and
 they are only focusing on registering the laboratory in the different layers. In
-this subsection, we're in the step 3: registering the server in the Laboratory
+this subsection, we're in the step 2: registering the server in the Laboratory
 server.
 
 .. figure:: /_static/weblab_deployment.png
@@ -548,68 +550,71 @@ server.
 
 Each Experiment Server must be registered in a single Laboratory server. One
 Laboratory Server can manage multiple Experiment servers. So as to register a
-Experiment server, we have to go to the Laboratory server configuration file.
-When you create a WebLab-Deusto instance doing::
+Experiment server, we have to go to the Laboratory server configuration file. In
+the near future, this configuration will disappear and everything will be
+configured in the database.  When you create a WebLab-Deusto instance doing::
 
    $ weblab-admin create sample
 
-This file is typically in ``core_machine`` -> ``laboratory1`` -> ``laboratory1``
--> ``server_config.py``, and by default it contains the following:
+This file by default is called ``lab1_config.py``, and by default it contains the following:
 
 .. code-block:: python
 
     laboratory_assigned_experiments = {
             'exp1:dummy@Dummy experiments' : {
-                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
         }
 
-This means that the current laboratory has one Experiment server assigned. The
-identifier of this Experiment server is ``exp1:dummy@Dummy experiments``, which
-means ``exp1`` of the Experiment ``dummy`` of the category ``Dummy
-experiments``. It is located in the server ``experiment1`` in the *instance*
-``laboratory1`` in the ``core_machine``. You can find in
-:ref:``<directory_hierarchy_multiple_servers>`` more elaborated examples.
 
-So as to add the new experiment, you must add a new entry in that dictionary.
-For example, if you have added two different laboratories of electronics, and in
+This means that the current Laboratory Server has one Experiment Server assigned.
+
+* ``exp1:dummy@Dummy experiments`` is the identifier for this resource at the
+  Laboratory Server. Typically ``dummy`` is the name as it will be in the
+  database and ``Dummy experiments`` is the category name as it will be in the
+  database. ``exp1`` is not published anywhere, but will be used by the Core
+  server in the following step. 
+
+* ``experiment1:laboratory1@core_host`` is the identifier at WebLab-Deusto
+  level of the experiment. It establishes that it is the component
+  ``experiment1`` of the process ``laboratory1`` of the host ``core_host``.
+
+You can find in :ref:`directory_hierarchy_multiple_servers` more elaborated examples.
+
+So as to add the new experiment, you must add a new entry in that Python dictionary.
+For example, if you have added an electronics laboratory, and in
 the previous step you have located them in the ``laboratory1`` instance in the
-``core_machine``, you should edit this file to add the following:
+``core_host``, you should edit this file to add the following:
 
 .. code-block:: python
 
     laboratory_assigned_experiments = {
             'exp1:dummy@Dummy experiments' : {
-                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
-            'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:laboratory1@core_machine',
-                    'checkers' : (),
-                    'api'      : '2',
-                },
-            'exp1:electronics-lesson-2@Electronics experiments' : {
-                    'coord_address' : 'electronics2:laboratory1@core_machine',
+            'exp1:electronics@Dummy experiments' : {
+                    'coord_address' : 'electronics:laboratory1@core_host',
                     'checkers' : (),
                     'api'      : '2',
                 },
         }
 
-If you have used XML-RPC (i.e., any of the libraries which is not Python) and
-the experiment server is somewhere else outside the ``core_machine``, you only
-need to change the ``coord_address``. For example, if you created a new
-laboratory using Java, you will need to add something like:
+If you have used XML-RPC, the experiment server is somewhere else outside the
+``core_host``, but you only need to put in ``coord_address`` the identifier.
+For example, if you created a new laboratory using Java, you will need to add
+something like:
 
 .. code-block:: python
 
     laboratory_assigned_experiments = {
             'exp1:dummy@Dummy experiments' : {
-                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
-            'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+            'exp1:electronics@Dummy experiments' : {
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
@@ -617,7 +622,8 @@ laboratory using Java, you will need to add something like:
 
 The ``api`` variable indicates that the API version is ``2``. If in the future
 we change the Experiment server API, the system will still call your Experiment
-server using the API available at this time.
+server using the API available at this time. If you are using an old library,
+you might state ``api`` to ``1`` and it will work.
 
 One of the duties of the Laboratory server is to check frequently whether the
 Experiment server is alive or not. This may happen due to a set of reasons, such
@@ -666,7 +672,8 @@ You can develop your own checkers in Python, inheriting the
 global ``HANDLERS`` variable of that module.
 
 Additionally, if you have laboratories that you don't want to check, you may use
-the following variable in the Laboratory server. It will simply skip this.
+the following optional variable in the Laboratory server. It will simply skip this
+process.
 
 .. code-block:: python
 
@@ -675,6 +682,7 @@ the following variable in the Laboratory server. It will simply skip this.
         'exp1:physics@Physics experiments',
     ]
 
+After this, you can jump to :ref:`remote_lab_deployment_register_scheduling`.
 
 .. _remote_lab_deployment_register_scheduling:
 
@@ -687,7 +695,7 @@ different scheduling options (federation, iLabs compatibility, and priority
 queues). We do not support booking using a calendar at this moment.
 
 All the configuration of the Core server related to scheduling is by default in
-the ``core_machine/machine_config.py`` file. It is placed there so if you have 4
+the ``core_host_config.py`` file. It is placed there so if you have multiple
 Core servers in different instances (:ref:`which is highly recommended
 <performance>`), you have the configuration in a single location. In this file,
 you will find information about the database, the scheduling backend, etc.
@@ -706,44 +714,49 @@ laboratory *type*. WebLab-Deusto supports load balancing, so it assumes that
 you may have multiple copies of a remote laboratory. In that sense, we will
 say that one *experiment type* might have multiple *experiment instances*.
 This variable (``core_scheduling_systems``) defines which scheduling system
-applies to a particular *experiment type*. Say that you have one of two copies
+applies to a particular *experiment type*. Say that you have one of five copies
 of a experiment identified by ``electronics`` (of category ``Electronics
-experiments``). Then you will add a single *experiment type* to this variable:
+experiments``). Then you will add a single *experiment type* to this variable.
+If you only have one, it's the same procedure (adding a single *experiment
+type*). The name used is only used inside this file, and it has no relation 
+with previous names.
 
 .. code-block:: python
 
     core_scheduling_systems = {
-            'dummy'            : ('PRIORITY_QUEUE', {}),
-            'robot_external'   : weblabdeusto_federation_demo,
-            'electronics'      : ('PRIORITY_QUEUE', {}),
+            'dummy_queue'       : ('PRIORITY_QUEUE', {}),
+            'robot_external'    : weblabdeusto_federation_demo,
+            'electronics_queue' : ('PRIORITY_QUEUE', {}),
     }
 
-However, we still have to map the different experiment instances to this
-experiment type. So as to do this, you will see that there is another variable
-in the Core server which by default it has: 
+However, we still have to map the experiment instances to this experiment type.
+So as to do this, you will see that there is another variable in the Core server
+which by default it has:
 
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
-                'exp1|dummy|Dummy experiments' : 'dummy1@dummy',
+        'laboratory1:laboratory1@core_host' : {
+                'exp1|dummy|Dummy experiments' : 'dummy1@dummy_queue',
             },
     }
 
 This variable defines which Laboratory servers are associated, which
 *experiment instances* are associated to each of them, and how they are related
 to the scheduling system. For instance, with this default value, it is stating
-that there is a Laboratory server located at ``core_machine``, then in
+that there is a Laboratory server located at ``core_host``, then in
 ``laboratory1`` and then in ``laboratory1``. This Laboratory server manages a
 single experiment server, identified by ``exp1`` of the experiment type
 ``dummy`` of category ``Dummy experiments``. This *experiment instance*
-represents a slot called ``dummy1`` of the scheduler identified by ``dummy``.
+represents a slot called ``dummy1`` of the scheduler identified by ``dummy_queue``.
 
-So, when a user attempts to use an experiment of type ``dummy`` (category
+So, when a user attempts to use an experiment of ``dummy`` (category
 ``Dummy experiments``), the system is going to look for how many are available.
-It will see that there is only one slot (``dummy1``) in the queue (``dummy1``)
+It will see that there is only one slot (``dummy1``) in the queue (``dummy_queue``)
 that is of that type. So if it is available, it will call that Laboratory server
-asking for ``exp1`` of that *experiment type*.
+asking for ``exp1`` of that *experiment type*. But if there was no slot
+available (e.g., some other student is using it), it will simply wait for that
+slot to be available.
 
 Therefore, if you have added a single Experiment server of electronics to the
 existing Laboratory server, you can safely add:
@@ -751,11 +764,31 @@ existing Laboratory server, you can safely add:
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
-                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
-                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
+        'laboratory1:laboratory1@core_host' : {
+                'exp1|dummy|Dummy experiments'       : 'dummy1@dummy_queue',
+                'exp1|electronics|Dummy experiments' : 'electronics1@electronics_queue',
             },
     }
+
+In the near future, all this will be in the database and therefore it
+will not be dealt with file-based configurations. However, in the meanwhile it's
+very important to understand what names are mapped among the different files.
+
+The name ``exp1|electronics|Dummy experiments`` is mapped to the name
+``exp1:electronics@Dummy experiments`` that we used in the previous section in
+the Laboratory Server. However, the separators are changed from ``:`` or ``@``
+to ``|``. The name ``exp1`` is only used in those two files. However, the other
+two components are the experiment name (``electronics``) and category name
+(``Dummy experiments``) in the database.
+
+The name ``electronics1`` is not used anywhere else, so feel free to use any
+other name (e.g., ``slot1``, etc.).
+
+With this information, you are ready to jump to
+:ref:`remote_lab_deployment_add_to_database`. However, here we document other
+special scenarios, such as balancing the load of users among different copies of
+the laboratories, or supporting more than one user in a single laboratory at the
+same time.
 
 Load balancing
 ^^^^^^^^^^^^^^
@@ -765,10 +798,10 @@ If you have two copies of the same type of laboratory, you can add:
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
-                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
-                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
-                'exp2|electronics|Electronics experiments' : 'electronics2@electronics',
+        'laboratory1:laboratory1@core_host' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy_queue',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics_queue',
+                'exp2|electronics|Electronics experiments' : 'electronics2@electronics_queue',
             },
     }
 
@@ -783,10 +816,10 @@ If you have two different experiments (one of electronics and one of physics), t
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
+        'laboratory1:laboratory1@core_host' : {
                 'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
-                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
-                'exp1|physics|Physics experiments'         : 'physics1@physics',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics_queue',
+                'exp1|physics|Physics experiments'         : 'physics1@physics_queue',
             },
     }
 
@@ -794,7 +827,7 @@ Sharing resources among laboratories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-This system is quite flexible. For instance, it becomes possible to have more
+This system is designed to be flexible. For instance, it supports to have more
 than one Experiment server associated to the same physical equipment. For
 example, in WebLab-Deusto we have the CPLDs and the FPGAs, with one Experiment
 server that allows users to submit their own programs. However, we also have
@@ -807,18 +840,18 @@ between these two copies, and a single FPGA. The configuration is the following:
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
+        'laboratory1:laboratory1@core_host' : {
 
                 # Normal experiments:
-                'exp1|ud-pld|PLD experiments'    : 'pld1@pld',
-                'exp2|ud-pld|PLD experiments'    : 'pld2@pld',
-                'exp1|ud-fpga|FPGA experiments'  : 'fpga1@fpga',
+                'exp1|ud-pld|PLD experiments'    : 'pld1@pld_queue',
+                'exp2|ud-pld|PLD experiments'    : 'pld2@pld_queue',
+                'exp1|ud-fpga|FPGA experiments'  : 'fpga1@fpga_queue',
 
                 # Demo experiments: note that the scheduling side is the same
                 # so they are using the same physical equipment.
-                'exp1|ud-demo-pld|PLD experiments' : 'pld1@pld',
-                'exp2|ud-demo-pld|PLD experiments' : 'pld2@pld',
-                'exp1|ud-demo-fpga|FPGA experiments' : 'fpga1@fpga',
+                'exp1|ud-demo-pld|PLD experiments' : 'pld1@pld_queue',
+                'exp2|ud-demo-pld|PLD experiments' : 'pld2@pld_queue',
+                'exp1|ud-demo-fpga|FPGA experiments' : 'fpga1@fpga_queue',
             },
     }
 
@@ -842,13 +875,13 @@ is a single one:
 .. code-block:: python
 
     core_coordinator_laboratory_servers = {
-        'laboratory1:laboratory1@core_machine' : {
-                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy',
-                'exp1|electronics|Electronics experiments' : 'electronics1@electronics',
-                'exp2|electronics|Electronics experiments' : 'electronics2@electronics',
-                'exp3|electronics|Electronics experiments' : 'electronics3@electronics',
-                'exp4|electronics|Electronics experiments' : 'electronics4@electronics',
-                'exp5|electronics|Electronics experiments' : 'electronics5@electronics',
+        'laboratory1:laboratory1@core_host' : {
+                'exp1|dummy|Dummy experiments'             : 'dummy1@dummy_queue',
+                'exp1|electronics|Electronics experiments' : 'electronics1@electronics_queue',
+                'exp2|electronics|Electronics experiments' : 'electronics2@electronics_queue',
+                'exp3|electronics|Electronics experiments' : 'electronics3@electronics_queue',
+                'exp4|electronics|Electronics experiments' : 'electronics4@electronics_queue',
+                'exp5|electronics|Electronics experiments' : 'electronics5@electronics_queue',
             },
     }
 
@@ -859,31 +892,31 @@ point to the same laboratory:
 
     laboratory_assigned_experiments = {
             'exp1:dummy@Dummy experiments' : {
-                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp2:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp3:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp4:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp5:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
@@ -891,12 +924,13 @@ point to the same laboratory:
 
 This way, five students will be able to enter to the laboratory at the same
 time, and they will be able to interact each other. The main problem is that by
-default, the API does not support knowing which student is submitting each
+default, the server API does not support knowing which student is submitting each
 request, since the methods are essentially something like::
 
     String sendCommand(String command);
 
-However, there is other API, called the Concurrent API, not supported at the
+However, there is other API, called the Concurrent API (see
+:ref:`remote_lab_development_weblab_python`), not supported at the
 moment by most of the libraries but yes by the Python experiments, which
 supports this. It which basically adds a ``lab_session_id`` string to the
 beginning of each parameter. That way, the method for sending commands, for
@@ -906,37 +940,37 @@ instance, is as follows::
 
 Using this, the Experiment developer can identify who is accessing in the
 laboratory and reply different messages to each user. So as to configure this,
-the Laboratory server must use the following: 
+the Laboratory server must use the following ``api``: 
 
 .. code-block:: python
 
     laboratory_assigned_experiments = {
             'exp1:dummy@Dummy experiments' : {
-                    'coord_address' : 'experiment1:laboratory1@core_machine',
+                    'coord_address' : 'experiment1:laboratory1@core_host',
                     'checkers' : ()
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp2:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp3:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp4:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp5:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_machine',
+                    'coord_address' : 'electronics1:exp_instance@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
