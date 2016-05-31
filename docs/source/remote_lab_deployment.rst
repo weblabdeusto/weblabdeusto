@@ -327,13 +327,56 @@ The easiest way to see an example of this configuration is running the following
 
 This will generate a particular configuration, with two *hosts* at
 WebLab-Deusto level: one called ``core_host``, and the other ``exp_host``.
+
+.. figure:: /_static/weblab_deployment_xmlrpc_1.png
+   :align: center
+   :width: 600px
+
+   Default settings when creating an XMLRPC lab.
+
+The generated configuration is the following:
+
+.. code-block:: yaml
+
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
+      exp_host:
+        runner: run-xmlrpc.py
+        host: 127.0.0.1
+        processes:
+          exp_process:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                protocols:
+                  port: 10039
+                  supports: xmlrpc
+                type: experiment
+
 So as to run the first one, you should run::
 
-    weblab-admin.py start sample -m core_machine
+    weblab-admin.py start sample --host core_machine
 
 You may also run::
 
-    weblab-admin.py start sample -m exp_machine
+    weblab-admin.py start sample --host exp_machine
 
 In other console at the same time. That way, there would be a Python Experiment
 server listening on port ``10039``. However, this is not what we want here. What
@@ -345,7 +388,7 @@ will work.
 For this reason, using the ``weblab-admin`` command with those arguments is the
 simplest way to get a laboratory running. If you only want to test the system
 with your new developed remote laboratory, you can simply use the
-``--xmlrpc-experiment`` flags and skip to the next section.
+``--xmlrpc-experiment`` flags, in the ``configuration.yml`` change ``experiment1`` for ``electronics`` and jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
 
 However, the typical action is to use the :ref:`directory_hierarchy`
 documentation to establish at WebLab-Deusto level that there will be an
@@ -354,124 +397,124 @@ Experiment server listening in a particular port.
 So, let's start from scratch. Let's imagine that we create other example, such
 as::
 
-    weblab-admin create sample --http-server-port=12345
+    weblab-admin.py create sample --http-server-port=12345
 
-We want to add an external Experiment server. We will first create a new
-*machine*, by modifying ``sample/configuration.xml`` to look like this:
+This will generate the following schema:
 
-.. code-block:: xml
+.. figure:: /_static/weblab_deployment_python_1.png
+   :align: center
+   :width: 500px
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <machines
-            xmlns="http://www.weblab.deusto.es/configuration" 
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="global_configuration.xsd" >
+   ``sample`` as created by default
 
-        <machine>core_machine</machine>
-        <!-- Add a new machine exp_machine -->
-        <machine>exp_machine</machine>
+And the following configuration:
 
-    </machines>
+.. code-block:: yaml
 
-We will create that directory (``exp_machine``), and we will add a new file inside called ``configuration.xml``:
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                config:
+                  dummy_verbose: true
+                type: experiment
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
 
-.. code-block:: xml
+We want to add an external Experiment server in a different host. So as to do this, we will append at the end the following:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <instances
-            xmlns="http://www.weblab.deusto.es/configuration" 
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-            xsi:schemaLocation="machine_configuration.xsd" >
+.. code-block:: yaml
 
-        <instance>exp_instance</instance>
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                config:
+                  dummy_verbose: true
+                type: experiment
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
+      exp_host:
+        runner: run-xmlrpc.py
+        host: 127.0.0.1
+        processes:
+          exp_process:
+            components:
+              electronics:
+                class: experiments.dummy.DummyExperiment
+                protocols:
+                  port: 10039
+                  supports: xmlrpc
+                type: experiment
 
-    </instances>
+.. note::
 
-In this directory, we will create such a directory called ``exp_instance``, which will also have the following ``configuration.xml``:
+    ``exp_host`` is another host, so must have the same indentation (number of spaces before) as ``core_host``:
 
-.. code-block:: xml
+Actually, the values of ``runner`` and ``class`` in this case are not relevant, since they will not be used. With these changes, the structure will be the following:
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <servers 
-        xmlns="http://www.weblab.deusto.es/configuration" 
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="instance_configuration.xsd">
+.. figure:: /_static/weblab_deployment_xmlrpc_3.png
+   :align: center
+   :width: 500px
 
-        <user>weblab</user>
+   ``sample`` modified to support a new ``electronics`` laboratory.
 
-        <server>experiment1</server>
-    </servers>
 
-On it, we will create that directory (``experiment1``), which will have a single file called ``configuration.xlm`` as follows:
+Doing this, the Experiment server will have been registered. You can test that running the following will start without errors the core host::
 
-.. code-block:: xml
+   $ weblab-admin.py start sample --host core_host
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <server
-        xmlns="http://www.weblab.deusto.es/configuration" 
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
-    >
-
-        <configuration file="server_config.py" />
-
-        <type>weblab.data.server_type::Experiment</type>
-        <methods>weblab.methods::Experiment</methods>
-
-        <implementation>experiments.dummy.DummyExperiment</implementation>
-
-        <protocols>
-            <protocol name="Direct">
-                <coordinations>
-                    <coordination></coordination>
-                </coordinations>
-                <creation></creation>
-            </protocol>
-            <protocol name="XMLRPC">
-                <coordinations>
-                    <coordination>
-                        <parameter name="address" value="127.0.0.1:10039@NETWORK" />
-                    </coordination>
-                </coordinations>
-                <creation>
-                    <parameter name="address" value="127.0.0.1"     />
-                    <parameter name="port"    value="10039" />
-                </creation>
-            </protocol>
-        </protocols>
-    </server>
-
-Note that the port number is repeated twice (one for creating the server, which
-we will never do, and the other for informing the rest of the WebLab-Deusto
-servers how to access the Experiment server).
-
-Doing this, the Experiment server will have been created. You only need to be
-sure that you start the Experiment server every time you start the WebLab-Deusto
-servers (preferibly, just before than just after).
-
-In the following sections, you will address the Experiment server as
-``experiment1:exp_instance@exp_machine``.
+However, you must make sure that you start the Experiment server (developed in other technology: .NET, C++...) every time you start the WebLab-Deusto servers (preferably, just before than just after).
 
 .. warning::
 
-    When this is specified:
-
-    .. code-block:: xml
-
-        <parameter name="address" value="127.0.0.1:10039@NETWORK" />
-
-    Then, WebLab-Deusto will attempt to perform XML-RPC requests to
+    By default, WebLab-Deusto will attempt to perform XML-RPC requests to
     ``http://127.0.0.1:10039/``.
 
     However, certain libraries (such as the one of .NET) does not support this
     scheme, and it requires that WebLab-Deusto calls
     ``http://127.0.0.1:10039/weblab``. For this reason, in .NET and LabVIEW, you
-    need to configure the system using:
+    need to configure the system adding ``path`` to the component configuration:
 
-    .. code-block:: xml
+    .. code-block:: yaml
 
-        <parameter name="address" value="127.0.0.1:10039/weblab@NETWORK" />
+      protocols:
+        port: 10039
+        supports: xmlrpc
+        path: /weblab
 
+In the following sections, you will address the Experiment server as
+``electronics:exp_process@exp_host``.
 
 You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
 
