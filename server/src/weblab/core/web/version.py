@@ -34,9 +34,10 @@ def version():
         if contents is None:
             contents = 'var weblab_version = {};\nvar wlVersionMessage = null;'
 
-        VERSION_RESPONSE = make_response(contents)
-        VERSION_RESPONSE.content_type = 'text/javascript'
-        VERSION_RESPONSE.last_modified = datetime.datetime.utcnow()
-        VERSION_RESPONSE.add_etag()
+        VERSION_RESPONSE = contents
 
-    return VERSION_RESPONSE.make_conditional(request)
+    response = make_response(VERSION_RESPONSE)
+    response.content_type = 'text/javascript'
+    response.last_modified = datetime.datetime.utcnow()
+    response.add_etag()
+    return response.make_conditional(request)
