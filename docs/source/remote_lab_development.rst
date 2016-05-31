@@ -875,6 +875,7 @@ point, it will know which version the Experiment server is running and it will
 call the methods in one way or other (e.g., providing arguments to the
 startExperiment or not, using more methods, etc.).
 
+.. _remote_lab_development_weblab_python:
 
 WebLab-Deusto server (Python)
 .............................
@@ -892,7 +893,7 @@ itself. A dummy example would be the following:
     class DummyExperiment(Experiment):
         
         def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-            super(DummyExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+            super(DummyExperiment,self).__init__(*args, **kwargs)
             
             # Keep an instance of the configuration manager
             self._cfg_manager = cfg_manager
@@ -983,7 +984,7 @@ number, and is not maintained across sessions) called ``session_id``. This
     class DummyConcurrentExperiment(ConcurrentExperiment):
         
         def __init__(self, coord_address, locator, cfg_manager, *args, **kwargs):
-            super(DummyConcurrentExperiment,self).__init__(coord_address, locator, cfg_manager, *args, **kwargs)
+            super(DummyConcurrentExperiment,self).__init__(*args, **kwargs)
             
             # Keep an instance of the configuration manager
             self._cfg_manager = cfg_manager

@@ -5,10 +5,6 @@ Remote laboratory deployment
 
 .. contents:: Table of Contents
 
-.. warning::
-
-   This documentation is deprecated and being written right now (May 2016)
-
 Introduction
 ------------
 
@@ -36,178 +32,42 @@ This process is compounded of the following steps:
 After these steps, your laboratory should be working. If you have any trouble,
 check the :ref:`remote_lab_deployment_troubleshooting` section.
 
-JavaScript
-^^^^^^^^^^
-.. note::
-
-    To be written (June 2016).
-
-Java applets
-^^^^^^^^^^^^
-
-In the case of Java applets, the identifier is simply ``java``. However, so as
-to load a particular laboratory, some additional parameters must be configured,
-such as where is the JAR file, what class inside the JAR file must be loaded,
-and the size of the applet. An example of this configuration would be:
-
-.. code-block:: javascript
-
-  "java": [
-       {
-           "experiment.name": "javadummy",
-           "experiment.category": "Dummy experiments",
-
-           "jar.file": "WeblabJavaSample.jar",
-           "code"  : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
-
-           "height": 350,
-           "width": 500,
-
-           "message": "This is a message displayed on top of the experiment client",
-           "experiment.picture": "/img/experiments/java.jpg",
-
-
-           "experiment.info.description": "description",
-           "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy"
-       }
-    ]
-
-Once again, let us assume that you have 2 laboratories developed in Java
-applets, one of physics and other of electronics. You may have the following:
-
-.. code-block:: javascript
-
-    "experiments" : {
-        "java": [
-            {
-               "experiment.name": "physics-1",
-               "experiment.category": "Physics experiments",
-
-               "jar.file": "PhysicsApplet.jar",
-               "code"  : "edu.example.physics.PhysicsApplet",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/physics.jpg"
-           },
-           {
-               "experiment.name": "electronics-1",
-               "experiment.category": "Electronics experiments",
-
-               "jar.file": "ElectronicsApplet.jar",
-               "code"  : "edu.example.physics.ElectronicsApplet",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/electronics.jpg"
-           }
-        ]
-    }
-
-Those JAR files should be located in the ``public`` directory (`see here
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
-which will require you to re-compile and re-run the ``setup`` script.
-
-Flash
-^^^^^
-
-In the case of Flash applications, the identifier is simply ``flash``. However, so as
-to load a particular laboratory, some additional parameters must be configured,
-such as where is the SWF file, the size of the application, or the maximum time
-that WebLab-Deusto will wait to check if the Flash applet has been connected
--e.g., 20 seconds-, since sometimes the user uses a flash blocking application
-or a wrong version of Adobe Flash. An example of this configuration would be:
-
-.. code-block:: javascript
-
-    "flash": [
-        {
-            "experiment.name": "flashdummy",
-            "experiment.category": "Dummy experiments",
-
-            "flash.timeout": 20,
-            "swf.file": "WeblabFlashSample.swf",
-
-            "height": 350,
-            "width": 500,
-
-            "message": "This is a message that will be loaded before the applet",
-            "page.footer": "This message will be loaded under the flash applet",
-
-            "experiment.picture": "/img/experiments/flash.jpg",
-
-            "experiment.info.description": "description",
-            "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy"
-        }
-    ]
-
-Once again, let us assume that you have 2 laboratories developed in Flash
-applets, one of physics and other of electronics. You may have the following:
-
-.. code-block:: javascript
-
-    "experiments" : {
-        "flash": [
-            {
-               "experiment.name": "physics-1",
-               "experiment.category": "Physics experiments",
-
-               "swf.file": "PhysicsLab.swf",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/physics.jpg"
-           },
-           {
-               "experiment.name": "electronics-1",
-               "experiment.category": "Electronics experiments",
-
-               "swf.file": "ElectronicsLab.swf",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/electronics.jpg"
-           }
-        ]
-    }
-
-Those SWF files should be located in the ``public`` directory (`see here
-<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
-which will require you to re-compile and re-run the ``setup`` script.
-
 .. _remote_lab_deployment_deploy_experiment_server:
 
-Deploying the Experiment server
--------------------------------
+Step 1: Deploying the Experiment server
+---------------------------------------
 
 As :ref:`previously explained <remote_lab_development>`, there are two major
 ways to develop a WebLab-Deusto Experiment server:
 
-#. Managed, which includes Experiment servers developed in Python, as well as
+#. :ref:`Managed <remote_lab_deployment_managed>`, which includes Experiment servers developed in Python, as well as
    experiments developed in other platforms (e.g., Java, .NET, LabVIEW, C,
    C++...)
-#. Unmanaged, which includes Virtual Machines. Internally, a particular Python
-   server is used to wrap the Virtual Machine.
 
-If the Experiment server was developed in Python, then it might use any of the
-protocols of WebLab-Deusto. This part is explained below in 
-:ref:`remote_lab_deployment_deploy_python_server`. However, if other platform
-was used (e.g., Java, .NET, C, C++), then the XML-RPC approach must be taken.
-This is explained below in :ref:`remote_lab_deployment_deploy_xmlrpc_server`.
+   #. If the Experiment server was developed in Python, then it might use any of the protocols of WebLab-Deusto. This part is explained below in :ref:`remote_lab_deployment_deploy_python_server`.
+   #. However, if other platform was used (e.g., Java, .NET, C, C++), then the XML-RPC approach must be taken.  This is explained below in :ref:`remote_lab_deployment_deploy_xmlrpc_server`.
+
+#. :ref:`Unmanaged <remote_lab_deployment_unmanaged>`, such as external HTTP applications. 
 
 This section assumes that you have previously read the following two sections:
 
 * :ref:`directory_hierarchy`
 * :ref:`technical_description`
 
+.. _remote_lab_deployment_managed:
+
+Managed server
+^^^^^^^^^^^^^^
+
+This section describes how to deploy a laboratory using the managed approach.
+
+   #. If the Experiment server was developed in Python, then it might use any of the protocols of WebLab-Deusto. This part is explained below in :ref:`remote_lab_deployment_deploy_python_server`.
+   #. However, if other platform was used (e.g., Java, .NET, C, C++), then the XML-RPC approach must be taken.  This is explained below in :ref:`remote_lab_deployment_deploy_xmlrpc_server`.
+
 .. _remote_lab_deployment_deploy_python_server:
 
 WebLab-Deusto Python server
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As explained in :ref:`directory_hierarchy`, WebLab-Deusto uses a directory
 hierarchy for configuring how the communications among different nodes is
@@ -220,80 +80,240 @@ by::
 
     weblab-admin create sample --http-server-port=12345
 
-And that the absolute path of your laboratory is
-``myexperiments.ElectronicsLab``. Then, you have to go to the directory
-``core_machine``, then to ``laboratory1``, and modify the ``configuration.xml``
-file to show the following:
+And that you have developed an experiment using the Python API as explained in :ref:`remote_lab_development_weblab_python`. Your experiment can be something as simple as:
 
-.. code-block:: xml
+.. code-block:: python
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <servers 
-        xmlns="http://www.weblab.deusto.es/configuration" 
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="instance_configuration.xsd" >
-        <user>weblab</user>
+   import json
 
-        <server>laboratory1</server>
-        <server>experiment1</server>
-        <!-- Just added: -->
-        <server>electronics1</server>
-    </servers>
+   from weblab.experiment.experiment import Experiment
+   import weblab.experiment.level as ExperimentApiLevel
 
-Then, create a directory called ``electronics1`` inside ``laboratory1``, and on
-it, create a ``configuration.xml`` file. The contents of the file should be the
-following:
+   class ElectronicsLab(Experiment):
+        def __init__(self, coord_address, locator, config, *args, **kwargs):
+            super(ElectronicsLab,self).__init__(*args, **kwargs)
+            self.config = config
 
-.. code-block:: xml
+        def do_start_experiment(self, client_initial_data, server_initial_data):
+            print("Start experiment")
+            print("Client initial data:", json.loads(client_initial_data))
+            print("Server initial data:", json.loads(server_initial_data))
+            print("Camera:", self.config.get('my_camera_url'))
+            return json.dumps({ "initial_configuration" : "cam='cam1'"})
 
-    <?xml version="1.0" encoding="UTF-8"?>
-    <server
-        xmlns="http://www.weblab.deusto.es/configuration" 
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.weblab.deusto.es/configuration server_configuration.xsd"
-    >
+        def do_get_api(self):
+            return ExperimentApiLevel.level_2
 
-        <configuration file="server_config.py" />
+        def do_dispose(self):
+            print("User left")
+            return "{}"
+        
+        def do_send_command_to_device(self, command):
+            print("Command: ", command)
+            return "Got your command"
 
-        <type>weblab.data.server_type::Experiment</type>
-        <methods>weblab.methods::Experiment</methods>
+        def do_should_finish(self):
+            print("Checking if the user should exit. If returned 0, will not ask again. If return 1, WebLab will kick him out")
+            return 5
 
-        <!-- Note that this is YOUR class -->
-        <implementation>myexperiments.ElectronicsLab</implementation>
 
-        <protocols>
-            <protocol name="Direct">
-                <coordinations>
-                    <coordination></coordination>
-                </coordinations>
-                <creation></creation>
-            </protocol>
-        </protocols>
-    </server>
 
-Finally, create a new file in the same directory called ``server_config.py``. On
-it, you can put the configuration variables of your Experiment server.
+Let us also assume that this code is in a file called ``myexperiments.py``, and that is in a directory called ``/home/tom/experiments``.
 
-From this point, the WebLab-Deusto address of your Experiment server is
-``electronics1:laboratory1@core_machine``.
+Then, first, we will need to make sure that WebLab-Deusto can access that file.
+To this end, we would add that directory to the ``PYTHONPATH``. 
+
+In Windows we can run the following each time before running weblab-admin.py start::
+
+   (weblab) C:\Users\Tom> set PYTHONPATH=C:\Users\Tom\experiments
+
+In Linux / Mac OS X we can run the following::
+
+   (weblab) tom@tom-laptop:~$ export PYTHONPATH=/home/tom/experiments:$PYTHONPATH
+
+To verify that this is correct, you should be able to do the following::
+
+   $ python
+   [...] 
+   >>> import myexperiments
+   >>> 
+
+If no ImportError occurs, it means that everything required (e.g., your code and WebLab-Deusto code) is available.
+
+.. warning::
+
+   The ``PYTHONPATH`` path must be absolute (e.g., ``/home/tom/experiments``) and not
+   relative (e.g.,  ``../experiments``). When running ``weblab-admin.py start``, the
+   current working directory is changed and could lead to wrong results.
+
+In this case, the Python class identifier of your Python laboratory would be ``myexperiments.ElectronicsLab`` (since it's the class ``ElectronicsLab`` of the module ``myexperiments.py``). If you had a more complex hierarchy (for example: a Python package called ``myinstitution`` and inside several modules like ``myexperiments.py``), then the Python class identifier would be ``myinstitution.myexperiments.ElectronicsLab``.
+
+The next step is to modify the ``configuration.yml`` file generated by ``weblab-admin.py create sample``. Originally, it looks like the following:
+
+.. code-block:: yaml
+
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                config:
+                  dummy_verbose: true
+                type: experiment
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
+
+Which looks like the following:
+
+.. figure:: /_static/weblab_deployment_python_1.png
+   :align: center
+   :width: 500px
+
+   ``sample`` as created by default
+
+But we want to add a new laboratory called ``electronics`` so it becomes the following:
+
+.. figure:: /_static/weblab_deployment_python_2.png
+   :align: center
+   :width: 500px
+
+   ``sample`` after the modification
+
+
+So as to have this new component which is an experiment running your code, you have to add it inside the ``components`` of ``laboratory1``, as follows:
+
+.. code-block:: yaml
+
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                config:
+                  dummy_verbose: true
+                type: experiment
+              electronics:
+                class: myexperiments.ElectronicsLab
+                type: experiment
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
+
+If you want to add configuration variables, then you can either add them to the component or to any of the upper layers (to the host, process or globally), and either add them in a configuration file or inline as follows:
+
+.. code-block:: yaml
+
+    hosts:
+      core_host:
+        runner: run.py
+        config_file: core_host_config.py
+        processes:
+          core_process1:
+            components:
+              core:
+                config:
+                  core_facade_port: 10000
+                  core_facade_server_route: route1
+                type: core
+          laboratory1:
+            components:
+              experiment1:
+                class: experiments.dummy.DummyExperiment
+                config:
+                  dummy_verbose: true
+                type: experiment
+              electronics:
+                class: myexperiments.ElectronicsLab
+                config:
+                  my_camera_url: http://cams.weblab.deusto.es/webcam/electronics.jpg
+                type: experiment
+              laboratory1:
+                config_file: lab1_config.py
+                protocols:
+                  port: 10001
+                type: laboratory
+
+From the Python code, you may access that variable.
+
+From this point, the internal WebLab-Deusto address of your Experiment server is
+``electronics:laboratory1@core_host``. You might see it later when seeing which
+device was accessed by students, or in logs.
 
 However, refer to :ref:`directory_hierarchy` for further details for more
-complex deployments.
+complex deployments. 
 
 .. warning::
 
     Avoid naming conflicts with your laboratory name. For instance,
     ``myexperiments.ElectronicsLab`` relies on the fact that there is no other
     ``myexperiments`` directory in the ``PYTHONPATH``. If you use other names,
-    such as ``experiments.ElectronicsLab`` (and you don't put the code in the
-    experiments/ directory of WebLab-Deusto and re-run the ``python setup.py
-    install`` script), or ``weblab.ElectronicsLab``, you will enter in naming
-    conflicts with existing modules.
+    such as ``experiments.ElectronicsLab``, ``voodoo.ElectronicsLab`` or
+    ``weblab.ElectronicsLab``, you will enter in naming conflicts with existing
+    modules of WebLab-Deusto or of libraries used by WebLab-Deusto.
+
+
+To verify that the configuration is fine, start the server::
+
+    $ weblab-admin.py start sample
+     * Running on http://0.0.0.0:12345/ (Press CTRL+C to quit)
+    Press <enter> or send a sigterm or a sigint to finish
+     
+
+If no error is reported in a few seconds, you can press enter to stop it and continue. If the
+following error appears::
+
+    $ weblab-admin.py start sample
+     * Running on http://0.0.0.0:12345/ (Press CTRL+C to quit)
+    Press <enter> or send a sigterm or a sigint to finish
+    [...]
+    voodoo.gen.exc.LoadingError: Error loading component: 'myexperiments.ElectronicsLab' for server electronics:laboratory1@core_host: No module named myexperiments
+
+It means that the myexperiments.py file does not seem to be available. Verify
+that running in the same terminal reports no error::
+
+   $ python
+   [...]
+   >>> import myexperiments
+   >>> print(myexperiments.ElectronicsLab)
+   <class 'myexperiments.ElectronicsLab'>
+   >>> 
+
+If it reports an ImportError, verify that you configured the ``PYTHONPATH``
+according to what it was defined earlier in this subsection.
+
+After you start WebLab-Deusto with no error, you can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
 
 .. _remote_lab_deployment_deploy_xmlrpc_server:
 
-Other servers (XML-RPC based)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Non-Python managed servers (XML-RPC based)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As explained in :ref:`directory_hierarchy`, WebLab-Deusto uses a directory
 hierarchy for configuring how the communications among different nodes is
@@ -303,17 +323,17 @@ in a particular port, with a particular configuration that will never be run.
 
 The easiest way to see an example of this configuration is running the following::
 
-    weblab-admin create sample --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
+    weblab-admin.py create sample --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
 
-This will generate a particular configuration, with two *machines* at
-WebLab-Deusto level: one called ``core_machine``, and the other ``exp_machine``.
+This will generate a particular configuration, with two *hosts* at
+WebLab-Deusto level: one called ``core_host``, and the other ``exp_host``.
 So as to run the first one, you should run::
 
-    weblab-admin start sample -m core_machine
+    weblab-admin.py start sample -m core_machine
 
 You may also run::
 
-    weblab-admin start sample -m exp_machine
+    weblab-admin.py start sample -m exp_machine
 
 In other console at the same time. That way, there would be a Python Experiment
 server listening on port ``10039``. However, this is not what we want here. What
@@ -452,10 +472,23 @@ In the following sections, you will address the Experiment server as
 
         <parameter name="address" value="127.0.0.1:10039/weblab@NETWORK" />
 
+
+You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
+
+.. _remote_lab_deployment_unmanaged:
+
+Unmanaged server
+^^^^^^^^^^^^^^^^
+
+Foo bar
+
+
+You can now jump to the :ref:`remote_lab_deployment_register_in_lab_server`.
+
 .. _remote_lab_deployment_register_in_lab_server:
 
-Registering the experiment server in a Laboratory server
---------------------------------------------------------
+Step 2: Registering the experiment server in a Laboratory server
+----------------------------------------------------------------
 
 In the following figure, we have already finished steps 1 and 2, which are the
 most complex. The rest of the steps are independent of the technology used, and
@@ -602,8 +635,8 @@ the following variable in the Laboratory server. It will simply skip this.
 
 .. _remote_lab_deployment_register_scheduling:
 
-Registering a scheduling system for the experiment
---------------------------------------------------
+Step 3: Registering a scheduling system for the experiment
+----------------------------------------------------------
 
 Now we move to the Core server. The Core server manages, among other features,
 the scheduling of the experiments. At the moment of this writing, there are
@@ -869,8 +902,8 @@ the Laboratory server must use the following:
 
 .. _remote_lab_deployment_add_to_database:
 
-Add the experiment server to the database and grant permissions
----------------------------------------------------------------
+Step 4: Add the experiment server to the database and grant permissions
+-----------------------------------------------------------------------
 
 At this point, we have the Experiment server running, the Experiment client
 configured, the Laboratory has registered the Experiment server and the Core
@@ -930,6 +963,150 @@ particular group (such as Administrators):
 
 From this point, you will be able to use this experiment from the main user
 interface.
+
+
+JavaScript
+^^^^^^^^^^
+.. note::
+
+    To be written (June 2016).
+
+Java applets
+^^^^^^^^^^^^
+
+In the case of Java applets, the identifier is simply ``java``. However, so as
+to load a particular laboratory, some additional parameters must be configured,
+such as where is the JAR file, what class inside the JAR file must be loaded,
+and the size of the applet. An example of this configuration would be:
+
+.. code-block:: javascript
+
+  "java": [
+       {
+           "experiment.name": "javadummy",
+           "experiment.category": "Dummy experiments",
+
+           "jar.file": "WeblabJavaSample.jar",
+           "code"  : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
+
+           "height": 350,
+           "width": 500,
+
+           "message": "This is a message displayed on top of the experiment client",
+           "experiment.picture": "/img/experiments/java.jpg",
+
+
+           "experiment.info.description": "description",
+           "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy"
+       }
+    ]
+
+Once again, let us assume that you have 2 laboratories developed in Java
+applets, one of physics and other of electronics. You may have the following:
+
+.. code-block:: javascript
+
+    "experiments" : {
+        "java": [
+            {
+               "experiment.name": "physics-1",
+               "experiment.category": "Physics experiments",
+
+               "jar.file": "PhysicsApplet.jar",
+               "code"  : "edu.example.physics.PhysicsApplet",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/physics.jpg"
+           },
+           {
+               "experiment.name": "electronics-1",
+               "experiment.category": "Electronics experiments",
+
+               "jar.file": "ElectronicsApplet.jar",
+               "code"  : "edu.example.physics.ElectronicsApplet",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/electronics.jpg"
+           }
+        ]
+    }
+
+Those JAR files should be located in the ``public`` directory (`see here
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
+which will require you to re-compile and re-run the ``setup`` script.
+
+Flash
+^^^^^
+
+In the case of Flash applications, the identifier is simply ``flash``. However, so as
+to load a particular laboratory, some additional parameters must be configured,
+such as where is the SWF file, the size of the application, or the maximum time
+that WebLab-Deusto will wait to check if the Flash applet has been connected
+-e.g., 20 seconds-, since sometimes the user uses a flash blocking application
+or a wrong version of Adobe Flash. An example of this configuration would be:
+
+.. code-block:: javascript
+
+    "flash": [
+        {
+            "experiment.name": "flashdummy",
+            "experiment.category": "Dummy experiments",
+
+            "flash.timeout": 20,
+            "swf.file": "WeblabFlashSample.swf",
+
+            "height": 350,
+            "width": 500,
+
+            "message": "This is a message that will be loaded before the applet",
+            "page.footer": "This message will be loaded under the flash applet",
+
+            "experiment.picture": "/img/experiments/flash.jpg",
+
+            "experiment.info.description": "description",
+            "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy"
+        }
+    ]
+
+Once again, let us assume that you have 2 laboratories developed in Flash
+applets, one of physics and other of electronics. You may have the following:
+
+.. code-block:: javascript
+
+    "experiments" : {
+        "flash": [
+            {
+               "experiment.name": "physics-1",
+               "experiment.category": "Physics experiments",
+
+               "swf.file": "PhysicsLab.swf",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/physics.jpg"
+           },
+           {
+               "experiment.name": "electronics-1",
+               "experiment.category": "Electronics experiments",
+
+               "swf.file": "ElectronicsLab.swf",
+
+               "height": 350,
+               "width": 500,
+
+               "experiment.picture": "/img/experiments/electronics.jpg"
+           }
+        ]
+    }
+
+Those SWF files should be located in the ``public`` directory (`see here
+<https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
+which will require you to re-compile and re-run the ``setup`` script.
 
 
 .. _remote_lab_deployment_troubleshooting:
