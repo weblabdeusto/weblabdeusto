@@ -1089,13 +1089,91 @@ explains how to modify the configuration to support the three options:
 JavaScript
 ~~~~~~~~~~
 
-By default, in the previuos steps we selected that the client would be ``js``,
-which is fine if you are developing a JavaScript laboratory.
+By default, in the previous steps we selected that the client would be ``js``,
+which is fine if you are developing a JavaScript laboratory. However, we also
+selected the ``builtin`` option and the ``nativelabs/dummy.html`` html file:
+
+.. image:: /_static/weblab_deployment_add_experiment2.png
+   :width: 450 px
+   :align: center
+
+The ``builtin`` option (which by default is false) reports that the file
+(``nativelabs/dummy.html``) is provided by WebLab-Deusto, so it finds it in its
+local directories. However, when you create a WebLab-Deusto instance, there is a
+directory called ``pub``. Whatever you put in this directory will be publicly
+available to the Internet on ``/weblab/web/pub/``.
+
+You can try to make a file called ``example.txt`` and put it in this directory.
+Going to `<http://localhost:12345/weblab/web/pub/example.txt>`_ or
+`<http://localhost/weblab/web/pub/example.txt>`_ (depending on if you're using
+Apache or the development server) should show you the file. Furthermore, in the
+Administration Panel, in ``System`` -> ``Public directory`` you can also modify
+the files (while this feature is only fully functional when using Apache).
+
+Whenever you disable the ``builtin`` option, WebLab-Deusto will search for the
+file in this directory (unless in ``html.file`` you put something that starts by
+``http://`` or ``https://``, in which case the absolute url will be used; for
+example if you put the files in a different server).
+
+So, for starting, the best option is to copy the ``dummy.html`` example to this
+directory. So you might go to
+`dummy.html in github
+<https://github.com/weblabdeusto/weblabdeusto/blob/master/server/src/weblab/core/static/nativelabs/dummy.html>`_
+and click on the ``Raw`` button to access the raw file, and download to the
+``pub`` directory.
+
+Once downloaded, they will be in ``/weblab/web/pub/dummy.html``. However, the
+internal includes to other JavaScript files will not work. In particular, the
+following code is not correct:
+
+.. code-block:: html
+
+    <script type="text/javascript" src="../js/jquery.min.js"></script>
+    <script type="text/javascript" src="../weblabjs/weblab.v1.js"></script>
+
+Since those two directories (``../js/jquery.min.js``) do not exist anymore. So
+either you change it by an absolute URL:
+
+.. code-block:: html
+
+    <script type="text/javascript" src="/weblab/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/weblab/static/weblabjs/weblab.v1.js"></script>
+
+or you replace it by a proper relative path:
+
+.. code-block:: html
+
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/weblabjs/weblab.v1.js"></script>
+
+.. note::
+
+    This is assuming that you are locating ``dummy.html`` in the ``pub``
+    directory directly. If you move it to a directory inside ``pub`` (e.g.,
+    ``electronics/dummy.html``), don't forget to modify the paths accordingly
+    (e.g., ``../../static...``) or use absolute ones.
+
+Once you have changed those paths, you can safely edit the experiment in the
+Administration Panel. To do so, deactivate the ``builtin`` option and change the
+``html.file`` to ``dummy.html``:
+
+
+.. image:: /_static/weblab_deployment_add_experiment4.png
+   :width: 450 px
+   :align: center
+
+Now you can change the ``dummy.html`` or create other HTML from scratch and
+follow these steps to add it to the ``pub`` directory and use it in other
+laboratories. You can now go to the :ref:`remote_lab_deployment_summary`. 
 
 .. _remote_lab_deployment_db_managed_java:
 
 Java applets
 ~~~~~~~~~~~~
+
+.. warning::
+
+    This section has not been updated yet.
 
 In the case of Java applets, the identifier is simply ``java``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
@@ -1166,6 +1244,11 @@ which will require you to re-compile and re-run the ``setup`` script.
 
 Flash
 ~~~~~
+
+
+.. warning::
+
+    This section has not been updated yet.
 
 In the case of Flash applications, the identifier is simply ``flash``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
@@ -1238,14 +1321,16 @@ which will require you to re-compile and re-run the ``setup`` script.
 Configuring the client in an unmanaged laboratory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-TO BE WRITTEN 
+.. warning::
 
-.. _remote_lab_deployment_troubleshooting:
+    This section has not been written yet.
+
+.. _remote_lab_deployment_summary:
 
 Summary
 -------
 
-WebLab-Deusto requires four actions to add a new experiment, explained in this
+Congratulations! WebLab-Deusto requires four actions to add a new experiment, explained in this
 section and on this figure:
 
 .. figure:: /_static/weblab_deployment.png
