@@ -1687,9 +1687,67 @@ LabVIEW Remote Panels
    
 The disadvantage is that it has all the disadvantages of the LabVIEW remote
 panels: it does not work in most web browsers, requires several ports to be
-open, etc. However, it's the easiest approach to implement a new remote
+open, etc. However, it is the easiest approach to implement a new remote
 laboratory for LabVIEW developers nowadays.
 
+If you want to try this approach, take the ``.vi`` files from:
+
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/unmanaged/labview
+
+And in the the deployment section
+(:ref:`remote_lab_deployment`; in particular
+:ref:`remote_lab_deployment_unmanaged`), use the same steps, except for using
+``experiments.labview_remote_panels.LabviewRemotePanels`` instead of
+``experiments.http_experiment.HttpExperiment``. The following options should be
+also added in that segment:
+
+.. code-block:: yaml
+
+  electronics:
+    class: experiments.labview_remote_panels.LabviewRemotePanels
+    type: experiment
+    config:
+       labview_host: 127.0.0.1
+       labview_port: 20000
+       labview_url: http://mylabviewserver.myinstitution.edu:8080/index.html
+       labview_shared_secret: 31e6b0b6-757d-4331-b731-27aeb8f8f04d
+
+Additionally, you can set debugging information by adding:
+
+.. code-block:: yaml
+
+  electronics:
+    class: experiments.labview_remote_panels.LabviewRemotePanels
+    type: experiment
+    config:
+       labview_host: 127.0.0.1
+       labview_port: 20000
+       labview_url: http://mylabviewserver.myinstitution.edu:8080/index.html
+       labview_shared_secret: 31e6b0b6-757d-4331-b731-27aeb8f8f04d
+       labview_debug_message: true
+       labview_debug_command: true
+
+The meaning of the values is:
+
+* ``labview_host``: the IP address of the LabVIEW server. It can be in a
+  different machine, so you must put what's the IP address.
+* ``labview_port``: the port of the WebLab-Deusto LabVIEW server. In the ``.vi``
+  you will see that you can configure it. Note that it's not the port of the
+  Remote Panel (i.e., the public port that users will use), but only the one
+  that accepts connections from WebLab-Deusto.
+* ``labview_shared_secret``: a secret that you will also configure in the
+  ``.vi`` file. The key is that it will tell LabVIEW that the message comes
+  from WebLab-Deusto (and not from somewhere else).
+* ``labview_url``: the URL of the remote panel. The LabVIEW remote panel must
+  be publicly available.
+
+Whenever a user comes to WebLab-Deusto, a session identifier will randomly be
+generated and sent to the LabVIEW server. Then, it will be shown to the user in
+the client, with a button to go to the ``labview_url``. Once there, the LabVIEW
+code (your code) will have make sure that the user is valid if he provides such
+code. From that moment, the user will use the Remote Panel as usual, and
+different triggers in the ``.vi`` code will tell you that you should tell the
+user to finish (e.g., when a different user comes).
 
 Virtual machines
 ^^^^^^^^^^^^^^^^
