@@ -1290,70 +1290,21 @@ laboratories. You can now go to the :ref:`remote_lab_deployment_summary`.
 Java applets
 ~~~~~~~~~~~~
 
-.. warning::
+Nowadays most web browsers do not support Java applets. For this reason, we
+highly recommend not using Java applets for the development of remote
+laboratories. However, if you have a limited and controlled audience and an
+existing remote laboratory in Java, you can still use WebLab-Deusto.
 
-    This section has not been updated yet.
+First, you must compile the GWT client, as explained in :ref:`gwt`.
 
-In the case of Java applets, the identifier is simply ``java``. However, so as
-to load a particular laboratory, some additional parameters must be configured,
+Then, you have to select the ``java`` client from the client list when editing
+an experiment. However, so as to load the laboratory, additional parameters must be configured,
 such as where is the JAR file, what class inside the JAR file must be loaded,
 and the size of the applet. An example of this configuration would be:
 
-.. code-block:: javascript
-
-  "java": [
-       {
-           "experiment.name": "javadummy",
-           "experiment.category": "Dummy experiments",
-
-           "jar.file": "WeblabJavaSample.jar",
-           "code"  : "es.deusto.weblab.client.experiment.plugins.es.deusto.weblab.javadummy.JavaDummyApplet",
-
-           "height": 350,
-           "width": 500,
-
-           "message": "This is a message displayed on top of the experiment client",
-           "experiment.picture": "/img/experiments/java.jpg",
-
-
-           "experiment.info.description": "description",
-           "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Java_Dummy"
-       }
-    ]
-
-Once again, let us assume that you have 2 laboratories developed in Java
-applets, one of physics and other of electronics. You may have the following:
-
-.. code-block:: javascript
-
-    "experiments" : {
-        "java": [
-            {
-               "experiment.name": "physics-1",
-               "experiment.category": "Physics experiments",
-
-               "jar.file": "PhysicsApplet.jar",
-               "code"  : "edu.example.physics.PhysicsApplet",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/physics.jpg"
-           },
-           {
-               "experiment.name": "electronics-1",
-               "experiment.category": "Electronics experiments",
-
-               "jar.file": "ElectronicsApplet.jar",
-               "code"  : "edu.example.physics.ElectronicsApplet",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/electronics.jpg"
-           }
-        ]
-    }
+.. figure:: /_static/java_labs_configuration.png
+   :align: center
+   :width: 500px
 
 Those JAR files should be located in the ``public`` directory (`see here
 <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
@@ -1364,72 +1315,24 @@ which will require you to re-compile and re-run the ``setup`` script.
 Flash
 ~~~~~
 
+Nowadays most mobile web browsers do not support Flash, and the Flash support is
+decreasing in regular web browsers. For this reason, we
+highly recommend not using Flash apps for the development of remote
+laboratories. However, if you have a limited and controlled audience and an
+existing remote laboratory in Flash, you can still use WebLab-Deusto.
 
-.. warning::
-
-    This section has not been updated yet.
-
-In the case of Flash applications, the identifier is simply ``flash``. However, so as
+In the case of Flash applications, the client from the list must be ``flash``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
 such as where is the SWF file, the size of the application, or the maximum time
 that WebLab-Deusto will wait to check if the Flash applet has been connected
 -e.g., 20 seconds-, since sometimes the user uses a flash blocking application
 or a wrong version of Adobe Flash. An example of this configuration would be:
 
-.. code-block:: javascript
 
-    "flash": [
-        {
-            "experiment.name": "flashdummy",
-            "experiment.category": "Dummy experiments",
+.. figure:: /_static/flash_experiments_configuration.png
+   :align: center
+   :width: 500px
 
-            "flash.timeout": 20,
-            "swf.file": "WeblabFlashSample.swf",
-
-            "height": 350,
-            "width": 500,
-
-            "message": "This is a message that will be loaded before the applet",
-            "page.footer": "This message will be loaded under the flash applet",
-
-            "experiment.picture": "/img/experiments/flash.jpg",
-
-            "experiment.info.description": "description",
-            "experiment.info.link": "http://code.google.com/p/weblabdeusto/wiki/Latest_Exp_Flash_Dummy"
-        }
-    ]
-
-Once again, let us assume that you have 2 laboratories developed in Flash
-applets, one of physics and other of electronics. You may have the following:
-
-.. code-block:: javascript
-
-    "experiments" : {
-        "flash": [
-            {
-               "experiment.name": "physics-1",
-               "experiment.category": "Physics experiments",
-
-               "swf.file": "PhysicsLab.swf",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/physics.jpg"
-           },
-           {
-               "experiment.name": "electronics-1",
-               "experiment.category": "Electronics experiments",
-
-               "swf.file": "ElectronicsLab.swf",
-
-               "height": 350,
-               "width": 500,
-
-               "experiment.picture": "/img/experiments/electronics.jpg"
-           }
-        ]
-    }
 
 Those SWF files should be located in the ``public`` directory (`see here
 <https://github.com/weblabdeusto/weblabdeusto/tree/master/client/src/es/deusto/weblab/public>`_),
