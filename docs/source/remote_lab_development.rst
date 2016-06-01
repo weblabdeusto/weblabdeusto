@@ -3,9 +3,6 @@
 Remote laboratory development
 =============================
 
-.. note::
-    **This section is being written at this time (October 2015)**
-
 .. contents:: Table of Contents
 
 Introduction
@@ -1658,13 +1655,50 @@ expected. Refer to that documentation for using it.
 Unmanaged laboratories
 ----------------------
 
+The unmanaged approach is just a different model for developing remote
+laboratories. At the time of this writing, there are mainly three types of
+unmanaged laboratories:
 
+* :ref:`remote_lab_devel_unmanaged_http` (recommended)
+* :ref:`remote_lab_devel_unmanaged_labview` (experimental)
+* :ref:`remote_lab_devel_unmanaged_vm` (limited)
+
+.. _remote_lab_devel_unmanaged_http:
+
+HTTP unmanaged laboratories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 .. warning::
 
     We're writing this documentation at this moment (June 2016)
 
+.. _remote_lab_devel_unmanaged_vm:
+
+
+.. _remote_lab_devel_unmanaged_labview:
+
+LabVIEW Remote Panels
+^^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+
+   This approach is experimental. Don't hesitate to :ref:`contact` for further
+   and updated information.
+   
+   
+The disadvantage is that it has all the disadvantages of the LabVIEW remote
+panels: it does not work in most web browsers, requires several ports to be
+open, etc. However, it's the easiest approach to implement a new remote
+laboratory for LabVIEW developers nowadays.
+
+
 Virtual machines
 ^^^^^^^^^^^^^^^^
+
+.. note::
+    
+    The support for remote laboratories based on virtual machines is limited.
+    While it works, the flexibility provided by virtual machines is in general
+    not enough for most remote laboratories.
 
 .. toctree::
    :maxdepth: 2
