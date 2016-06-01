@@ -1667,11 +1667,10 @@ unmanaged laboratories:
 
 HTTP unmanaged laboratories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. warning::
 
     We're writing this documentation at this moment (June 2016)
-
-.. _remote_lab_devel_unmanaged_vm:
 
 
 .. _remote_lab_devel_unmanaged_labview:
@@ -1748,6 +1747,8 @@ code (your code) will have make sure that the user is valid if he provides such
 code. From that moment, the user will use the Remote Panel as usual, and
 different triggers in the ``.vi`` code will tell you that you should tell the
 user to finish (e.g., when a different user comes).
+
+.. _remote_lab_devel_unmanaged_vm:
 
 Virtual machines
 ^^^^^^^^^^^^^^^^

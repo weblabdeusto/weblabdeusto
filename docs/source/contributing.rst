@@ -15,7 +15,8 @@ the system. You do not need to be a software developer to contribute!
 Documentation
 -------------
 
-Documentation is not as maintained as we would like. If you find something that could be better described in a different way, feel free to go to our `github doc repository <https://github.com/weblabdeusto/weblabdeusto/tree/master/docs/source>`_, click on any file, and then on edit (given a file, search for "History" and next to it you'll find the Edit button). You will need to create a github account first and be logged in with that account. Once you do it and save changes, we are notified and can apply the changes (but it will be clearly acknowledged in github that you're the person doing the change).
+Documentation is not as maintained as we would like. However, in every page in this documentation you'll see a ``Show source`` button that redirects you to this page in Github.
+If you find something that could be better described in a different way, feel free to click there or go to our `github doc repository <https://github.com/weblabdeusto/weblabdeusto/tree/master/docs/source>`_, and then click on edit (given a file, search for "History" and next to it you'll find the Edit button). You will need to create a github account first and be logged in with that account. Once you do it and save changes, we are notified and can apply the changes (but it will be clearly acknowledged in github that you're the person doing the change).
 
 
 Translations
