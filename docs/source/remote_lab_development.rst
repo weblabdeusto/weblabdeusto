@@ -110,6 +110,12 @@ In any case, both approaches are compatible in the same WebLab-Deusto server, so
    :width: 500 px
    :align: center
 
+So the next step is to start with any of the two approaches:
+
+* :ref:`remote_lab_devel_managed_laboratories`
+* :ref:`remote_lab_devel_unmanaged_laboratories`
+
+
 .. _remote_lab_devel_managed_laboratories:
 
 Managed laboratories
@@ -663,9 +669,15 @@ client development (:ref:`managed_libraries_client`).
 .NET
 ....
 
-.. note::
+The .NET library is available here (so you have it in your WebLab-Deusto installation in ``experiments/managed/libs/server/dotnet``):
 
-   To be written (June 2016).
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/dotnet
+
+At the time of this writing, it supports API v1. You can fill the ``DummyExperimentServer.cs`` example that uses the library.
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>` steps 1 to 4, or to jump to the
+client development (:ref:`managed_libraries_client`).
 
 
 .. _remote_labs_development_managed_server_c:
@@ -673,9 +685,15 @@ client development (:ref:`managed_libraries_client`).
 C
 ..
 
-.. note::
+The C library is available here (so you have it in your WebLab-Deusto installation in ``experiments/managed/libs/server/c``):
 
-   To be written (June 2016).
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/c
+
+At the time of this writing, it supports API v2. You can fill the ``dummy_experiment_server.c`` example that uses the library.
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>` steps 1 to 4, or to jump to the
+client development (:ref:`managed_libraries_client`).
 
 
 .. _remote_labs_development_managed_server_cpp:
@@ -683,19 +701,30 @@ C
 C++
 ...
 
-.. note::
+The C++ library is available here (so you have it in your WebLab-Deusto installation in ``experiments/managed/libs/server/cpp``):
 
-   To be written (June 2016).
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/cpp
 
+At the time of this writing, it supports API v1. You can fill the ``dummy_experiment_server.cpp`` example that uses the library.
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>` steps 1 to 4, or to jump to the
+client development (:ref:`managed_libraries_client`).
 
 .. _remote_labs_development_managed_server_nodejs:
 
 Node.js
 .......
 
-.. note::
+The Node.js library is available here (so you have it in your WebLab-Deusto installation in ``experiments/managed/libs/server/nodejs``):
 
-   To be written (June 2016).
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/nodejs
+
+At the time of this writing, it supports API v2. You can fill the ``dummyexperimentserver.js`` example that uses the library.
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>` steps 1 to 4, or to jump to the
+client development (:ref:`managed_libraries_client`).
 
 
 .. _managed_library_server_labview:
@@ -703,10 +732,21 @@ Node.js
 LabVIEW
 .......
 
+
 .. note::
 
-   To be written (June 2016).
+   This is the LabVIEW *managed* library. It does not support using Remote panels or so on. It only supports that you serialize the 
+   messages and write your own client in JavaScript using it.
 
+The LabVIEW library is available here (so you have it in your WebLab-Deusto installation in ``experiments/managed/libs/server/labview``):
+
+   https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/managed/libs/server/labview
+
+At the time of this writing, it supports API v1. You can fill the ``DummyExperimentServer.vi`` example that uses the library.
+
+From this point, you can now deploy the experiment, as explained in the
+:ref:`following section <remote_lab_deployment>` steps 1 to 4, or to jump to the
+client development (:ref:`managed_libraries_client`).
 
 .. _remote_labs_development_managed_server_python:
 
