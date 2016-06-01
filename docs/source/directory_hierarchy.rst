@@ -9,7 +9,9 @@ Introduction
 ~~~~~~~~~~~~
 
 WebLab-Deusto uses a directory hierarchy which is also used for managing
-configuration. Basically, if you create a simple WebLab-Deusto instance::
+configuration. Basically, if you create a simple WebLab-Deusto instance:
+
+.. code-block:: bash
 
   $ weblab-admin.py create sample
 
@@ -95,7 +97,9 @@ in a different network, it will use a network based protocol.
 Basic structure example
 ```````````````````````
 
-Let's see a couple of example prior to proceeding. By running (as before)::
+Let's see a couple of example prior to proceeding. By running (as before):
+
+.. code-block:: bash
 
  $ weblab-admin.py create sample
 
@@ -148,7 +152,9 @@ In this case, the core server will communicate with the Laboratory Server throug
 Single process example
 ``````````````````````
 
-So as to illustrate a more compact example, where all the servers are running in a single process, run the following::
+So as to illustrate a more compact example, where all the servers are running in a single process, run the following:
+
+.. code-block:: bash
 
    $ weblab-admin.py create sample2 --inline-lab-server
 
@@ -261,7 +267,9 @@ The full list of configuration variables are listed in :ref:`configuration_varia
 Multiple core servers
 `````````````````````
 
-Let's take a more complex example, involving more laboratories and more core servers. Here we assume that you have installed MySQL and the PyMySQL driver as suggested in :ref:`installation_further`, and therefore we can run more than one core server. Running::
+Let's take a more complex example, involving more laboratories and more core servers. Here we assume that you have installed MySQL and the PyMySQL driver as suggested in :ref:`installation_further`, and therefore we can run more than one core server. Running:
+
+.. code-block:: bash
 
     $ weblab-admin.py create sample3 --lab-copies=2 --dummy-copies=5 --cores=3 --db-engine=mysql --coordination-db-engine=mysql
 
@@ -348,7 +356,9 @@ This configuration is represented with the following figure:
 Multiple machines
 `````````````````
 
-So as to generate more than one machine with the ``weblab-admin.py`` script, run the following::
+So as to generate more than one machine with the ``weblab-admin.py`` script, run the following:
+
+.. code-block:: bash
 
   $ weblab-admin.py create sample4 --xmlrpc-experiment
 
@@ -359,7 +369,9 @@ This command is intended for deploying laboratories that use XML-RPC (such as th
    :align: center
 
 
-If we look at the ``configuration.yml`` file, we can appreciate the following::
+If we look at the ``configuration.yml`` file, we can appreciate the following:
+
+.. code-block:: yaml
 
   hosts:
     core_host:

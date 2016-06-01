@@ -131,21 +131,25 @@ efficiently. That said, these libraries require a C compiler to be installed and
 a set of external C libraries, which might not be available in Microsoft Windows
 environments. However, in GNU/Linux, they are recommended. 
 
-For this reason, in Ubuntu GNU/Linux install the following packages::
+For this reason, in Ubuntu GNU/Linux install the following packages:
+
+.. code-block:: bash
 
    # Python
-   sudo apt-get install build-essential python-dev 
+   $ sudo apt-get install build-essential python-dev 
    # MySQL client, for an optimized version of the MySQL plug-in
-   sudo apt-get install libmysqlclient-dev
+   $ sudo apt-get install libmysqlclient-dev
    # SASL, for supporting LDAP
-   sudo apt-get install libsasl2-dev libsasl2-dev
+   $ sudo apt-get install libsasl2-dev libsasl2-dev
    # XML libraries for validating the configuration files
-   sudo apt-get install libxml2-dev libxslt1-dev 
+   $ sudo apt-get install libxml2-dev libxslt1-dev 
    # Avoid problems with freetype:
-   sudo ln -s /usr/include/freetype2 /usr/include/freetype
+   $ sudo ln -s /usr/include/freetype2 /usr/include/freetype
 
 Once installed, it is now possible to install more optimized Python libraries,
-by running::
+by running:
+
+.. code-block:: bash
 
    $ cd weblab/server/src/
    $ pip install -r requirements_suggested.txt
@@ -168,22 +172,31 @@ There are two main database backends for scheduling:
 * **Redis:** which uses `redis <http://www.redis.io>`_, and provides faster
   results but does only work on UNIX environments at this point.
 
-By default in the introduction section, you have used ``SQLite``. So as to use ``MySQL`` as database engine, run the following::
+By default in the introduction section, you have used ``SQLite``. So as to use ``MySQL`` as database engine, run the following:
+
+
+.. code-block:: bash
 
    $ weblab-admin create sample --coordination-db-engine=mysql
 
-Additionally, you may pass other arguments to customize the deployment::
+Additionally, you may pass other arguments to customize the deployment:
+
+.. code-block:: bash
 
    $ weblab-admin create sample --coordination-db-engine=mysql \
      --coordination-db-name=WebLabScheduling \
      --coordination-db-user=weblab     --coordination-db-passwd=mypassword \
      --coordination-db-host=localhost  --coordination-db-port=3306
 
-However, if you want to use ``Redis``, run the following::
+However, if you want to use ``Redis``, run the following:
+
+.. code-block:: bash
 
    $ weblab-admin create sample --coordination-engine=redis
 
-Additionally, you may pass the other arguments, such as::
+Additionally, you may pass the other arguments, such as:
+
+.. code-block:: bash
 
    $ weblab-admin create sample --coordination-engine=redis \
      --coordination-redis-db=4  --coordination-redis-passwd=mypassword \
@@ -205,11 +218,15 @@ However, in WebLab-Deusto we have only tested two database engines:
 * ``MySQL:`` on desktops and servers, it makes more sense to use MySQL and a
   higher number of processes to distribute the load of users among them.
 
-So as to test this, run the following::
+So as to test this, run the following:
+
+.. code-block:: bash
 
    $ weblab-admin create sample --db-engine=mysql
 
-Additionally, you may customize the deployment with the following arguments::
+Additionally, you may customize the deployment with the following arguments:
+
+.. code-block:: bash
 
    $ weblab-admin create sample --db-engine=mysql  \
      --db-name=MyWebLab     --db-host=localhost    \

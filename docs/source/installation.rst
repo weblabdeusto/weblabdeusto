@@ -30,7 +30,9 @@ database.  Then, we will explain how to go deep to more complex deployments.
 **Note:** during the whole documentation, some examples of commands run in a
 terminal will be presented. Given that terminals are different from system to
 system, we will show ``$`` to represent the terminal prompt. For instance, the
-following example::
+following example:
+
+.. code-block:: bash
 
     $ weblab-admin.py --version
     5.0
@@ -68,7 +70,9 @@ Installing the requirements
     * In Microsoft Windows, go to Control Panel -> System -> Advanced -> Environment variables -> (down) PATH -> edit and append: ``;C:\Python27\;C:\Python27\Scripts\;``.
 #. At this step, you should be able to open a terminal (in Microsoft Windows, click on the Start menu -> run -> type ``cmd``) and test that both tools are installed.
 
-Run the following (don't take into account the particular versions, these are just examples)::
+Run the following (don't take into account the particular versions, these are just examples):
+
+.. code-block:: bash
 
   $ python --version 
 
@@ -77,21 +81,25 @@ Run the following (don't take into account the particular versions, these are ju
 4. Install ``setuptools`` following `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_ (in Linux distributions you will find ``setuptools`` in the repositories and sometimes they come by default). It should be as simple as downloading and executing a file.
 #. Once setuptools are installed, you can install ``pip``, ``virtualenv`` and ``virtualenvwrapper`` (``virtualenvwrapper-win`` in Microsoft Windows). 
 
-In Linux systems you can get them in the package repositories (e.g., in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running::
+In Linux systems you can get them in the package repositories (e.g., in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running:
 
+.. code-block:: bash
+  
   $ easy_install pip
 
   $ easy_install virtualenv
 
-  IN UNIX (if you can't find virtualenvwrapper in the repository of your Linux distribution):
+  # IN UNIX (if you can't find virtualenvwrapper in the repository of your Linux distribution):
   $ easy_install virtualenvwrapper 
 
-  IN WINDOWS:
+  # IN WINDOWS:
   $ easy_install virtualenvwrapper-win
 
 7. At this point, you should be able to open a terminal and test that these tools are installed.
 
-Run the following (don't take into account the particular versions)::
+Run the following (don't take into account the particular versions):
+
+.. code-block:: bash
 
   $ pip --version
 
@@ -120,7 +128,10 @@ here:
   must be loaded. By default in Ubuntu, it is correctly loaded in all the new
   terminals, so try closing the current terminal and opening it again. If the
   problem persists, you may need to find where is a script called
-  ``virtualenvwrapper.sh``, and add to your ``~/.bashrc``::
+  ``virtualenvwrapper.sh``, and add to your ``~/.bashrc``:
+
+
+.. code-block:: bash
 
   source /path/to/virtualenvwrapper.sh
 
@@ -130,7 +141,9 @@ here:
 
 If you still have problems with ``mkvirtualenv``, try uninstalling it (``pip
 uninstall virtualenvwrapper``) and installing only the ``virtualenv`` package.
-If you do this, you will need to do::
+If you do this, you will need to do:
+
+.. code-block:: bash
 
   $ virtualenv weblab_env
   New python executable in weblab_env/bin/python
@@ -138,7 +151,9 @@ If you do this, you will need to do::
   Installing pip...............done.
   $ 
 
-And then, each time you want to workin the virtualenv, run::
+And then, each time you want to workin the virtualenv, run:
+
+.. code-block:: bash
 
   (On UNIX)
   $ ./weblab_env/bin/activate
@@ -154,7 +169,9 @@ environment and install the whole system as administrator.
 Installing WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a virtualenv. In UNIX systems::
+Create a virtualenv. In UNIX systems:
+
+.. code-block:: bash
 
   user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g., /opt/weblabdeusto/ )
 
@@ -162,7 +179,9 @@ Create a virtualenv. In UNIX systems::
 
   (weblab) user@machine:/opt/weblabdeusto$
 
-In Microsoft Windows environments::
+In Microsoft Windows environments:
+
+.. code-block:: batch
 
   C:\> cd WHEREVER-IS-WEBLAB (e.g., C:\weblabdeusto\ )
 
@@ -170,13 +189,17 @@ In Microsoft Windows environments::
 
   (weblab) C:\weblabdeusto> 
 
-And then, install WebLab-Deusto::
+And then, install WebLab-Deusto:
+
+.. code-block:: bash
 
   $ python setup.py install
   [...]
   Finished processing dependencies for weblabdeusto==5.0
 
-Once the process is over, you can test the installation by running::
+Once the process is over, you can test the installation by running:
+
+.. code-block:: bash
 
   $ weblab-admin.py --version
   5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
@@ -198,8 +221,9 @@ to time to obtain the latest features.
 Whenever you open a new terminal, you'll find that ``weblab-admin.py`` is not
 installed. However, whenever you activate the environment where you installed
 WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
-do the following in UNIX systems::
+do the following in UNIX systems:
 
+.. code-block:: bash
     user@machine:~$ workon weblab
     (weblab) user@machine:~$ weblab-admin.py --version
     5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)

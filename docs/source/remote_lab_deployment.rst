@@ -75,9 +75,11 @@ the same process as the Laboratory server, being able to use the configuration
 subsystem and being easier to manage.
 
 So as to do this, let us assume that there is a simple system as the one created
-by::
+by:
 
-    weblab-admin create sample --http-server-port=12345
+.. code-block:: bash
+
+    $ weblab-admin create sample --http-server-port=12345
 
 And that you have developed an experiment using the Python API as explained in :ref:`remote_lab_development_weblab_python`. Your experiment can be something as simple as:
 
@@ -122,20 +124,27 @@ Let us also assume that this code is in a file called ``myexperiments.py``, and 
 Then, first, we will need to make sure that WebLab-Deusto can access that file.
 To this end, we would add that directory to the ``PYTHONPATH``. 
 
-In Windows we can run the following each time before running weblab-admin.py start::
+In Windows we can run the following each time before running weblab-admin.py start:
+
+.. code-block:: batch
 
    (weblab) C:\Users\Tom> set PYTHONPATH=C:\Users\Tom\experiments
 
-In Linux / Mac OS X we can run the following::
+In Linux / Mac OS X we can run the following:
+
+.. code-block:: bash
 
    (weblab) tom@tom-laptop:~$ export PYTHONPATH=/home/tom/experiments:$PYTHONPATH
 
-To verify that this is correct, you should be able to do the following::
+To verify that this is correct, you should be able to do the following:
+
+.. code-block:: bash
 
    $ python
    [...] 
    >>> import myexperiments
    >>> 
+
 
 If no ImportError occurs, it means that everything required (e.g., your code and WebLab-Deusto code) is available.
 
@@ -278,7 +287,9 @@ complex deployments.
     modules of WebLab-Deusto or of libraries used by WebLab-Deusto.
 
 
-To verify that the configuration is fine, start the server::
+To verify that the configuration is fine, start the server:
+
+.. code-block:: bash
 
     $ weblab-admin.py start sample
      * Running on http://0.0.0.0:12345/ (Press CTRL+C to quit)
@@ -286,7 +297,9 @@ To verify that the configuration is fine, start the server::
      
 
 If no error is reported in a few seconds, you can press enter to stop it and continue. If the
-following error appears::
+following error appears:
+
+.. code-block:: bash
 
     $ weblab-admin.py start sample
      * Running on http://0.0.0.0:12345/ (Press CTRL+C to quit)
@@ -295,7 +308,9 @@ following error appears::
     voodoo.gen.exc.LoadingError: Error loading component: 'myexperiments.ElectronicsLab' for server electronics:laboratory1@core_host: No module named myexperiments
 
 It means that the myexperiments.py file does not seem to be available. Verify
-that running in the same terminal reports no error::
+that running in the same terminal reports no error:
+
+.. code-block:: bash
 
    $ python
    [...]
@@ -320,9 +335,11 @@ managed. In the case of experiments using XML-RPC, it is required to *lie the
 system*, by stating that there is an experiment server listening through XML-RPC
 in a particular port, with a particular configuration that will never be run.
 
-The easiest way to see an example of this configuration is running the following::
+The easiest way to see an example of this configuration is running the following:
 
-    weblab-admin.py create sample --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
+.. code-block:: bash
+
+    $ weblab-admin.py create sample --xmlrpc-experiment --xmlrpc-experiment-port=10039 --http-server-port=12345
 
 This will generate a particular configuration, with two *hosts* at
 WebLab-Deusto level: one called ``core_host``, and the other ``exp_host``.
@@ -369,13 +386,17 @@ The generated configuration is the following:
                   supports: xmlrpc
                 type: experiment
 
-So as to run the first one, you should run::
+So as to run the first one, you should run:
 
-    weblab-admin.py start sample --host core_host
+.. code-block:: bash
 
-You may also run::
+    $ weblab-admin.py start sample --host core_host
 
-    weblab-admin.py start sample --host exp_host
+You may also run:
+
+.. code-block:: bash
+
+    $ weblab-admin.py start sample --host exp_host
 
 In other console at the same time. That way, there would be a Python Experiment
 server listening on port ``10039``. However, this is not what we want here. What
@@ -394,9 +415,11 @@ documentation to establish at WebLab-Deusto level that there will be an
 Experiment server listening in a particular port.
 
 So, let's start from scratch. Let's imagine that we create other example, such
-as::
+as:
 
-    weblab-admin.py create sample --http-server-port=12345
+.. code-block:: bash
+
+    $ weblab-admin.py create sample --http-server-port=12345
 
 This will generate the following schema:
 
@@ -489,7 +512,9 @@ Actually, the values of ``runner`` and ``class`` in this case are not relevant, 
    ``sample`` modified to support a new ``electronics`` laboratory.
 
 
-Doing this, the Experiment server will have been registered. You can test that running the following will start without errors the core host::
+Doing this, the Experiment server will have been registered. You can test that running the following will start without errors the core host:
+
+.. code-block:: bash
 
    $ weblab-admin.py start sample --host core_host
 
@@ -638,7 +663,9 @@ Each Experiment Server must be registered in a single Laboratory server. One
 Laboratory Server can manage multiple Experiment servers. So as to register a
 Experiment server, we have to go to the Laboratory server configuration file. In
 the near future, this configuration will disappear and everything will be
-configured in the database.  When you create a WebLab-Deusto instance doing::
+configured in the database.  When you create a WebLab-Deusto instance doing:
+
+.. code-block:: bash
 
    $ weblab-admin create sample
 
@@ -982,27 +1009,27 @@ point to the same laboratory:
                     'checkers' : ()
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp2:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp3:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp4:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
             'exp5:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2'
                 },
@@ -1011,7 +1038,9 @@ point to the same laboratory:
 This way, five students will be able to enter to the laboratory at the same
 time, and they will be able to interact each other. The main problem is that by
 default, the server API does not support knowing which student is submitting each
-request, since the methods are essentially something like::
+request, since the methods are essentially something like:
+
+.. code-block:: java
 
     String sendCommand(String command);
 
@@ -1020,7 +1049,9 @@ However, there is other API, called the Concurrent API (see
 moment by most of the libraries but yes by the Python experiments, which
 supports this. It which basically adds a ``lab_session_id`` string to the
 beginning of each parameter. That way, the method for sending commands, for
-instance, is as follows::
+instance, is as follows:
+
+.. code-block:: java
 
     String sendCommand(String labSessionId, String command);
 
@@ -1036,27 +1067,27 @@ the Laboratory server must use the following ``api``:
                     'checkers' : ()
                 },
             'exp1:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp2:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp3:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp4:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
             'exp5:electronics-lesson-1@Electronics experiments' : {
-                    'coord_address' : 'electronics1:exp_instance@exp_host',
+                    'coord_address' : 'electronics:exp_process@exp_host',
                     'checkers' : (),
                     'api'      : '2_concurrent'
                 },
@@ -1074,7 +1105,9 @@ experiment has an associated scheduling scheme (queue) and knows in which
 Laboratory server it is located.
 
 Now we need to make it accessible for the users. The first thing is to register
-the remote laboratory in the database. So, start the WebLab-Deusto instance::
+the remote laboratory in the database. So, start the WebLab-Deusto instance:
+
+.. code-block:: bash
 
    $ weblab-admin.py start sample
 

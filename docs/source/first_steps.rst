@@ -7,7 +7,10 @@ First steps
 In this section, we will learn to create our first deployment of a WebLab-Deusto
 instance. This section assumes that you have successfully :ref:`installed the
 system <installation>`. It also assumes that you have activated the proper
-virtual environment in the current terminal, so running weblab-admin works::
+virtual environment in the current terminal, so running weblab-admin works:
+
+
+.. code-block:: bash
 
   $ weblab-admin.py --version
   5.0
@@ -28,7 +31,10 @@ there will be typically a single one, but for testing it may be useful to play
 with different ones. Each instance will manage its own permissions, its own
 users, its own queues, etc.
 
-So as to create a new WebLab-Deusto instance, run the following::
+So as to create a new WebLab-Deusto instance, run the following:
+
+
+.. code-block:: bash
 
   $ weblab-admin.py create example --http-server-port=8000
   Congratulations!
@@ -51,7 +57,9 @@ Starting the WebLab-Deusto instance
 The WebLab-Deusto instance at this point is configured, but it is not started.
 So as to start it, we will use once again the *weblab-admin.py* command. As you'll
 find out, this is the command that you will use for any management related with
-the instances. Run the following::
+the instances. Run the following:
+
+.. code-block:: bash
 
   $ weblab-admin.py start example
   Press <enter> or send a sigterm or a sigint to finish
@@ -62,7 +70,9 @@ As you can see, the server is running. By pressing enter, the server will stop::
   Stopping servers...
   $
 
-So, let's start it again::
+So, let's start it again:
+
+.. code-block:: bash
 
   $ weblab-admin.py start example
   Press <enter> or send a sigterm or a sigint to finish
@@ -205,12 +215,16 @@ deployment can be configured. While in the :ref:`next section
 `MySQL <http://www.mysql.com/>`_ or `Apache <http://httpd.apache.org/>`_, there
 are some settings that we can modify at this level.
 
-Running::
+Running:
+
+.. code-block:: bash
 
   $ weblab-admin.py create --help
 
 Displays the full help regarding the create command. A more advanced example
-would be::
+would be:
+
+.. code-block:: bash
 
   $ weblab-admin.py create other.example --http-server-port=8001 --start-port=20000 \
   --system-identifier='My example' --entity-link='http://www.myuniversity.edu/'  \
@@ -236,7 +250,9 @@ Moving the deployment to a different directory or reinstalling WebLab-Deusto
 Say you have installed WebLab-Deusto in a location and you need to move
 to a different directory. All the web server configuration files will be pointing
 with absolute paths to the old directory. The easiest way to override the 
-existing HTTPd configuration and make it point to the proper paths is running::
+existing HTTPd configuration and make it point to the proper paths is running:
+
+.. code-block:: bash
 
    $ weblab-admin.py httpd-config-generate sample
    Generating HTTPd configuration files... [done]

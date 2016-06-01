@@ -3,4 +3,4 @@
 # the WebLab-Deusto documentation has been written
 # 
 
-sphinx<2
+sphinx==1.4.2
