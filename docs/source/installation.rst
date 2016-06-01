@@ -224,6 +224,7 @@ WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
 do the following in UNIX systems:
 
 .. code-block:: bash
+
     user@machine:~$ workon weblab
     (weblab) user@machine:~$ weblab-admin.py --version
     5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
