@@ -1321,6 +1321,8 @@ highly recommend not using Flash apps for the development of remote
 laboratories. However, if you have a limited and controlled audience and an
 existing remote laboratory in Flash, you can still use WebLab-Deusto.
 
+First, you must compile the GWT client, as explained in :ref:`gwt`.
+
 In the case of Flash applications, the client from the list must be ``flash``. However, so as
 to load a particular laboratory, some additional parameters must be configured,
 such as where is the SWF file, the size of the application, or the maximum time

@@ -1,10 +1,7 @@
 .. _gwt:
 
-Compilation of the legacy client labs
-=====================================
-
-Installation
-~~~~~~~~~~~~
+Compilation of the legacy client labs with GWT
+==============================================
 
 #. Install the Java Development Kit:
     * In Linux, use the repositories of your distribution. In Ubuntu, you can install the openjdk-6-jdk package.
@@ -16,10 +13,30 @@ Installation
 
 #. At this step, you should be able to open a terminal (in Microsoft Windows, click on the Start menu -> run -> type ``cmd``) and test that both tools are installed.
 
-Run the following (don't take into account the particular versions, these are just examples)::
+Run the following (don't take into account the particular versions, these are just examples):
+
+.. code-block:: bash
 
   $ javac -version
 
   javac 1.6.0_24
 
+From this point, you might go to the ``server/src`` directory of the source code (that you downloaded through git), and compile the legacy GWT client:
 
+.. code-block:: bash
+
+   $ cd weblab/server/src
+   $ workon weblab
+   (weblab) $ python develop.py --compile-gwt-client
+   [...]
+   (weblab) $ 
+
+The process might take several minutes (even half an hour depending on your computer). If you had previuosly compiled the client, it might tell you to force the compilation providing you instructions on how to re-compile it.
+
+Once compiled, you have to run the following script:
+
+.. code-block:: bash
+
+   (weblab) $ python setup.py install
+
+After this script finishes (it will essentially copy the client to the appropriate folder of WebLab-Deusto), the GWT client will have been properly installed.
