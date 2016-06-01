@@ -1748,6 +1748,11 @@ code. From that moment, the user will use the Remote Panel as usual, and
 different triggers in the ``.vi`` code will tell you that you should tell the
 user to finish (e.g., when a different user comes).
 
+.. image:: /_static/weblab_deployment_labview.png
+   :width: 500 px
+   :align: center
+
+
 .. _remote_lab_devel_unmanaged_vm:
 
 Virtual machines
