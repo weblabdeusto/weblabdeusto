@@ -332,10 +332,17 @@ def logout():
             # Furthermore, whenever booking is supported, this whole idea should be taken out. Even
             # with queues it might not make sense, depending on the particular type of experiment.
             #
-            reservation_session = server_instance._reservations_session_manager.get_session(SessionId(reservation_id))
-            reservation_processor = server_instance._load_reservation(reservation_session)
-            reservation_processor.finish()
-            server_instance._alive_users_collection.remove_user(reservation_id)
+            try:
+                reservation_session = server_instance._reservations_session_manager.get_session(SessionId(reservation_id))
+                reservation_processor = server_instance._load_reservation(reservation_session)
+                reservation_processor.finish()
+            except SessionNotFoundError:
+                pass
+
+            try:
+                server_instance._alive_users_collection.remove_user(reservation_id)
+            except SessionNotFoundError:
+                pass
 
         user_processor.logout()
         user_processor.update_latest_timestamp()
@@ -511,6 +518,9 @@ class WebLabFlaskServer(WebLabWsgiServer):
         file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
         file_handler.setLevel(logging.WARNING)
         self.app.logger.addHandler(file_handler)
+        stream_handler = logging.StreamHandler()
+        stream_handler.setLevel(logging.WARNING)
+        self.app.logger.addHandler(stream_handler)
 
         super(WebLabFlaskServer, self).__init__(cfg_manager, self.app)
 
