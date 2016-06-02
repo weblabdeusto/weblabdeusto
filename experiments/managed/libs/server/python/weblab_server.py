@@ -33,6 +33,7 @@ In order to use the second approach, you should make a class that
 inherits from ExperimentServer, and use the launch method to run it :-)
 """ 
 
+import traceback
 import SimpleXMLRPCServer
 
 class ExperimentServer(object):
@@ -64,6 +65,14 @@ class ExperimentServer(object):
 
 class WebLabHandler(SimpleXMLRPCServer.SimpleXMLRPCRequestHandler):
     rpc_paths = '/','/RPC2','/weblab/xmlrpc','/weblab/xmlrpc/','/weblab','/weblab/'
+
+class XMLRPCServer(SimpleXMLRPCServer.SimpleXMLRPCServer):
+    def _dispatch(self, *args, **kwargs):
+        try:
+            return SimpleXMLRPCServer.SimpleXMLRPCServer._dispatch(self, *args, **kwargs)
+        except:
+            traceback.print_exc()
+            raise
     
 class Launcher(object):
     
@@ -73,7 +82,7 @@ class Launcher(object):
         self.experiment_server = experiment_server
 
     def start(self):
-        self.server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", self.port), WebLabHandler)
+        self.server = XMLRPCServer(("localhost", self.port), WebLabHandler)
         self.server.register_function(self.experiment_server.test_me, "Util.test_me")
         self.server.register_function(self.experiment_server.is_up_and_running, "Util.is_up_and_running")
         self.server.register_function(self.experiment_server.start_experiment, "Util.start_experiment")
