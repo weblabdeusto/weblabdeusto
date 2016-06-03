@@ -1672,6 +1672,151 @@ HTTP unmanaged laboratories
 
     We're writing this documentation at this moment (June 2016)
 
+The HTTP unmanaged laboratories target that you can develop laboratories in your
+preferred web technology. It is by far the most flexible approach, and the most
+powerful, but also the one that requires developers to be in charge of more
+tasks.
+
+The basis is that developers implement a interface (detaled in
+:ref:`remote_lab_devel_unmanaged_http_interface`) that WebLab-Deusto will use as
+a client to contact your server for three tasks:
+
+#. Notifying that a new user comes. Your server does not need to control the
+   queue of users or user authentication: WebLab-Deusto is still charge of that,
+   so it will notify you only whenever a valid user has a valid reservation and
+   must be able to access. WebLab-Deusto will tell you for how long, what's the
+   username, and some more data. You will have to generate a URL that should
+   include a private session or token that you generate so that anyone going to
+   that website will be able to use the laboratory.
+
+#. Requesting if the user is still there. A user might be assigned 10 minutes,
+   but he might leave after 30 seconds. If this happens, the laboratory might be
+   assigned to that user still for 9 minutes more, potentially with people in the
+   queue. You are responsible of checking whether the user has left or not.
+
+#. Notifying that a user must finish. When WebLab-Deusto establishes it (because
+   the time is over, an administrator kicked the user or similar), the laboratory
+   must be able to make sure that the user is not valid anymore. You are
+   responsible of making sure that the user can't do anything else after this
+   happens, and that he is redirected to a URL provided by WebLab-Deusto in the
+   beginning.
+
+So, your server will be serving two different web applications: one for
+WebLab-Deusto (which you can even limit by IP address or listen on a different
+port if you prefer), and one for the final users.
+
+.. _remote_lab_devel_unmanaged_http_interface:
+
+Interface specification
+.......................
+
+This section explains in detail each of the three functions explained above. You
+might see also examples in the section :ref:`examples`.
+
+Function 1: Start 
+`````````````````
+
+As mentioned, this method notifies the server to let a new user access the
+laboratory. In the following diagram:
+
+.. image:: /_static/weblab_development_unmanaged_1.png
+   :width: 500 px
+   :align: center
+
+The steps described in the diagram are the following:
+
+#. The user will contact WebLab-Deusto requesting a reservation. If there was
+   somebody already using the system, the WebLab-Deusto client will be
+   contacting the server and showing that the user is in a queue.
+
+#. Whenever the user can access the laboratory, WebLab-Deusto will initialize
+   the session contacting the Laboratory server.
+
+#. The Laboratory server will then contact the Experiment Server, which is
+   provided by WebLab-Deusto in this case. It is a wrapper that wraps the
+   requests to WebLab-Deusto to your server using the HTTP interface.
+
+#. The Experiment server will contact your server calling the start function, as
+   defined below. You are expected to provide a URL and let that student access
+   with that URL, as well as a session identifier so the Experiment Server can
+   contact your server for that session.
+
+#. All the layers will return that URL to the user, so the user will
+   automatically be redirected to that URL. In this step, the user will go to
+   that URL directly.
+
+So, in this method, an HTTP request is done to your server (step 4). The request
+is the following::
+
+    POST /weblab/sessions/ HTTP/1.0
+    Content-Type: application/json
+    [...]
+
+    {
+        ''
+    }
+
+The expected response is the following::
+
+    HTTP/1.0 200 OK
+    [...]
+
+    {
+        
+    }
+
+.. note::
+
+    When creating such URL, you can use something like:
+
+       http://myserver/mylab?token=0ff5345e-c2d7-4e1e-84c1-54df43de60f5
+
+    However, ideally you should pass it with the # so as to avoid the token to
+    be logged in all the proxies and similar, and ideally it should be removed
+    just after. For example, if you provide this link:
+
+       http://myserver/mylab#token=0ff5345e-c2d7-4e1e-84c1-54df43de60f5
+
+    And internally when accessing, the client in JavaScript takes the
+    ``location.hash``, uses that token and changes the ``location.hash``, it
+    would remove certain security problems. Ideally, you should also use HTTPS
+    instead of HTTP.
+
+
+Function 2: Status
+``````````````````
+
+.. image:: /_static/weblab_development_unmanaged_2.png
+   :width: 500 px
+   :align: center
+
+.. note::
+
+    You may use JavaScript to be notified that the user has closed the window.
+    This is a good approach so you know as soon as possible that the user has
+    left. However, don't rely uniquely on this approach, since if the user's
+    computer shuts down, suspends, gets disconnected, that event will not be
+    sent. So relying on two mechanisms (e.g., storing what was the last action
+    while sending periodically an event + JavaScript) makes the overall system
+    more efficient.
+
+Function 3: Stop
+````````````````
+
+.. image:: /_static/weblab_development_unmanaged_3.png
+   :width: 500 px
+   :align: center
+
+
+(HTTP requests)
+
+
+.. _remote_lab_devel_unmanaged_http_examples:
+
+Examples
+........
+
+(Flask and PHP)
 
 .. _remote_lab_devel_unmanaged_labview:
 
