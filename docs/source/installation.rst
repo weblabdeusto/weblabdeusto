@@ -78,13 +78,21 @@ Run the following (don't take into account the particular versions, these are ju
 
   Python 2.7.6
 
-4. Install ``setuptools`` if you don't have them. In Windows, nowadays the installer of Python comes with ``pip``, so you don't need to install anything else. In Linux, you usually can install it from the repositories (e.g., ``sudo apt-get install python-pip virtualenv virtualenvwrapper`` in Ubuntu/Debian). If in doubt, follow `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_. In any system, make sure you also install ``virtualenv`` and ``virtualenvwrapper`` (in Ubuntu you can use the command mentioned ``sudo apt-get install virtualenv virtualenvwrapper``). In particular, in Windows run the following:
+4. Install ``setuptools`` if you don't have them. In Windows, nowadays the installer of Python comes with ``pip``, so you don't need to install anything else. In Linux, you usually can install it from the repositories (e.g., ``sudo apt-get install python-pip`` in Ubuntu/Debian). If in doubt, follow `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_. 
+
+#. Install ``virtualenv`` and ``virtualenvwrapper``. In Ubuntu/Debian you can use ``sudo apt-get install virtualenv virtualenvwrapper`` (and in other Linux distributions this is probably available in the repositories). In Windows run the following:
 
 .. code-block:: console
 
-   C:\> pip install virtualenvwrapper-win
+   C:\Users\Tom> pip install virtualenvwrapper-win
 
-5. At this point, you should be able to open a terminal and test that these tools are installed.
+In other systems, you may use as an administrator:
+
+.. code-block:: bash
+
+   $ pip install virtualenv virtualenvwrapper
+
+6. At this point, you should be able to open a terminal and test that these tools are installed.
 
 Run the following (don't take into account the particular versions):
 
