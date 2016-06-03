@@ -12,7 +12,7 @@ virtual environment in the current terminal, so running weblab-admin works:
 
 .. code-block:: bash
 
-  $ weblab-admin.py --version
+  $ weblab-admin --version
   5.0
 
 The deployment we are running here is very small and relies of very few
@@ -36,7 +36,7 @@ So as to create a new WebLab-Deusto instance, run the following:
 
 .. code-block:: bash
 
-  $ weblab-admin.py create example --http-server-port=8000
+  $ weblab-admin create example --http-server-port=8000
   Congratulations!
   WebLab-Deusto system created
   [...]
@@ -55,13 +55,13 @@ Starting the WebLab-Deusto instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The WebLab-Deusto instance at this point is configured, but it is not started.
-So as to start it, we will use once again the *weblab-admin.py* command. As you'll
+So as to start it, we will use once again the *weblab-admin* command. As you'll
 find out, this is the command that you will use for any management related with
 the instances. Run the following:
 
 .. code-block:: bash
 
-  $ weblab-admin.py start example
+  $ weblab-admin start example
   Press <enter> or send a sigterm or a sigint to finish
 
 As you can see, the server is running. By pressing enter, the server will stop::
@@ -74,7 +74,7 @@ So, let's start it again:
 
 .. code-block:: bash
 
-  $ weblab-admin.py start example
+  $ weblab-admin start example
   Press <enter> or send a sigterm or a sigint to finish
 
 
@@ -219,14 +219,14 @@ Running:
 
 .. code-block:: bash
 
-  $ weblab-admin.py create --help
+  $ weblab-admin create --help
 
 Displays the full help regarding the create command. A more advanced example
 would be:
 
 .. code-block:: bash
 
-  $ weblab-admin.py create other.example --http-server-port=8001 --start-port=20000 \
+  $ weblab-admin create other.example --http-server-port=8001 --start-port=20000 \
   --system-identifier='My example' --entity-link='http://www.myuniversity.edu/'  \
   --poll-time=300 --admin-user=administrator --admin-name='John Doe'             \
   --admin-password=secret --admin-mail='admin@weblab.myuniversity.edu' --logic
@@ -254,7 +254,7 @@ existing HTTPd configuration and make it point to the proper paths is running:
 
 .. code-block:: bash
 
-   $ weblab-admin.py httpd-config-generate sample
+   $ weblab-admin httpd-config-generate sample
    Generating HTTPd configuration files... [done]
    $ 
 

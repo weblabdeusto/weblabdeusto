@@ -589,7 +589,7 @@ The next steps assume you do.
 
 We will next use weblab-admin to create a new WebLab instance with our VM experiment. We will run the following command::
 
-	weblab-admin.py create WLTest --vm --vbox-base-snapshot "base" --vbox-vm-name "Windows VM" --vm-estimated-load-time 30 
+	weblab-admin create WLTest --vm --vbox-base-snapshot "base" --vbox-vm-name "Windows VM" --vm-estimated-load-time 30 
 	--http-query-user-manager-url "http://192.168.64.143:6789" --vm-url 192.168.64.143 --http-server-port 8000
 	
 However, you will need to make a few changes to the command:
@@ -604,7 +604,7 @@ However, you will need to make a few changes to the command:
 
 This is what should happen::
 
-	(weblab.dev) C:\shared\weblab_github\weblabdeusto_lrg\server\src>weblab-admin.py 
+	(weblab.dev) C:\shared\weblab_github\weblabdeusto_lrg\server\src>weblab-admin
 	create WLTest --force --vm --vbox-base-snapshot base --vbox-vm-name "Windows VM" 
 	--vm-estimated-load-time 30 --http-query-user-manager-url "http://192.168.64.143:6789"
 	--vm-url 192.168.64.143 --http-server-port 8000
@@ -617,7 +617,7 @@ This is what should happen::
 
 	Run:
 
-		 weblab-admin.py start VMTestTwoS
+		 weblab-admin start VMTestTwoS
 
 	to start the WebLab-Deusto system. From that point, you'll be able to access:
 
@@ -635,7 +635,7 @@ This is what should happen::
 
 	You can also add users, permissions, etc. from the admin CLI by typing:
 
-		weblab-admin.py admin VMTestTwoS
+		weblab-admin admin VMTestTwoS
 
 	Enjoy!
 	
@@ -651,7 +651,7 @@ Testing our new instance
 
 To start our new instance, type the following::
 
-	weblab-admin.py start WLTest
+	weblab-admin start WLTest
 	
 Replace `WLTest` with the name you gave to your weblab instance (which is most likely `WLTest` either way.
 

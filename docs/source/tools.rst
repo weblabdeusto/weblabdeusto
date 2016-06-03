@@ -12,15 +12,15 @@ WebLab Admin
 
 WebLab-Deusto provides a command called ``weblab-admin`` for interacting with installations of WebLab-Deusto. You'll find the latest documentation by running::
 
-    $ weblab-admin.py --help
-    $ weblab-admin.py <command> --help
+    $ weblab-admin --help
+    $ weblab-admin <command> --help
 
 The following is the output of these commands as of June 2016.
 
 Instance creation
 ~~~~~~~~~~~~~~~~~
 
-Running ``weblab-admin.py create --help`` returns::
+Running ``weblab-admin create --help`` returns::
 
     Usage: weblab-admin create DIR [options]
     
@@ -253,7 +253,7 @@ Running ``weblab-admin.py create --help`` returns::
 Starting an instance
 ~~~~~~~~~~~~~~~~~~~~
 
-Running ``weblab-admin.py start --help`` returns::
+Running ``weblab-admin start --help`` returns::
 
     Usage: weblab-admin start DIR [options]
     
@@ -272,12 +272,12 @@ Running ``weblab-admin.py start --help`` returns::
 Stopping an instance
 ~~~~~~~~~~~~~~~~~~~~
 
-The command ``weblab-admin.py stop <instance_directory>`` does not have any option. It stops all the processes of the instance.
+The command ``weblab-admin stop <instance_directory>`` does not have any option. It stops all the processes of the instance.
 
 Upgrading an instance
 ~~~~~~~~~~~~~~~~~~~~~
 
-The command ``weblab-admin.py upgrade <instance_directory> --help`` returns::
+The command ``weblab-admin upgrade <instance_directory> --help`` returns::
 
     usage: weblab-admin [-h] [-y]
     
@@ -291,7 +291,7 @@ The command ``weblab-admin.py upgrade <instance_directory> --help`` returns::
 Upgrading locations of an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The command ``weblab-admin.py locations <instance_directory> --help`` returns::
+The command ``weblab-admin locations <instance_directory> --help`` returns::
 
     usage: weblab-admin locations DIR [options]
     
@@ -306,7 +306,7 @@ The command ``weblab-admin.py locations <instance_directory> --help`` returns::
 Upgrading the web server configurations of an instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The command ``weblab-admin.py httpd-config-generate <instance_directory`` does not have any option. It just re-generates the web server configuration.
+The command ``weblab-admin httpd-config-generate <instance_directory`` does not have any option. It just re-generates the web server configuration.
 
 
 .. _bot:

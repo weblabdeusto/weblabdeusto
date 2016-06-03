@@ -34,7 +34,7 @@ following example:
 
 .. code-block:: bash
 
-    $ weblab-admin.py --version
+    $ weblab-admin --version
     5.0
 
 The ``$`` will represent ``C:\something>`` in Windows environments and
@@ -78,24 +78,13 @@ Run the following (don't take into account the particular versions, these are ju
 
   Python 2.7.6
 
-4. Install ``setuptools`` following `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_ (in Linux distributions you will find ``setuptools`` in the repositories and sometimes they come by default). It should be as simple as downloading and executing a file.
-#. Once setuptools are installed, you can install ``pip``, ``virtualenv`` and ``virtualenvwrapper`` (``virtualenvwrapper-win`` in Microsoft Windows). 
+4. Install ``setuptools`` if you don't have them. In Windows, nowadays the installer of Python comes with ``pip``, so you don't need to install anything else. In Linux, you usually can install it from the repositories (e.g., ``sudo apt-get install python-pip virtualenv virtualenvwrapper`` in Ubuntu/Debian). If in doubt, follow `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_. In any system, make sure you also install ``virtualenv`` and ``virtualenvwrapper`` (in Ubuntu you can use the command mentioned ``sudo apt-get install virtualenv virtualenvwrapper``). In particular, in Windows run the following:
 
-In Linux systems you can get them in the package repositories (e.g., in Ubuntu they are python-pip, python-virtualenv and virtualenvwrapper), but in other systems you can install them by running:
+.. code-block:: console
 
-.. code-block:: bash
-  
-  $ easy_install pip
+   C:\> pip install virtualenvwrapper-win
 
-  $ easy_install virtualenv
-
-  # IN UNIX (if you can't find virtualenvwrapper in the repository of your Linux distribution):
-  $ easy_install virtualenvwrapper 
-
-  # IN WINDOWS:
-  $ easy_install virtualenvwrapper-win
-
-7. At this point, you should be able to open a terminal and test that these tools are installed.
+5. At this point, you should be able to open a terminal and test that these tools are installed.
 
 Run the following (don't take into account the particular versions):
 
@@ -201,13 +190,8 @@ Once the process is over, you can test the installation by running:
 
 .. code-block:: bash
 
-  $ weblab-admin.py --version
+  $ weblab-admin --version
   5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
-
-**Note for UNIX systems:** The command ``weblab-admin`` does not work on Microsoft
-Windows itself, and therefore the command ``weblab-admin.py`` is provided for both
-frameworks. However, in UNIX you're safe to use ``weblab-admin`` wherever we
-use ``weblab-admin.py`` in the whole documentation.
 
 If it displays 5.0 or higher, then you have successfully installed the system in
 that virtual environment. Virtual environments in Python are environments where
@@ -218,7 +202,7 @@ currently installed version, and then the date of the latest change in the
 WebLab-Deusto repository. You should :ref:`upgrade the system <upgrade>` from time 
 to time to obtain the latest features.
 
-Whenever you open a new terminal, you'll find that ``weblab-admin.py`` is not
+Whenever you open a new terminal, you'll find that ``weblab-admin`` is not
 installed. However, whenever you activate the environment where you installed
 WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
 do the following in UNIX systems:
@@ -226,13 +210,13 @@ do the following in UNIX systems:
 .. code-block:: bash
 
     user@machine:~$ workon weblab
-    (weblab) user@machine:~$ weblab-admin.py --version
+    (weblab) user@machine:~$ weblab-admin --version
     5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
 
 Or the following in Microsoft Windows systems::
 
     C:\Users\John\Desktop> workon weblab
-    (weblab) C:\Users\John\Desktop> weblab-admin.py --version
+    (weblab) C:\Users\John\Desktop> weblab-admin --version
     5.0 - 1ac2e2b03048cf89c8df36c838130212f4ac63d3 (Sunday, October 18, 2015)
 
 Now you can continue with the :ref:`first steps <first_steps>`.
