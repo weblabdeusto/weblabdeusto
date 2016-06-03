@@ -61,7 +61,7 @@ class LabviewRemotePanels(Experiment):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._dbg_message("Connecting...")
         s.connect((self.host, self.port))
-        self._dbg_message("Connected. Sending message: %s" % message)
+        self._dbg_message("Connected. Sending message: %r" % message)
         s.send(message)
         self._dbg_message("Message sent")
         self._dbg_message("Waiting for response")
@@ -95,7 +95,7 @@ class LabviewRemotePanels(Experiment):
 
     @Override(Experiment)
     def do_should_finish(self):
-        message = '@@@'.join(('status', self.shared_secret))
+        message = '@@@'.join(('status', self.shared_secret, self.current_client_key))
 
         json_response = self._send_message(message)
         if not json_response:
@@ -109,7 +109,7 @@ class LabviewRemotePanels(Experiment):
 
     @Override(Experiment)
     def do_dispose(self):
-        message = '@@@'.join(('end', self.shared_secret))
+        message = '@@@'.join(('end', self.shared_secret, self.current_client_key))
         self._send_message(message)
         return 'ok'
 
