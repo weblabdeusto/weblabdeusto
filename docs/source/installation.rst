@@ -145,15 +145,18 @@ And then, each time you want to workin the virtualenv, run:
 .. code-block:: bash
 
   (On UNIX)
-  $ ./weblab_env/bin/activate
+  $ . ./weblab_env/bin/activate
   (weblab_env) user@machine:~$
 
   (On Windows)
   C:\> .\weblab_env\Scripts\activate
   (weblab_env) C:\> 
 
-If this also generates problems, you can safely avoid using a virtual
-environment and install the whole system as administrator.
+If this also generates problems, you can safely avoid using a virtual environment and install the whole system as administrator:
+
+.. code-block:: console
+
+  C:\weblab\> python setup.py install
 
 Installing WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~~
