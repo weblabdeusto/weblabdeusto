@@ -515,11 +515,16 @@ class WebLabFlaskServer(WebLabWsgiServer):
             f = os.path.join('logs','admin_app.log')
         else:
             f = 'admin_app.log'
+
+        formatter = logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s")
+
         file_handler = RotatingFileHandler(f, maxBytes = 50 * 1024 * 1024)
         file_handler.setLevel(logging.WARNING)
+        file_handler.setFormatter(formatter)
         self.app.logger.addHandler(file_handler)
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.WARNING)
+        stream_handler.setFormatter(formatter)
         self.app.logger.addHandler(stream_handler)
 
         super(WebLabFlaskServer, self).__init__(cfg_manager, self.app)
