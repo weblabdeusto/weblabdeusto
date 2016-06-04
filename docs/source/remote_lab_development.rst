@@ -1670,7 +1670,7 @@ HTTP unmanaged laboratories
 
 .. warning::
 
-    We're writing this documentation at this moment (June 2016)
+    We're writing this documentation at this moment and changing this API (June 2016)
 
 The HTTP unmanaged laboratories target that you can develop laboratories in your
 preferred web technology. It is by far the most flexible approach, and the most
@@ -1713,6 +1713,12 @@ Interface specification
 This section explains in detail each of the three functions explained above. You
 might see also examples in the section :ref:`examples`.
 
+All the functions called from WebLab-Deusto provide a shared secret, which is essentially a username and password in HTTP Basic format. As explained in ``remote_lab_deployment_unmanaged``, there are two configuration variables (``http_experiment_username`` and ``http_experiment_password``) that must be configured by the administrator. These two variables should never be sent to the user. But all the methods described below include the regular HTTP header such as::
+
+   Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+
+For "weblab" and password "password". You are responsible of checking this in all the methods to ensure that nobody else from the Internet (if this API is publicly exposed) can access this information.
+
 Function 1: Start 
 `````````````````
 
@@ -1750,11 +1756,44 @@ is the following::
 
     POST /weblab/sessions/ HTTP/1.0
     Content-Type: application/json
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
     [...]
 
     {
-        ''
+        "back": "http://.../",
+        "client_initial_data": {
+        },
+        "server_initial_data": {
+            "request.locale": "es",
+            "request.username": "porduna",
+            "request.full_name": "porduna",
+            "request.experiment_id.category_name": "Aquatic experiments",
+            "request.experiment_id.experiment_name": "aquariumg",
+            "priority.queue.slot.length": 148
+        }
     }
+
+The parameters are:
+* ``back``: indicating the URL to which the user is expected to be redirected
+  after. So, whenever the user session is finished, you should redirect the user
+  to that URL.
+
+* ``client_initial_data``: a JSON-serialized document with the information sent
+  by the user interface.
+
+* ``server_initial_data``: a JSON-serialized document with the information sent
+  by the WebLab-Deusto server. It includes:
+
+  * ``request.locale``: language used by the client
+  * ``request.username``: login of the student
+  * ``request.full_name``: full name of the student (at this point, it's still
+      the username)
+  * ``request.experiment_id.category_name``: category of the experiment
+  * ``request.experiment_id.experiment_name``: experiment name
+  * ``priority.queue.slot.length``: time in seconds for the particular user
+  * ``priority.queue.slot.start``: since when counting this time
+  * ``priority.queue.slot.initialization_in_accounting``: whether the
+       initialization is counted or not in that time
 
 The expected response is the following::
 
@@ -1762,8 +1801,14 @@ The expected response is the following::
     [...]
 
     {
-        
+        "session_id": "ace76a23-5ccc-45eb-a03c-54dd67b016a5",
+        "url": "http://myserver.com/lab/?token=ace76a23-5ccc-45eb-a03c-54dd67b016a5
     }
+
+The returned ``url`` is where the user will be redirected to. The ``session_id``
+will be used by the rest of the methods to identify this user. For example, for
+notifying you that this user should be kicked out, WebLab-Deusto will use that
+``session_id``.
 
 .. note::
 
@@ -1786,9 +1831,49 @@ The expected response is the following::
 Function 2: Status
 ``````````````````
 
+So as to know that if the user is still using the laboratory or not,
+WebLab-Deusto will periodically call this function. As described in the diagram:
+
 .. image:: /_static/weblab_development_unmanaged_2.png
    :width: 500 px
    :align: center
+
+#. The WebLab-Deusto core server will call the Laboratory Server to see if the
+   laboratory is still in use or not.
+#. The Laboratory server will ask the Experiment server.
+#. The Experiment server will ask your server to verify this.
+
+Therefore, the user is not involved at any point. It is your responsability to
+use a proper mechanism to know if you user is still using the laboratory. You
+can simply write a JavaScript code that calls a dummy service every 20 seconds
+and if it has not been called in 40 seconds, then you report that he's not using
+the laboratory anymore.
+
+The HTTP method in particular is:
+
+    GET /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5/status HTTP/1.0
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+Where ``ace76a23-5ccc-45eb-a03c-54dd67b016a5`` is the ``session_id`` provided in
+the start method. The expected response is:
+
+    HTTP/1.0 200 OK
+    [...]
+
+    {
+        "should_finish": 10,
+    }
+
+The value of ``should_finish`` is an integer. It represents the following:
+
+* If it is -1, it means that the user must be kicked out.
+* If it is 0, it means that WebLab-Deusto should not contact the server again
+  for this session and wait until the time expires.
+* If it is over 0, it means that WebLab-Deusto should contact again after that
+  number of seconds. For example, it may return 10 so it calls again in 10
+  seconds. If the second time it returns 30, then the third call will call it
+  30 seconds later.
 
 .. note::
 
@@ -1803,12 +1888,35 @@ Function 2: Status
 Function 3: Stop
 ````````````````
 
+Finally, WebLab-Deusto will call the stop function whenever the user should be
+kicked out. As seen on the diagram:
+
 .. image:: /_static/weblab_development_unmanaged_3.png
    :width: 500 px
    :align: center
 
+This is usually triggered by the Core Server. The steps are the following:
 
-(HTTP requests)
+#. The WebLab-Deusto Core server notifies the Laboratory server that it should
+   finish.
+#. The Laboratory Server notifies this to the Experiment server.
+#. The Experiment Server notifies this to your server.
+#. Whenever the user performs a new request to your server, you must notify him
+   that the session is over. He should be redirected whenever you consider to
+   the ``back`` URL provided in the start function.
+
+
+The HTTP request is the following::
+
+    POST /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5 HTTP/1.0
+    Content-Type: application/json
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+    {
+        "action": "delete",
+    }
+
 
 
 .. _remote_lab_devel_unmanaged_http_examples:
