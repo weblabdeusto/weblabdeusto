@@ -1679,7 +1679,7 @@ tasks.
 
 The basis is that developers implement a interface (detaled in
 :ref:`remote_lab_devel_unmanaged_http_interface`) that WebLab-Deusto will use as
-a client to contact your server for three tasks:
+a client to contact your server for five tasks:
 
 #. Notifying that a new user comes. Your server does not need to control the
    queue of users or user authentication: WebLab-Deusto is still charge of that,
@@ -1701,6 +1701,18 @@ a client to contact your server for three tasks:
    happens, and that he is redirected to a URL provided by WebLab-Deusto in the
    beginning.
 
+#. Providing the API level. The HTTP unmanaged laboratories API has different
+   versions. Knowing what version is running on your server lets WebLab-Deusto
+   contact using more or less parameters. So, as long as you report what API
+   version you're running, you will be fine (and WebLab-Deusto will use that API
+   version to contact you, instead of a newer version with more arguments).
+
+#. Providing a test service. The HTTP unmanaged laboratories rely on a set of
+   credentials to verify that it is WebLab-Deusto the one contacting your server
+   to the main methods described above. So as to be able to automatically check
+   problems in advance, you must provide a test method that will help us tell
+   the administrator what is going wrong.
+
 So, your server will be serving two different web applications: one for
 WebLab-Deusto (which you can even limit by IP address or listen on a different
 port if you prefer), and one for the final users.
@@ -1710,7 +1722,7 @@ port if you prefer), and one for the final users.
 Interface specification
 .......................
 
-This section explains in detail each of the three functions explained above. You
+This section explains in detail each of the five functions explained above. You
 might see also examples in the section :ref:`examples`.
 
 All the functions called from WebLab-Deusto provide a shared secret, which is essentially a username and password in HTTP Basic format. As explained in ``remote_lab_deployment_unmanaged``, there are two configuration variables (``http_experiment_username`` and ``http_experiment_password``) that must be configured by the administrator. These two variables should never be sent to the user. But all the methods described below include the regular HTTP header such as::
@@ -1719,7 +1731,127 @@ All the functions called from WebLab-Deusto provide a shared secret, which is es
 
 For "weblab" and password "password". You are responsible of checking this in all the methods to ensure that nobody else from the Internet (if this API is publicly exposed) can access this information.
 
-Function 1: Start 
+Additionally, there are two ways to call the functions: as a REST
+service, or as a set of files with extensions. The default version uses a
+regular REST service where the URLs will be something like the following::
+
+    GET /weblab/sessions/api
+    GET /weblab/sessions/test
+    POST /weblab/sessions/  (with contents in JSON)
+    GET /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5/status
+    POST /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5 (with contents in JSON)
+
+If you are using a routing engine like you do in most modern web frameworks,
+this should be easy to manage. However, it might be easier for you to work with some
+``.php`` or ``.jsp`` or ``.asp`` files if you prefer. In that case, we provide
+another version of the API which looks like::
+
+    GET /weblab/sessions/api.php
+    GET /weblab/sessions/test.php
+    POST /weblab/sessions/new.php
+    GET /weblab/sessions/status.php?session_id=ace76a23-5ccc-45eb-a03c-54dd67b016a5
+    POST /weblab/sessions/action.php?session_id=ace76a23-5ccc-45eb-a03c-54dd67b016a5
+
+So as to activate this feature, you have to provide a
+``http_experiment_extension`` configuration variable to ``.php`` or ``.asp`` or
+``.jsp`` or something else. Whatever you put will be appended to
+``/weblab/sessions/api`` or to
+``/weblab/sessions/new``.
+
+Finally, we rely in JSON for the communications, so basically when we call
+``/weblab/sessions/`` with a ``POST`` to perform a new request, we submit a JSON
+message by default. However, sometimes this is difficult for some developers in
+some web frameworks. If this is your case, and you prefer that we submit you the
+data like in a regular form, you may change the
+``http_experiment_request_format`` configuration variable so it is set to
+``form``. If you prefer a different format (such as XML or whatever), feel free
+to contact us (:ref:``contact``) and we can add it.
+
+Function 1: Get API version
+```````````````````````````
+
+This method lets WebLab-Deusto to know what is the set of methods that is
+available and in what format. Basically in the future we might add new features
+to this API, which would make this API incompatible. So as to keep backwards
+compatibility, we provide this method. As long as you provide your version here,
+we will be able to guarantee you that you will be safe. The API version of the
+current documentation is ``1``.
+
+In this particular function, it will be the laboratory server the one contacting
+your server in a single step 1:
+
+.. warning::
+
+    DIAGRAM MISSING
+
+
+This is the only method where Authorization is not required::
+
+    GET /weblab/sessions/api HTTP/1.0
+    [...]
+
+The expected response is::
+
+    HTTP/1.0 200 OK
+    Content-type: application/json
+    [...]
+
+    {
+        "api_version": "1",
+    }
+
+.. note::
+
+    Take into account that the version is a string (and not an int), as it
+    happens in the managed API.
+
+Function 2: Test connection
+```````````````````````````
+
+This method checks whether the connection is valid or not, according to the
+provided parameters (e.g., if the username and password are correct). As in the
+previous case, it is started directly by the Laboratory server:
+
+.. warning::
+
+    DIAGRAM MISSING
+
+In this case, the ``Authorization`` header will be provided, and you are
+responsible of checking it::
+
+    GET /weblab/sessions/api HTTP/1.0
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+The expected response is the following if correct::
+
+    HTTP/1.0 200 OK
+    Content-type: application/json
+    [...]
+
+    {
+        "valid": true,
+    }
+
+Or the following if not correct::
+
+    HTTP/1.0 200 OK
+    Content-type: application/json
+    [...]
+
+    {
+        "valid": false,
+        "error_messages": ["Invalid credentials"]
+    }
+
+.. note::
+
+    The ``error_messages`` is a list, just in case there are multiple reasons
+    why the connection is failing. And it is a list of human-readable messages
+    to show the administrator when something goes wrong.
+
+
+Function 3: Start 
 `````````````````
 
 As mentioned, this method notifies the server to let a new user access the
@@ -1829,7 +1961,7 @@ notifying you that this user should be kicked out, WebLab-Deusto will use that
     instead of HTTP.
 
 
-Function 2: Status
+Function 4: Status
 ``````````````````
 
 So as to know that if the user is still using the laboratory or not,
@@ -1850,14 +1982,14 @@ can simply write a JavaScript code that calls a dummy service every 20 seconds
 and if it has not been called in 40 seconds, then you report that he's not using
 the laboratory anymore.
 
-The HTTP method in particular is:
+The HTTP method in particular is::
 
     GET /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5/status HTTP/1.0
     Authorization: Basic d2VibGFiOnBhc3N3b3Jk
     [...]
 
 Where ``ace76a23-5ccc-45eb-a03c-54dd67b016a5`` is the ``session_id`` provided in
-the start method. The expected response is:
+the start method. The expected response is::
 
     HTTP/1.0 200 OK
     Content-type: application/json
@@ -1887,7 +2019,7 @@ The value of ``should_finish`` is an integer. It represents the following:
     while sending periodically an event + JavaScript) makes the overall system
     more efficient.
 
-Function 3: Stop
+Function 5: Stop
 ````````````````
 
 Finally, WebLab-Deusto will call the stop function whenever the user should be
