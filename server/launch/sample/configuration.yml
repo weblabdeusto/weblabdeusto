@@ -157,6 +157,8 @@ hosts:
             class: experiments.robot_maze.RobotMaze
           experiment_http:
             config_file: main_machine/main_instance/experiment_http/server_config.py
+            config:
+                http_experiment_api: "0"
             type: experiment
             class: experiments.http_experiment.HttpExperiment
           experiment_archimedes:

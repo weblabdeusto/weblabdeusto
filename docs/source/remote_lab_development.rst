@@ -1725,11 +1725,13 @@ Interface specification
 This section explains in detail each of the five functions explained above. You
 might see also examples in the section :ref:`examples`.
 
-All the functions called from WebLab-Deusto provide a shared secret, which is essentially a username and password in HTTP Basic format. As explained in ``remote_lab_deployment_unmanaged``, there are two configuration variables (``http_experiment_username`` and ``http_experiment_password``) that must be configured by the administrator. These two variables should never be sent to the user. But all the methods described below include the regular HTTP header such as::
+All the functions called from WebLab-Deusto provide a shared secret, which is essentially a username and password in HTTP Basic format. As explained in :ref:`remote_lab_deployment_unmanaged`, there are two configuration variables (``http_experiment_username`` and ``http_experiment_password``) that must be configured by the administrator. These two variables should never be sent to the user. But all the methods described below include the regular HTTP header such as::
 
    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
 
-For "weblab" and password "password". You are responsible of checking this in all the methods to ensure that nobody else from the Internet (if this API is publicly exposed) can access this information.
+For "weblab" and password "password" (which is "weblab:password" in base64). You
+are responsible of checking this in all the methods to ensure that nobody else
+from the Internet (if this API is publicly exposed) can access this information.
 
 Additionally, there are two ways to call the functions: as a REST
 service, or as a set of files with extensions. The default version uses a

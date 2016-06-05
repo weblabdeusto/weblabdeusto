@@ -9,4 +9,3 @@
 http_experiment_url = "http://localhost:5000/foo"
 http_experiment_username = 'admin'
 http_experiment_password = 'password'
-
