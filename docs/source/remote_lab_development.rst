@@ -1798,6 +1798,7 @@ The parameters are:
 The expected response is the following::
 
     HTTP/1.0 200 OK
+    Content-Type: application/json
     [...]
 
     {
@@ -1859,6 +1860,7 @@ Where ``ace76a23-5ccc-45eb-a03c-54dd67b016a5`` is the ``session_id`` provided in
 the start method. The expected response is:
 
     HTTP/1.0 200 OK
+    Content-type: application/json
     [...]
 
     {
@@ -1917,14 +1919,78 @@ The HTTP request is the following::
         "action": "delete",
     }
 
+The expected HTTP response is the following. The simplest example would be::
 
+    HTTP/1.0 200 OK
+    Content-Type: application/json
+    [...]
+
+    {}
+
+Another example would be::
+
+    HTTP/1.0 200 OK
+    Content-Type: application/json
+    [...]
+
+    {
+        "finished": false,
+        "ask_again": 10.0,
+    }
+
+And, 10 seconds later::
+
+    HTTP/1.0 200 OK
+    Content-Type: application/json
+    [...]
+
+    {
+        "finished": true,
+        "data": "Result=10"
+    }
+
+
+It may contain the following values:
+
+* ``finished``: in case it has not finished. By default, ``true`` is assumed. But if the resource disposal takes time, return ``false`` and the method will be called again, and return ``true`` whenever it is successfully cleaned.
+
+* ``data``: in case some data should be returned to the experiment client or logged.
+
+* ``ask_again``: if ``finished`` is ``false``, you can provide a float that it's a number of seconds to be waited to be called again. If you return ``"ask_again": 30.5``, it will call again in approximately 30.5 seconds.
 
 .. _remote_lab_devel_unmanaged_http_examples:
 
 Examples
 ........
 
-(Flask and PHP)
+Flask (simple)
+``````````````
+
+.. warning::
+
+    To be documented.
+
+Flask (more elaborated)
+```````````````````````
+
+.. warning::
+
+    To be documented
+
+PHP (multiple files)
+````````````````````
+
+.. warning::
+
+    To be documented
+
+PHP (single file)
+`````````````````
+
+.. warning::
+
+    To be documented
+
 
 .. _remote_lab_devel_unmanaged_labview:
 

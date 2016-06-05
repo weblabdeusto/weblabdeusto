@@ -298,17 +298,22 @@ DESCRIPTIONS[EXPERIMENTS] = "This section includes the configuration of existing
 HTTP_EXPERIMENT = (EXPERIMENTS, 'HTTP')
 DESCRIPTIONS[HTTP_EXPERIMENT] = "The HTTP experiment is a type of unmanaged laboratory which enables you to develop your own laboratory. WebLab-Deusto will call certain methods in that laboratory, and your laboratory will act taking that into account."
 
-HTTP_EXPERIMENT_URL      = 'http_experiment_url'
-HTTP_EXPERIMENT_USERNAME = 'http_experiment_username'
-HTTP_EXPERIMENT_PASSWORD = 'http_experiment_password'
-HTTP_EXPERIMENT_BATCH    = 'http_experiment_batch'
-
+HTTP_EXPERIMENT_URL            = 'http_experiment_url'
+HTTP_EXPERIMENT_USERNAME       = 'http_experiment_username'
+HTTP_EXPERIMENT_PASSWORD       = 'http_experiment_password'
+HTTP_EXPERIMENT_BATCH          = 'http_experiment_batch'
+HTTP_EXPERIMENT_API            = 'http_experiment_api'
+HTTP_EXPERIMENT_EXTENSION      = 'http_experiment_extension'
+HTTP_EXPERIMENT_REQUEST_FORMAT = 'http_experiment_request_format'
 
 _sorted_variables.extend([
-    (HTTP_EXPERIMENT_URL,          _Argument(HTTP_EXPERIMENT, basestring, NO_DEFAULT, "The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/")),
-    (HTTP_EXPERIMENT_USERNAME,     _Argument(HTTP_EXPERIMENT, basestring, None, "The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).")),
-    (HTTP_EXPERIMENT_PASSWORD,     _Argument(HTTP_EXPERIMENT, basestring, None, "The password used for performing that request. If not present, it will not use any credentials.")),
-    (HTTP_EXPERIMENT_BATCH,        _Argument(HTTP_EXPERIMENT, bool, False, "Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.")),
+    (HTTP_EXPERIMENT_URL,            _Argument(HTTP_EXPERIMENT, basestring, NO_DEFAULT, "The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/")),
+    (HTTP_EXPERIMENT_USERNAME,       _Argument(HTTP_EXPERIMENT, basestring, None, "The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).")),
+    (HTTP_EXPERIMENT_PASSWORD,       _Argument(HTTP_EXPERIMENT, basestring, None, "The password used for performing that request. If not present, it will not use any credentials.")),
+    (HTTP_EXPERIMENT_BATCH,          _Argument(HTTP_EXPERIMENT, bool, False, "Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.")),
+    (HTTP_EXPERIMENT_API,            _Argument(HTTP_EXPERIMENT, basestring, None, "The API is calculated automatically. However, you may force a particular API (such as 0, which is the oldest one).")),
+    (HTTP_EXPERIMENT_EXTENSION,      _Argument(HTTP_EXPERIMENT, basestring, None, "Is it using the standard routing system provided? Or is it using something like '.php' in all the files?")),
+    (HTTP_EXPERIMENT_REQUEST_FORMAT, _Argument(HTTP_EXPERIMENT, basestring, 'json', "What format should be used for performing the request? JSON directly? Or standard http form?")),
 ])
 
 

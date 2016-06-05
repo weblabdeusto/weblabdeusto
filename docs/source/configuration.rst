@@ -43,14 +43,17 @@ HTTP
 
 The HTTP experiment is a type of unmanaged laboratory which enables you to develop your own laboratory. WebLab-Deusto will call certain methods in that laboratory, and your laboratory will act taking that into account.
 
-======================== ========== =============== ====================================================================================================================================================================================================
-*Property*               *Type*     *Default value* *Description*                                                                                                                                                                                       
-======================== ========== =============== ====================================================================================================================================================================================================
-http_experiment_url      basestring                 The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/                                                                     
-http_experiment_username basestring None            The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).                   
-http_experiment_password basestring None            The password used for performing that request. If not present, it will not use any credentials.                                                                                                     
-http_experiment_batch    bool       False           Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.
-======================== ========== =============== ====================================================================================================================================================================================================
+============================== ========== =============== ====================================================================================================================================================================================================
+*Property*                     *Type*     *Default value* *Description*                                                                                                                                                                                       
+============================== ========== =============== ====================================================================================================================================================================================================
+http_experiment_url            basestring                 The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/                                                                     
+http_experiment_username       basestring None            The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).                   
+http_experiment_password       basestring None            The password used for performing that request. If not present, it will not use any credentials.                                                                                                     
+http_experiment_batch          bool       False           Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.
+http_experiment_api            basestring None            The API is calculated automatically. However, you may force a particular API (such as 0, which is the oldest one).                                                                                  
+http_experiment_extension      basestring None            Is it using the standard routing system provided? Or is it using something like '.php' in all the files?                                                                                            
+http_experiment_request_format basestring json            What format should be used for performing the request? JSON directly? Or standard http form?                                                                                                        
+============================== ========== =============== ====================================================================================================================================================================================================
 
 Common configuration
 --------------------
