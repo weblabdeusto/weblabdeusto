@@ -328,3 +328,20 @@ group will only have permission to use it for 10 minutes. However, the opposite
 is not possible, since even if the consumer system establishes that they can use
 it for one hour, when the consumer system contacts the provider system, it will
 define that they only have permissions for 10 minutes.
+
+
+Exchanging or selling accesses to your labs on LabsLand
+-------------------------------------------------------
+
+`LabsLand <http://labsland.com>`_ enables you to exchange lab accesses with
+other institutions, for free or for profit. LabsLand is the spin-off of the
+WebLab-Deusto project, and it aims to support people to consume remote lab
+accesses in a daily basis. To this end, it provides a marketplace for both
+providers and consumers of remote laboratories, where remote laboratory
+providers can sell or share accesses to their remote laboratories, and consumers
+will have a clear idea of what they can really consume, and at what cost.
+
+If you develop a remote laboratory with WebLab-Deusto, we encourage you to
+access `LabsLand <http://labsland.com>`_ and joining the network.
+
+

@@ -262,3 +262,13 @@ After running this, restarting it and restarting the web server should be enough
 
 Other examples, such as using Virtual Machines, VISIR, etc., are documented in
 the :ref:`next section <installation_further>`.
+
+
+Join the community
+~~~~~~~~~~~~~~~~~~
+
+Once you have installed WebLab-Deusto (or if you have any trouble installing it), please join our small community:
+
+* https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto
+
+So we can all exchange experiences, tips, tricks or concerns on how to create, maintain and share better remote laboratories. If you don't like writing in public, feel free to contact us privately at any point at weblab@deusto.es But exchanging the experience in public can be benefitial for all the members.
