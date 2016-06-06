@@ -36,7 +36,7 @@ class GetInfoThread(threading.Thread):
     def run(self):
         while True:
             try:
-                if experiment.get_api_and_test():
+                if self.experiment.get_api_and_test():
                     break
             except:
                 print("Error in %s" % self.name)
@@ -73,7 +73,9 @@ class HttpExperiment(Experiment):
 
         if self.username and self.password:
             request.add_header("Authorization", "Basic %s" % self.encoded)
-            if data is not None:
+
+        if data is not None:
+            if self.request_format == 'json':
                 request.add_header('Content-Type', 'application/json')
 
         if data is None:
