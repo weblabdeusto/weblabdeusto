@@ -191,12 +191,19 @@ class HttpExperiment(Experiment):
                 url = 'new%s' % self.extension
             else:
                 url = ''
+
+            data = {
+                'back' : back_url
+            }
             
-            response_str = self._request(url, {
-                'client_initial_data' : serialized_client_initial_data,
-                'server_initial_data' : serialized_server_initial_data,
-                'back' : back_url,
-            })
+            if api == "0" or self.request_format == 'form':
+                data['client_initial_data'] = serialized_client_initial_data
+                data['server_initial_data'] = serialized_server_initial_data
+            else:
+                data['client_initial_data'] = json.loads(serialized_client_initial_data)
+                data['server_initial_data'] = json.loads(serialized_server_initial_data)
+            
+            response_str = self._request(url, data)
             try:
                 response = json.loads(response_str)
             except:
