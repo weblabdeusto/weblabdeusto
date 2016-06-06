@@ -2125,6 +2125,11 @@ PHP (single file)
 
     To be documented
 
+Deployment
+..........
+
+So as to see how to deploy this type of lab, go to :ref:`remote_lab_deployment`.
+
 
 .. _remote_lab_devel_unmanaged_labview:
 
