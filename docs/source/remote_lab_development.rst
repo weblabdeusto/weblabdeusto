@@ -1782,10 +1782,10 @@ current documentation is ``1``.
 In this particular function, it will be the laboratory server the one contacting
 your server in a single step 1:
 
-.. warning::
 
-    DIAGRAM MISSING
-
+.. image:: /_static/weblab_development_unmanaged_5.png
+   :width: 500 px
+   :align: center
 
 This is the only method where Authorization is not required::
 
@@ -1814,9 +1814,10 @@ This method checks whether the connection is valid or not, according to the
 provided parameters (e.g., if the username and password are correct). As in the
 previous case, it is started directly by the Laboratory server:
 
-.. warning::
+.. image:: /_static/weblab_development_unmanaged_4.png
+   :width: 500 px
+   :align: center
 
-    DIAGRAM MISSING
 
 In this case, the ``Authorization`` header will be provided, and you are
 responsible of checking it::
