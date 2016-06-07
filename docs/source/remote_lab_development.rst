@@ -1798,6 +1798,13 @@ The expected response is::
         "api_version": "1",
     }
 
+If the ``http_experiment_extension`` is set, for example, to ``.php``, the request will be::
+
+    GET /weblab/sessions/api HTTP/1.0
+    [...]
+
+And the response will be the same.
+
 .. note::
 
     Take into account that the version is a string (and not an int), as it
@@ -1818,7 +1825,7 @@ previous case, it is started directly by the Laboratory server:
 In this case, the ``Authorization`` header will be provided, and you are
 responsible of checking it::
 
-    GET /weblab/sessions/api HTTP/1.0
+    GET /weblab/sessions/test HTTP/1.0
     Authorization: Basic d2VibGFiOnBhc3N3b3Jk
     [...]
 
@@ -1842,6 +1849,14 @@ Or the following if not correct::
         "valid": false,
         "error_messages": ["Invalid credentials"]
     }
+
+If the ``http_experiment_extension`` is set, for example, to ``.php``, the request will be::
+
+    GET /weblab/sessions/test.php HTTP/1.0
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+And the response will be the same.
 
 .. note::
 
@@ -1926,6 +1941,21 @@ The parameters are:
   * ``priority.queue.slot.initialization_in_accounting``: whether the
        initialization is counted or not in that time
 
+If the ``http_experiment_extension`` is set, for example, to ``.php``, and the ``http_experiment_request_format`` is set to ``form`` the request will be::
+
+    POST /weblab/sessions/new.php HTTP/1.0
+    Content-Type: multipart/form-data
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+    client_initial_data=%7B%7D&server_initial_data=%7B%22request.experiment_id.experiment_name%22%3A+%22aquariumg%22%2C+%22request.experiment_id.category_name%22%3A+%22Aquatic+experiments%22%2C+%22priority.queue.slot.length%22%3A+148%2C+%22request.username%22%3A+%22porduna%22%2C+%22request.full_name%22%3A+%22porduna%22%2C+%22request.locale%22%3A+%22es%22%7D&back=http%3A%2F%2F...%2F
+
+Which essentially is the quoted version of:
+
+* ``back``: the URL in string format 
+* ``client_initial_data``: the dictionary above in JSON format (encoded). So in PHP for example you may access by using ``json_decode($_POST['client_initial_data'], true)``
+* ``server_initial_data``: the dictionary above in JSON format (encoded). So in PHP for example you may access by using ``json_decode($_POST['server_initial_data'], true)``
+
 The expected response is the following::
 
     HTTP/1.0 200 OK
@@ -1988,7 +2018,15 @@ The HTTP method in particular is::
     [...]
 
 Where ``ace76a23-5ccc-45eb-a03c-54dd67b016a5`` is the ``session_id`` provided in
-the start method. The expected response is::
+the start method. 
+
+If the ``http_experiment_extension`` is set, for example, to ``.php``, the request will be::
+
+    GET /weblab/sessions/status.php?session_id=ace76a23-5ccc-45eb-a03c-54dd67b016a5 HTTP/1.0
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+The expected response is::
 
     HTTP/1.0 200 OK
     Content-type: application/json
@@ -2042,13 +2080,23 @@ This is usually triggered by the Core Server. The steps are the following:
 The HTTP request is the following::
 
     POST /weblab/sessions/ace76a23-5ccc-45eb-a03c-54dd67b016a5 HTTP/1.0
-    Content-Type: application/json
+    Content-Type: multipart/form-data
     Authorization: Basic d2VibGFiOnBhc3N3b3Jk
     [...]
 
     {
         "action": "delete",
     }
+
+If the ``http_experiment_extension`` is set, for example, to ``.php``, and the ``http_experiment_request_format`` is set to ``form`` the request will be::
+
+    POST /weblab/sessions/action.php?session_id=ace76a23-5ccc-45eb-a03c-54dd67b016a5 HTTP/1.0
+    Content-Type: application/json
+    Authorization: Basic d2VibGFiOnBhc3N3b3Jk
+    [...]
+
+    action=delete
+
 
 The expected HTTP response is the following. The simplest example would be::
 
