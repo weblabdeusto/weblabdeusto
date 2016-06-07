@@ -90,6 +90,7 @@ A typical unmanaged environment works as follows:
 This way, WebLab-Deusto still manages the reservation process, authentication (i.e., who is the user), authorization (i.e., in what groups are the user), scheduling (i.e., the queue of users) or user tracking (but only when did the user enter, not what was submitted by the user). However, the final communications are not managed by WebLab-Deusto.
 
 The main **advantages** of managed laboratories are:
+
 * You can use any web framework in any web framework you already know. There is no restriction on how the communications have to be managed.
 * It supports further protocols not supported by WebLab-Deusto. For example, you might use WebSockets, which is not natively supported by WebLab-Deusto. But in an unmanaged laboratory, you can use them. Or if you use Virtual Machines, you can use SSH/VNC/Remote Desktop or whatever protocol you consider necessary for your laboratory.
 
