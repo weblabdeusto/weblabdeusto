@@ -121,7 +121,7 @@ class HttpExperiment(Experiment):
         else:
             url = 'api'
         
-        response = _request_json_dict(url, "API")
+        response = self._request_json_dict(url, "API")
         if response == False:
             return False
 
@@ -153,7 +153,7 @@ class HttpExperiment(Experiment):
         else:
             url = 'test'
 
-        response = _request_json_dict(url, "Test")
+        response = self._request_json_dict(url, "Test")
         if response == False:
             return False
 
