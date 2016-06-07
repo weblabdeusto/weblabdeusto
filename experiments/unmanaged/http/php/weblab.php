@@ -21,12 +21,12 @@
 
                 // weblab_data is a array such as:
                 // array(
-                //    'client_initial_data' => '{}',
-                //    'server_initial_data' => '{ "priority.queue.slot.start" : "2013-05-01 08:30:40.123", "priority.queue.slot.length" : "200", "request.username" : "porduna"  }',
+                //    'client_initial_data' => {},
+                //    'server_initial_data' => { "priority.queue.slot.start" : "2013-05-01 08:30:40.123", "priority.queue.slot.length" : "200", "request.username" : "porduna"  },
                 //    'back' => 'http://www.weblab.deusto.es/.../'
                 // );
 
-                $server_initial_data = json_decode($weblab_data['server_initial_data'], TRUE);
+                $server_initial_data = $weblab_data['server_initial_data'];
 
                 $username = $server_initial_data["request.username"];
                     
@@ -40,9 +40,16 @@
 
                 echo json_encode(array("session_id" => $session_id, "url" => "http://localhost/phplab/index.php?session_id=" . $session_id));
 
+            } else if (strpos($path_info, '/weblab/sessions/api') === 0) {
+
+                echo json_encode(array('api_version' => "1"));
+
+            } else if (strpos($path_info, '/weblab/sessions/test') === 0) {
+
+                echo json_encode(array('valid' => true));
+
             } else if (strpos($path_info, '/weblab/sessions/') === 0 && strpos($path_info, '/status') > 0) {
                 $session_id = substr($path_info, strlen('/weblab/sessions/'), -strlen('/status'));
-
 
                 echo json_encode(array('should_finish' => 10));
             } else if ($_SERVER['REQUEST_METHOD'] == 'POST' && strpos($path_info, '/weblab/sessions/') === 0) {

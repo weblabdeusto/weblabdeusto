@@ -1767,7 +1767,7 @@ some web frameworks. If this is your case, and you prefer that we submit you the
 data like in a regular form, you may change the
 ``http_experiment_request_format`` configuration variable so it is set to
 ``form``. If you prefer a different format (such as XML or whatever), feel free
-to contact us (:ref:``contact``) and we can add it.
+to contact us (:ref:`contact`) and we can add it.
 
 Function 1: Get API version
 ```````````````````````````
@@ -2446,7 +2446,7 @@ And in the last one we end the session and move it to ``EXPIRED_DATA``:
         if response is not None:
             return response
 
-        request_data = get_json()
+        request_data = request.get_json(force=True)
         if 'action' in request_data and request_data['action'] == 'delete':
             if session_id in DATA:
                 data = DATA.pop(session_id, None)

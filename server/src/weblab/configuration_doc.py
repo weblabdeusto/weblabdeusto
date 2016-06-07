@@ -305,6 +305,7 @@ HTTP_EXPERIMENT_BATCH          = 'http_experiment_batch'
 HTTP_EXPERIMENT_API            = 'http_experiment_api'
 HTTP_EXPERIMENT_EXTENSION      = 'http_experiment_extension'
 HTTP_EXPERIMENT_REQUEST_FORMAT = 'http_experiment_request_format'
+HTTP_EXPERIMENT_VERBOSE        = 'http_experiment_verbose'
 
 _sorted_variables.extend([
     (HTTP_EXPERIMENT_URL,            _Argument(HTTP_EXPERIMENT, basestring, NO_DEFAULT, "The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/")),
@@ -314,6 +315,7 @@ _sorted_variables.extend([
     (HTTP_EXPERIMENT_API,            _Argument(HTTP_EXPERIMENT, basestring, None, "The API is calculated automatically. However, you may force a particular API (such as 0, which is the oldest one).")),
     (HTTP_EXPERIMENT_EXTENSION,      _Argument(HTTP_EXPERIMENT, basestring, None, "Is it using the standard routing system provided? Or is it using something like '.php' in all the files?")),
     (HTTP_EXPERIMENT_REQUEST_FORMAT, _Argument(HTTP_EXPERIMENT, basestring, 'json', "What format should be used for performing the request? JSON directly? Or standard http form?")),
+    (HTTP_EXPERIMENT_VERBOSE,        _Argument(HTTP_EXPERIMENT, bool, True, "Should the experiment show the errors?")),
 ])
 
 

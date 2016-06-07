@@ -156,7 +156,18 @@ hosts:
             type: experiment
             class: experiments.robot_maze.RobotMaze
           experiment_http:
-            config_file: main_machine/main_instance/experiment_http/server_config.py
+            config:
+                http_experiment_verbose: false
+                # PHP single-file
+                # http_experiment_url: http://localhost/phplab/weblab.php
+                # PHP multi-file
+                # http_experiment_url: http://localhost/phplab/multifile
+                # http_experiment_request_format: form
+                # http_experiment_extension: .php
+                # Flask
+                http_experiment_url: http://localhost:5000/foo
+                http_experiment_username: admin
+                http_experiment_password: password
             type: experiment
             class: experiments.http_experiment.HttpExperiment
           experiment_archimedes:

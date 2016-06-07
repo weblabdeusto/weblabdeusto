@@ -17,6 +17,7 @@ import sys
 import time
 import json
 import base64
+import urllib
 import urllib2
 import traceback
 import threading
@@ -27,11 +28,12 @@ import weblab.experiment.level as ExperimentApiLevel
 import weblab.core.coordinator.coordinator as Coordinator
 
 class GetInfoThread(threading.Thread):
-    def __init__(self, experiment, coord_address):
+    def __init__(self, experiment, coord_address, verbose):
         threading.Thread.__init__(self)
         self.setName("HttpExperiment::GetInfoThread::%s" % coord_address)
         self.setDaemon(True)
         self.experiment = experiment
+        self.verbose = verbose
 
     def run(self):
         while True:
@@ -39,8 +41,9 @@ class GetInfoThread(threading.Thread):
                 if self.experiment.get_api_and_test():
                     break
             except:
-                print("Error in %s" % self.name)
-                traceback.print_exc()
+                if self.verbose:
+                    print("Error in %s" % self.name)
+                    traceback.print_exc()
             time.sleep(10)
 
 class HttpExperiment(Experiment):
@@ -57,12 +60,13 @@ class HttpExperiment(Experiment):
         self.api            = config.get_doc_value(configuration_doc.HTTP_EXPERIMENT_API)
         self.extension      = config.get_doc_value(configuration_doc.HTTP_EXPERIMENT_EXTENSION)
         self.request_format = config.get_doc_value(configuration_doc.HTTP_EXPERIMENT_REQUEST_FORMAT)
+        self.verbose        = config.get_doc_value(configuration_doc.HTTP_EXPERIMENT_VERBOSE)
 
         if self.username and self.password:
             self.encoded = base64.encodestring('%s:%s' % (self.username, self.password)).replace('\n', '')
         
         self.session_id = ''
-        self._get_info_thread = GetInfoThread(self, coord_address)
+        self._get_info_thread = GetInfoThread(self, coord_address, self.verbose)
 
         self._tested = False
         if self.api != '0': # If API is '0', the /api and /test methods don't even exist
@@ -83,7 +87,7 @@ class HttpExperiment(Experiment):
         elif self.request_format == 'json':
             return urllib2.urlopen(request, json.dumps(data)).read()
         elif self.request_format == 'form':
-            return urllib2.urlopen(request, data).read()
+            return urllib2.urlopen(request, urllib.urlencode(data)).read()
         else:
             raise Exception("Unsupported format: %r" % fmt)
 
@@ -91,8 +95,9 @@ class HttpExperiment(Experiment):
         try:
             response_str = self._request(url, data)
         except:
-            print("Error obtaining %s" % what)
-            traceback.print_exc()
+            if self.verbose:
+                print("Error obtaining %s" % what)
+                traceback.print_exc()
             return False
        
         if response_str == 'ok' or response_str == '' or response_str == 'deleted':
@@ -101,13 +106,15 @@ class HttpExperiment(Experiment):
         try:
             response = json.loads(response_str)
         except:
-            print("Error obtaining JSON from %s response:" % what)
-            print(response_str)
+            if self.verbose:
+                print("Error obtaining JSON from %s response:" % what)
+                print(response_str)
             return False
         
         if not isinstance(response, dict):
-            print("Error obtaining JSON from %s response: it is not an object" % what)
-            print(response_str)
+            if self.verbose:
+                print("Error obtaining JSON from %s response: it is not an object" % what)
+                print(response_str)
             return False
 
         return response
@@ -127,8 +134,9 @@ class HttpExperiment(Experiment):
 
         api_version = response.get('api_version')
         if not api_version:
-            print("Invalid api_version")
-            print(response_str)
+            if self.verbose:
+                print("Invalid api_version")
+                print(response_str)
             return False
         
         self.api = api_version
@@ -140,7 +148,8 @@ class HttpExperiment(Experiment):
             return True
 
         if self.api is None:
-            print("API not yet defined; couldn't try the test method")
+            if self.verbose:
+                print("API not yet defined; couldn't try the test method")
             return False
         
         if self.api == '0':
@@ -248,7 +257,7 @@ class HttpExperiment(Experiment):
         else:
             url = '%s/status' % self.session_id
         try:
-            response_str = self._request('%s/status' % self.session_id)
+            response_str = self._request(url)
             response = json.loads(response_str)
             return response['should_finish']
         except:
