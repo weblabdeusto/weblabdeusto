@@ -2098,15 +2098,17 @@ It may contain the following values:
 Examples
 ........
 
-Flask (simple)
-``````````````
+We provide the following examples:
 
-.. warning::
+* :ref:`remote_lab_devel_unmanaged_http_examples_flask_library` (which uses a library, so it is more reliable)
+* :ref:`remote_lab_devel_unmanaged_http_examples_flask` (which shows how to implement a simplified version)
+* :ref:`remote_lab_devel_unmanaged_http_examples_php_multiple` (which uses multiple files and regular forms)
+* :ref:`remote_lab_devel_unmanaged_http_examples_php_single` (which uses a single file and the standard form)
 
-    To be documented.
+.. _remote_lab_devel_unmanaged_http_examples_flask_library:
 
-Flask (more elaborated)
-```````````````````````
+Flask (with a library)
+``````````````````````
 
 In the following part of the repository:
 
@@ -2266,12 +2268,210 @@ However, you can use these methods without ``@requires_login()`` in any Flask fu
 
 With this code, if you're familiar with Flask, you might start deploying a lab and testing it. Check :ref:`remote_lab_devel_unmanaged_http_deployment`.
 
+.. _remote_lab_devel_unmanaged_http_examples_flask:
+
+Flask (simple)
+``````````````
+
+In the following URL you have a simplified version on how an unmanaged remote lab could be implemented from scratch. The target of this code is only to be shown as an example (so you could implement something similar with your framework). If you want to use Flask, we encourage you to use the library explained above. The code itself is available at:
+
+* https://github.com/weblabdeusto/weblabdeusto/blob/master/experiments/unmanaged/http/python/flask/sample.py
+
+Here we will only cover some parts of it. In the following snippet, we keep in two dictionaries in memory what are the current active sessions and expired sessions. You shouldn't do this, but rely on a session mechanism, Redis, SQL or similar. While using memory, make sure that you don't run the server in multiple processes (otherwise it will fail):
+
+.. code-block:: python
+
+    ###############################
+    # 
+    # Store in DATA dictionaries 
+    # representing users.
+    # 
+    DATA = {
+    }
+
+    ##################################
+    # 
+    # Store in EXPIRED_DATA, expired
+    # addresses pointing to their
+    # previous URLs
+    # 
+    EXPIRED_DATA = {
+    }
+
+In the laboratory code, we require the user to provide us a ``session_id``. With it, we check in the dictionaries above and see whether the user exists (if it is in ``DATA``), existed (if it is in ``EXPIRED_DATA``, and will be redirected to a different URL), or never existed.
+
+.. code-block:: python
+
+    #####################################
+    # 
+    # Main method. Authorized users
+    # come here directly, with a secret
+    # which is their identifier. This
+    # should be stored in a Redis or 
+    # SQL database.
+    #
+    @app.route('/lab/<session_id>/')
+    def index(session_id):
+        data = DATA.get(session_id, None)
+        if data is None:
+            back_url = EXPIRED_DATA.get(session_id, None)
+            if back_url is None:
+                return "Session identifier not found"
+            else:
+                return redirect(back_url)
+                
+        
+        data['last_poll'] = datetime.datetime.now()
+        return """<html>
+        <head>
+            <meta http-equiv="refresh" content="10">
+        </head>
+        <body>
+            Hi %(username)s. You still have %(seconds)s seconds
+        </body>
+        </head>
+        """ % dict(username=data['username'], seconds=(data['max_date'] - datetime.datetime.now()).seconds)
+
+
+We check using HTTP Basic to see if the user is valid or not by providing this auxiliar function:
+
+.. code-block:: python
+
+    def check_http_credentials(testing=False):
+        auth = request.authorization
+        if auth:
+            username = auth.username
+            password = auth.password
+        else:
+            username = password = "No credentials"
+
+        weblab_username = app.config['WEBLAB_USERNAME']
+        weblab_password = app.config['WEBLAB_PASSWORD']
+        if username != weblab_username or password != weblab_password:
+            if testing:
+                return Response(json.dumps(dict(valid=False, error_messages=["Invalid credentials"])), status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"', 'Content-Type': 'application/json'})
+
+            print("In theory this is weblab. However, it provided as credentials: {} : {}".format(username, password))
+            return Response(response=("You don't seem to be a WebLab-Instance"), status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
+        
+        return None
+
+Then, we provide the basic ``api`` and ``test`` functions:
+
+.. code-block:: python
+
+    @app.route("/foo/weblab/sessions/api")
+    def api_version():
+        return jsonify(api_version="1")
+
+    @app.route("/foo/weblab/sessions/test")
+    def test():
+        response = check_http_credentials(testing=True)
+        if response is not None:
+            return response
+        return jsonify(valid=True)
+
+
+And the start function, that stores data in ``DATA`` as new users come, and provide the link to the laboratory code:
+
+.. code-block:: python
+
+    @app.route("/foo/weblab/sessions/", methods=['POST'])
+    def start_experiment():
+        response = check_http_credentials()
+        if response is not None:
+            return response
+
+        # Parse it: it is a JSON file containing two fields:
+        request_data = request.get_json(force=True)
+
+        client_initial_data = request_data['client_initial_data']
+        server_initial_data = request_data['server_initial_data']
+
+        print server_initial_data
+
+        # Parse the initial date + assigned time to know the maximum time
+        start_date_str = server_initial_data['priority.queue.slot.start']
+        start_date_str, microseconds = start_date_str.split('.')
+        start_date = datetime.datetime.strptime(start_date_str, "%Y-%m-%d %H:%M:%S") + datetime.timedelta(microseconds = int(microseconds))
+        max_date = start_date + datetime.timedelta(seconds = float(server_initial_data['priority.queue.slot.length']))
+
+        # Create a global session
+        session_id = str(random.randint(0, 10e8)) # Not especially secure 0:-)
+        DATA[session_id] = {
+            'username'  : server_initial_data['request.username'],
+            'max_date'  : max_date,
+            'last_poll' : datetime.datetime.now(),
+            'back'      : request_data['back']
+        }
+
+        link = url_for('index', session_id=session_id, _external = True)
+        print "Assigned session_id: %s" % session_id
+        print "See:",link
+        return jsonify(url=link, session_id=session_id)
+
+In the ``status`` function we tell WebLab what is the status taking into account the information from the sessions:
+
+.. code-block:: python
+
+    @app.route('/foo/weblab/sessions/<session_id>/status')
+    def status(session_id):
+        response = check_http_credentials()
+        if response is not None:
+            return response
+
+        data = DATA.get(session_id, None)
+        if data is not None:
+            print "Did not poll in", datetime.datetime.now() - data['last_poll'], "seconds"
+            print "User %s still has %s seconds" % (data['username'], (data['max_date'] - datetime.datetime.now()).seconds)
+            if (datetime.datetime.now() - data['last_poll']).seconds > 30:
+                print "Kick out the user, please"
+                return jsonify(should_finish=-1)
+                
+        print "Ask in 10 seconds..."
+        # 
+        # If the user is considered expired here, we can return -1 instead of 10. 
+        # The WebLab-Deusto scheduler will mark it as finished and will reassign
+        # other user.
+        # 
+        return jsonify(should_finish=10)
+
+And in the last one we end the session and move it to ``EXPIRED_DATA``: 
+
+.. code-block:: python
+
+    @app.route('/foo/weblab/sessions/<session_id>', methods=['POST'])
+    def dispose_experiment(session_id):
+        response = check_http_credentials()
+        if response is not None:
+            return response
+
+        request_data = get_json()
+        if 'action' in request_data and request_data['action'] == 'delete':
+            if session_id in DATA:
+                data = DATA.pop(session_id, None)
+                if data is not None:
+                    EXPIRED_DATA[session_id] = data['back']
+                return jsonify(message='Deleted')
+            return jsonify(message='Not found')
+        return jsonify(message='Unknown action')
+
+.. note::
+
+    ``EXPIRED_DATA`` will never be cleaned until you restart that server.
+
+So as to test it, you might start deploying it and checking how it works. Jump to :ref:`remote_lab_devel_unmanaged_http_deployment`.
+
+.. _remote_lab_devel_unmanaged_http_examples_php_multiple:
+
 PHP (multiple files)
 ````````````````````
 
 .. warning::
 
     To be documented
+
+.. _remote_lab_devel_unmanaged_http_examples_php_single:
 
 PHP (single file)
 `````````````````

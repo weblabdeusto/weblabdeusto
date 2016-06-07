@@ -5,9 +5,11 @@ import json
 import random
 import datetime
 
-from flask import Flask, request, url_for, redirect
+from flask import Flask, request, url_for, redirect, jsonify, Response
 
 app = Flask(__name__)
+app.config['WEBLAB_USERNAME'] = 'admin'
+app.config['WEBLAB_PASSWORD'] = 'password'
 
 ###############################
 # 
@@ -72,15 +74,49 @@ def get_json():
 # 
 # First, this method creates new sessions. We store the 
 # sessions on memory in this dummy example.
-# 
+#
+
+def check_http_credentials(testing=False):
+    auth = request.authorization
+    if auth:
+        username = auth.username
+        password = auth.password
+    else:
+        username = password = "No credentials"
+
+    weblab_username = app.config['WEBLAB_USERNAME']
+    weblab_password = app.config['WEBLAB_PASSWORD']
+    if username != weblab_username or password != weblab_password:
+        if testing:
+            return Response(json.dumps(dict(valid=False, error_messages=["Invalid credentials"])), status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"', 'Content-Type': 'application/json'})
+
+        print("In theory this is weblab. However, it provided as credentials: {} : {}".format(username, password))
+        return Response(response=("You don't seem to be a WebLab-Instance"), status=401, headers = {'WWW-Authenticate':'Basic realm="Login Required"'})
+    
+    return None
+
+@app.route("/foo/weblab/sessions/api")
+def api_version():
+    return jsonify(api_version="1")
+
+@app.route("/foo/weblab/sessions/test")
+def test():
+    response = check_http_credentials(testing=True)
+    if response is not None:
+        return response
+    return jsonify(valid=True)
 
 @app.route("/foo/weblab/sessions/", methods=['POST'])
 def start_experiment():
+    response = check_http_credentials()
+    if response is not None:
+        return response
+
     # Parse it: it is a JSON file containing two fields:
     request_data = get_json()
 
-    client_initial_data = json.loads(request_data['client_initial_data'])
-    server_initial_data = json.loads(request_data['server_initial_data'])
+    client_initial_data = request_data['client_initial_data']
+    server_initial_data = request_data['server_initial_data']
 
     print server_initial_data
 
@@ -102,7 +138,7 @@ def start_experiment():
     link = url_for('index', session_id=session_id, _external = True)
     print "Assigned session_id: %s" % session_id
     print "See:",link
-    return json.dumps({ 'url' : link, 'session_id' : session_id })
+    return jsonify(url=link, session_id=session_id)
 
 #############################################################
 # 
@@ -113,13 +149,17 @@ def start_experiment():
 # 
 @app.route('/foo/weblab/sessions/<session_id>/status')
 def status(session_id):
+    response = check_http_credentials()
+    if response is not None:
+        return response
+
     data = DATA.get(session_id, None)
     if data is not None:
         print "Did not poll in", datetime.datetime.now() - data['last_poll'], "seconds"
         print "User %s still has %s seconds" % (data['username'], (data['max_date'] - datetime.datetime.now()).seconds)
         if (datetime.datetime.now() - data['last_poll']).seconds > 30:
             print "Kick out the user, please"
-            return json.dumps({'should_finish' : -1})
+            return jsonify(should_finish=-1)
             
     print "Ask in 10 seconds..."
     # 
@@ -127,7 +167,7 @@ def status(session_id):
     # The WebLab-Deusto scheduler will mark it as finished and will reassign
     # other user.
     # 
-    return json.dumps({'should_finish' : 10})
+    return jsonify(should_finish=10)
 
 
 #############################################################
@@ -140,15 +180,19 @@ def status(session_id):
 # 
 @app.route('/foo/weblab/sessions/<session_id>', methods=['POST'])
 def dispose_experiment(session_id):
+    response = check_http_credentials()
+    if response is not None:
+        return response
+
     request_data = get_json()
     if 'action' in request_data and request_data['action'] == 'delete':
         if session_id in DATA:
             data = DATA.pop(session_id, None)
             if data is not None:
                 EXPIRED_DATA[session_id] = data['back']
-            return 'deleted'
-        return 'not found'
-    return 'unknown op'
+            return jsonify(message='Deleted')
+        return jsonify(message='Not found')
+    return jsonify(message='Unknown action')
 
 if __name__ == "__main__":
     app.run(debug=True, host = '0.0.0.0')
