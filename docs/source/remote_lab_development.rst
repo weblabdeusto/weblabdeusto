@@ -1668,10 +1668,6 @@ unmanaged laboratories:
 HTTP unmanaged laboratories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. warning::
-
-    We're writing this documentation at this moment and changing this API (June 2016)
-
 The HTTP unmanaged laboratories target that you can develop laboratories in your
 preferred web technology. It is by far the most flexible approach, and the most
 powerful, but also the one that requires developers to be in charge of more
