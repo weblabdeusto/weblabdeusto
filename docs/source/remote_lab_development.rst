@@ -2467,18 +2467,65 @@ So as to test it, you might start deploying it and checking how it works. Jump t
 PHP (multiple files)
 ````````````````````
 
-.. warning::
+In:
 
-    To be documented
+* https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/unmanaged/http/php
+
+You have the PHP code sample for the unmanaged laboratories. You should copy all that code to ``/var/www/html/phplabs``. Then, you should create the database, as:
+
+.. code-block:: bash
+
+    $ mysql -uroot -p
+    mysql> CREATE DATABASE phplab DEFAULT CHARSET 'utf8';
+    Query OK, 1 row affected (0.00 sec)
+    mysql> GRANT ALL ON phplab.* TO 'phplab'@'localhost' IDENTIFIED BY 'phplab';
+    Query OK, 0 rows affected (0.00 sec)
+    mysql> FLUSH PRIVILEGES;
+    Query OK, 0 rows affected (0.00 sec)
+
+    $ mysql -uphplab -p phplab < initial.sql
+
+Once created, you can use the following configuration (more info on :ref:`remote_lab_deployment`)::
+
+    http_experiment_url: http://localhost/phplab/multifile
+    http_experiment_username: admin
+    http_experiment_password: password
+    http_experiment_request_format: form
+    http_experiment_extension: .php
+
+So it will not submit JSON messages but regular form messages, to files called ``new.php``, ``action.php``, etc. as shown in the code.
+
 
 .. _remote_lab_devel_unmanaged_http_examples_php_single:
 
 PHP (single file)
 `````````````````
 
-.. warning::
+In:
 
-    To be documented
+* https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/unmanaged/http/php
+
+You have the PHP code sample for the unmanaged laboratories. You should copy all that code to ``/var/www/html/phplabs``. Then, you should create the database, as:
+
+.. code-block:: bash
+
+    $ mysql -uroot -p
+    mysql> CREATE DATABASE phplab DEFAULT CHARSET 'utf8';
+    Query OK, 1 row affected (0.00 sec)
+    mysql> GRANT ALL ON phplab.* TO 'phplab'@'localhost' IDENTIFIED BY 'phplab';
+    Query OK, 0 rows affected (0.00 sec)
+    mysql> FLUSH PRIVILEGES;
+    Query OK, 0 rows affected (0.00 sec)
+
+    $ mysql -uphplab -p phplab < initial.sql
+
+Once created, you can use the following configuration (more info on :ref:`remote_lab_deployment`)::
+
+    http_experiment_url: http://localhost/phplab/weblab.php
+    http_experiment_username: admin
+    http_experiment_password: password
+
+Internally, you can see how ``weblab.php`` implements the defined calls, and how the user will be redirected to ``index.php``.
 
 .. _remote_lab_devel_unmanaged_http_deployment:
 
