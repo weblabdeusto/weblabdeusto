@@ -7,9 +7,12 @@ First steps
 In this section, we will learn to create our first deployment of a WebLab-Deusto
 instance. This section assumes that you have successfully :ref:`installed the
 system <installation>`. It also assumes that you have activated the proper
-virtual environment in the current terminal, so running weblab-admin works::
+virtual environment in the current terminal, so running weblab-admin works:
 
-  $ weblab-admin.py --version
+
+.. code-block:: bash
+
+  $ weblab-admin --version
   5.0
 
 The deployment we are running here is very small and relies of very few
@@ -28,9 +31,12 @@ there will be typically a single one, but for testing it may be useful to play
 with different ones. Each instance will manage its own permissions, its own
 users, its own queues, etc.
 
-So as to create a new WebLab-Deusto instance, run the following::
+So as to create a new WebLab-Deusto instance, run the following:
 
-  $ weblab-admin.py create example --http-server-port=8000
+
+.. code-block:: bash
+
+  $ weblab-admin create example --http-server-port=8000
   Congratulations!
   WebLab-Deusto system created
   [...]
@@ -49,11 +55,13 @@ Starting the WebLab-Deusto instance
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The WebLab-Deusto instance at this point is configured, but it is not started.
-So as to start it, we will use once again the *weblab-admin.py* command. As you'll
+So as to start it, we will use once again the *weblab-admin* command. As you'll
 find out, this is the command that you will use for any management related with
-the instances. Run the following::
+the instances. Run the following:
 
-  $ weblab-admin.py start example
+.. code-block:: bash
+
+  $ weblab-admin start example
   Press <enter> or send a sigterm or a sigint to finish
 
 As you can see, the server is running. By pressing enter, the server will stop::
@@ -62,9 +70,11 @@ As you can see, the server is running. By pressing enter, the server will stop::
   Stopping servers...
   $
 
-So, let's start it again::
+So, let's start it again:
 
-  $ weblab-admin.py start example
+.. code-block:: bash
+
+  $ weblab-admin start example
   Press <enter> or send a sigterm or a sigint to finish
 
 
@@ -205,14 +215,18 @@ deployment can be configured. While in the :ref:`next section
 `MySQL <http://www.mysql.com/>`_ or `Apache <http://httpd.apache.org/>`_, there
 are some settings that we can modify at this level.
 
-Running::
+Running:
 
-  $ weblab-admin.py create --help
+.. code-block:: bash
+
+  $ weblab-admin create --help
 
 Displays the full help regarding the create command. A more advanced example
-would be::
+would be:
 
-  $ weblab-admin.py create other.example --http-server-port=8001 --start-port=20000 \
+.. code-block:: bash
+
+  $ weblab-admin create other.example --http-server-port=8001 --start-port=20000 \
   --system-identifier='My example' --entity-link='http://www.myuniversity.edu/'  \
   --poll-time=300 --admin-user=administrator --admin-name='John Doe'             \
   --admin-password=secret --admin-mail='admin@weblab.myuniversity.edu' --logic
@@ -236,9 +250,11 @@ Moving the deployment to a different directory or reinstalling WebLab-Deusto
 Say you have installed WebLab-Deusto in a location and you need to move
 to a different directory. All the web server configuration files will be pointing
 with absolute paths to the old directory. The easiest way to override the 
-existing HTTPd configuration and make it point to the proper paths is running::
+existing HTTPd configuration and make it point to the proper paths is running:
 
-   $ weblab-admin.py httpd-config-generate sample
+.. code-block:: bash
+
+   $ weblab-admin httpd-config-generate sample
    Generating HTTPd configuration files... [done]
    $ 
 
@@ -246,3 +262,13 @@ After running this, restarting it and restarting the web server should be enough
 
 Other examples, such as using Virtual Machines, VISIR, etc., are documented in
 the :ref:`next section <installation_further>`.
+
+
+Join the community
+~~~~~~~~~~~~~~~~~~
+
+Once you have installed WebLab-Deusto (or if you have any trouble installing it), please join our small community:
+
+* https://groups.google.com/forum/?fromgroups#!forum/weblabdeusto
+
+So we can all exchange experiences, tips, tricks or concerns on how to create, maintain and share better remote laboratories. If you don't like writing in public, feel free to contact us privately at any point at weblab@deusto.es But exchanging the experience in public can be benefitial for all the members.

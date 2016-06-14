@@ -56,6 +56,11 @@ def main():
         print("Configuration file %s does not exist. Provide an existing one with the -c option " % options.configuration_file, file=sys.stderr)
         sys.exit(-1)
 
+    try:
+        import matplotlib
+    except ImportError:
+        print("Take into account that you have not installed matplotlib. No graphic will be generated")
+
     if len(os.environ.get('http_proxy','')) > 0 and not options.dont_disable_proxies:
         print("WARNING: HTTP proxies are usually a problem when running the bot. They will be disable at process level. If you don't want to disable it, pass the --dont-disable-proxies option.")
         os.environ.pop('http_proxy', None)

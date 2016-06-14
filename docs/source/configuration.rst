@@ -11,34 +11,10 @@ different servers described here.
 
 .. note::
 
-   At the time of this writing, not all the variables have been documented. We're working on this (March 2013).
+   At the time of this writing, not all the variables have been documented. We're working on this (June 2016).
+   Take into account that these variablse are the type of variables you'll find in the .py configuration files. They are not variables for commands.
 
 .. contents:: Table of Contents
-
-Login Server
-------------
-
-This configuration is used only by the Login servers. The Login server manages the authentication requests and check the credentials (e.g. LDAP, OpenID, OAuth 2.0 or using the database). It is the only server which ever transports a password. Note that there is other common configuration which affects the Login server, so also take a look at the Common Configuration in this document.
-
-Facade
-^^^^^^
-
-The login facade configuration variables are used by the web services interface. You can change the ports, etc., but take into account the final web server (e.g. Apache) configuration.
-
-==================================== ========== ==================== ===============================================================================================================================================================================================================================================================================================================
-*Property*                           *Type*     *Default value*      *Description*                                                                                                                                                                                                                                                                                                  
-==================================== ========== ==================== ===============================================================================================================================================================================================================================================================================================================
-login_facade_trusted_addresses       tuple      ('127.0.0.1',)       The IP addresses on which the Login server will trust. Moodle can access WebLab from a well known IP address, and if Moodle says "I'm user foo", and in WebLab-Deusto, the user "foo" can be accessed from the IP address of that moodle, then Moodle will be able to log in as this user without any password.
-login_facade_soap_bind               basestring                      Binding address for the SOAP facade at Login Server                                                                                                                                                                                                                                                            
-login_facade_soap_port               int                             Port number for the SOAP facade at Login Server                                                                                                                                                                                                                                                                
-login_facade_soap_service_name       basestring /weblab/login/soap/  Service name for the SOAP facade at Login Server                                                                                                                                                                                                                                                               
-login_facade_soap_public_server_host basestring www.weblab.deusto.es Public server host, used for generating the WSDL file.                                                                                                                                                                                                                                                         
-login_facade_soap_public_server_port int        80                   Public server port, used for generating the WSDL file.                                                                                                                                                                                                                                                         
-login_facade_json_bind               basestring                      Binding address for the JSON facade at Login Server                                                                                                                                                                                                                                                            
-login_facade_json_port               int                             Port number for the JSON facade at Login Server                                                                                                                                                                                                                                                                
-login_facade_xmlrpc_bind             basestring                      Binding address for the XML-RPC facade at Login Server                                                                                                                                                                                                                                                         
-login_facade_xmlrpc_port             int                             Port number for the XML-RPC facade at Login Server                                                                                                                                                                                                                                                             
-==================================== ========== ==================== ===============================================================================================================================================================================================================================================================================================================
 
 Laboratory Server
 -----------------
@@ -56,6 +32,28 @@ laboratory_session_pool_id      basestring LaboratoryServer See "core_session_po
 laboratory_assigned_experiments list                        List of strings representing which experiments are available through this particular laboratory server. Each string contains something like 'exp1|ud-fpga|FPGA experiments;fpga:inst@mach', where exp1|ud-fpga|FPGA experiments is the identifier of the experiment, and "fpga:inst@mach" is the WebLab Address of the experiment server.
 laboratory_exclude_checking     list       []               List of ids of experiments upon which checks will not be run                                                                                                                                                                                                                                                                             
 =============================== ========== ================ =========================================================================================================================================================================================================================================================================================================================================
+
+Experiments
+-----------
+
+This section includes the configuration of existing laboratories.
+
+HTTP
+^^^^
+
+The HTTP experiment is a type of unmanaged laboratory which enables you to develop your own laboratory. WebLab-Deusto will call certain methods in that laboratory, and your laboratory will act taking that into account.
+
+============================== ========== =============== ====================================================================================================================================================================================================
+*Property*                     *Type*     *Default value* *Description*                                                                                                                                                                                       
+============================== ========== =============== ====================================================================================================================================================================================================
+http_experiment_url            basestring                 The base URL for the experiment server. Example: 'http://address/mylab/' will perform requests to 'http://address/mylab/weblab/                                                                     
+http_experiment_username       basestring None            The username used for performing that request. If not present, it will not use any credentials (and it will assume that the server is filtering the address by IP address or so).                   
+http_experiment_password       basestring None            The password used for performing that request. If not present, it will not use any credentials.                                                                                                     
+http_experiment_batch          bool       False           Does the system manage its own scheduling mechanism? If so, users requesting access will automatically be forwarded, and it is the experiment server the one who has to manage what to do with them.
+http_experiment_api            basestring None            The API is calculated automatically. However, you may force a particular API (such as 0, which is the oldest one).                                                                                  
+http_experiment_extension      basestring None            Is it using the standard routing system provided? Or is it using something like '.php' in all the files?                                                                                            
+http_experiment_request_format basestring json            What format should be used for performing the request? JSON directly? Or standard http form?                                                                                                        
+============================== ========== =============== ====================================================================================================================================================================================================
 
 Common configuration
 --------------------
@@ -77,22 +75,21 @@ propagate_stack_traces_to_client bool       False           If True, stacktraces
 facade_timeout                   float      0.5             Seconds that the facade will wait accepting a connection before checking again for shutdown requests.
 ================================ ========== =============== =====================================================================================================
 
-Database
-^^^^^^^^
+Admin Notifier
+^^^^^^^^^^^^^^
 
-The database configuration applies to the Core Server and the Login Server (which both connect to the same database).
+The Admin notifier is mainly used by the core server for notifying administrators of certain activity such as broken laboratories.
 
-=============================== ========== =============== ============================================
-*Property*                      *Type*     *Default value* *Description*                               
-=============================== ========== =============== ============================================
-db_host                         basestring localhost       Location of the database server             
-db_port                         int        None            Port where the database is listening, if any
-db_database                     basestring WebLab          Name of the main database                   
-db_engine                       basestring mysql           Engine used. Example: mysql, sqlite         
-weblab_db_username              basestring weblab          WebLab database username                    
-weblab_db_password              basestring                 WebLab database user password               
-weblab_db_force_engine_creation bool       False           Force the creation of an engine each time   
-=============================== ========== =============== ============================================
+========================= ========== ======================== ===========================================
+*Property*                *Type*     *Default value*          *Description*                              
+========================= ========== ======================== ===========================================
+mail_notification_enabled bool                                Enables or Disables mail notifications     
+mail_server_host          basestring                          Host to use for sending mail               
+mail_server_helo          basestring                          Address to be used on the mail's HELO      
+mail_server_use_tls       basestring no                       Use TLS or not. Values: 'yes' or 'no'      
+mail_notification_sender  basestring                          Address of the mail's sender               
+mail_notification_subject basestring [WebLab] CRITICAL ERROR! (Optional) Subject of the notification mail
+========================= ========== ======================== ===========================================
 
 Sessions
 ^^^^^^^^
@@ -118,22 +115,6 @@ session_manager_default_timeout  int        7200            Maximum time that a 
 session_memory_gateway_serialize bool       False           Sessions can be stored in a database or in memory. If they are stored in memory, they can be serialized in memory or not, to check the behaviour
 ================================ ========== =============== ================================================================================================================================================
 
-Admin Notifier
-^^^^^^^^^^^^^^
-
-The Admin notifier is mainly used by the core server for notifying administrators of certain activity such as broken laboratories.
-
-========================= ========== ======================== ===========================================
-*Property*                *Type*     *Default value*          *Description*                              
-========================= ========== ======================== ===========================================
-mail_notification_enabled bool                                Enables or Disables mail notifications     
-mail_server_host          basestring                          Host to use for sending mail               
-mail_server_helo          basestring                          Address to be used on the mail's HELO      
-mail_server_use_tls       basestring no                       Use TLS or not. Values: 'yes' or 'no'      
-mail_notification_sender  basestring                          Address of the mail's sender               
-mail_notification_subject basestring [WebLab] CRITICAL ERROR! (Optional) Subject of the notification mail
-========================= ========== ======================== ===========================================
-
 Core Server
 -----------
 
@@ -154,6 +135,13 @@ core_session_type                 basestring Memory                             
 core_session_pool_id              basestring UserProcessingServer                                       A unique identifier of the type of sessions, in order to manage them. For instance, if there are four servers (A, B, C and D), the load of users can be splitted in two groups: those being sent to A and B, and those being sent to C and D. A and B can share those sessions to provide fault tolerance (if A falls down, B can keep working from the same point A was) using a MySQL session manager, and the same may apply to C and D. The problem is that if A and B want to delete all the sessions -at the beginning, for example-, but they don't want to delete sessions of C and D, then they need a unique identifier shared for A and B, and another for C and D. In this case, "UserProcessing_A_B" and "UserProcessing_C_D" would be enough.
 core_store_students_programs      bool       False                                                     Whether files submitted by users should be stored or not.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 core_store_students_programs_path basestring None                                                      If files are stored, in which local directory should be stored.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+geoip2_city_filepath              basestring GeoLite2-City.mmdb                                        If the maxminds city database is downloaded, use it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+geoip2_country_filepath           basestring GeoLite2-Country.mmdb                                     If the maxminds country database is downloaded, use it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+local_city                        basestring None                                                      Local city (e.g., if deployed in Bilbao, should be Bilbao). This is used so WebLab-Deusto uses it for resolving local IP addresses                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+local_country                     basestring None                                                      Local country, in ISO 3166 format (e.g., if deployed in Spain, should be ES). This is used so WebLab-Deusto uses it for resolving local IP addresses                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+ignore_locations                  bool       False                                                     Ignore the locations system (and therefore do not print any error if the files are not found)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+logo_path                         basestring client/images/logo.jpg                                    File path of the logo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+logo_small_path                   basestring client/images/logo-mobile.jpg                             File path of the small version of the logo.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 ================================= ========== ========================================================= ============================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 
 Scheduling
@@ -164,6 +152,7 @@ This is the configuration variables used by the scheduling backend (called Coord
 =================================== ========== ================== ======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 *Property*                          *Type*     *Default value*    *Description*                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 =================================== ========== ================== ======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
+core_coordination_impl              basestring sqlalchemy         Which scheduling backend will be used. Current implementations: 'redis', 'sqlalchemy'.                                                                                                                                                                                                                                                                                                                                                                                                                
 core_coordinator_db_host            basestring localhost          Host of the database server.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 core_coordinator_db_port            int        None               Port of the database server.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
 core_coordinator_db_name            basestring WebLabCoordination Name of the coordination database.                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
@@ -171,7 +160,6 @@ core_coordinator_db_username        basestring                    Username to ac
 core_coordinator_db_password        basestring                    Password to access the coordination database.                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 core_coordinator_db_engine          basestring mysql              Driver used for the coordination database. We currently have only tested MySQL, although it should be possible to use other engines.                                                                                                                                                                                                                                                                                                                                                                  
 core_coordinator_laboratory_servers list                          Available laboratory servers. It's a list of strings, having each string this format: "lab1:inst@mach;exp1|ud-fpga|FPGA experiments", for the "lab1" in the instance "inst" at the machine "mach", which will handle the experiment instance "exp1" of the experiment type "ud-fpga" of the category "FPGA experiments". A laboratory can handle many experiments, and each experiment type may have many experiment instances with unique identifiers (such as "exp1" of "ud-fpga|FPGA experiments").
-core_coordinator_clean              bool       True               Whether this server will clean the coordinator tables or not. If there are two core servers, and one of them is turned off, you don't want that it deletes everything on the database when that server is turned on, because all the sessions handled by the other core server will be lost.                                                                                                                                                                                                          
 =================================== ========== ================== ======================================================================================================================================================================================================================================================================================================================================================================================================================================================================================================
 
 Facade
@@ -179,18 +167,31 @@ Facade
 
 Here you can customize the general web services consumed by the clients. Stuff like which ports will be used, etc.
 
-=================================== ========== ======================= ======================================================================================================
-*Property*                          *Type*     *Default value*         *Description*                                                                                         
-=================================== ========== ======================= ======================================================================================================
-core_facade_server_route            basestring default-route-to-server Identifier of the server or groups of servers that will receive requests, for load balancing purposes.
-core_facade_soap_bind               basestring                         Binding address for the SOAP facade at Core Server                                                    
-core_facade_soap_port               int                                Port number for the SOAP facade at Core Server                                                        
-core_facade_soap_service_name       basestring /weblab/soap/           Service name for the SOAP facade at Core Server                                                       
-core_facade_soap_public_server_host basestring www.weblab.deusto.es    Public server host, used for generating the WSDL file.                                                
-core_facade_soap_public_server_port int        80                      Public server port, used for generating the WSDL file.                                                
-core_facade_json_bind               basestring                         Binding address for the JSON facade at Core Server                                                    
-core_facade_json_port               int                                Binding address for the JSON facade at Core Server                                                    
-core_facade_xmlrpc_bind             basestring                         Binding address for the XML-RPC facade at Core Server                                                 
-core_facade_xmlrpc_port             int                                Port number for the XML-RPC facade at Core Server                                                     
-=================================== ========== ======================= ======================================================================================================
+======================== ========== ======================= ======================================================================================================
+*Property*               *Type*     *Default value*         *Description*                                                                                         
+======================== ========== ======================= ======================================================================================================
+core_facade_server_route basestring default-route-to-server Identifier of the server or groups of servers that will receive requests, for load balancing purposes.
+core_facade_bind         basestring                         Binding address for the main facade at Core server                                                    
+core_facade_port         int                                Binding address for the main facade at Core Server                                                    
+======================== ========== ======================= ======================================================================================================
+
+Database
+^^^^^^^^
+
+The database configuration stores the users, groups, uses, etc.
+
+=============================== ========== =============== ====================================================
+*Property*                      *Type*     *Default value* *Description*                                       
+=============================== ========== =============== ====================================================
+db_host                         basestring localhost       Location of the database server                     
+db_port                         int        None            Port where the database is listening, if any        
+db_database                     basestring WebLab          Name of the main database                           
+db_engine                       basestring mysql           Engine used. Example: mysql, sqlite                 
+db_echo                         bool       False           Display in stdout all the SQL sentences             
+db_pool_size                    int        5               Maximum number of spare connections to the database.
+db_max_overflow                 int        35              Maximum number of connections to the database.      
+weblab_db_username              basestring weblab          WebLab database username                            
+weblab_db_password              basestring                 WebLab database user password                       
+weblab_db_force_engine_creation bool       False           Force the creation of an engine each time           
+=============================== ========== =============== ====================================================
 

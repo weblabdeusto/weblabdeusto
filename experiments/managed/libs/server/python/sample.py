@@ -34,7 +34,7 @@ class DummyExperimentServer(ExperimentServer):
         
     def send_command(self, command_string):
         print "send_command", command_string
-        return "ok"
+        return command_string
     
     def dispose(self):
         print "dispose"

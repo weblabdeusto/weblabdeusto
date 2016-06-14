@@ -37,13 +37,6 @@ Finally, the ``develop.py`` script comes with many more options. Run the followi
     python develop.py --help
 
 
-Client side
-^^^^^^^^^^^
-
-.. note::
-
-    To be written, but you may go to the client dir and run ``ant test``
-
 Sample environment
 ^^^^^^^^^^^^^^^^^^
 

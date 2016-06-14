@@ -282,9 +282,9 @@
         },
         "archimedes6" : {
             "name": $.i18n._("instance6"),
-            "ball_mass": 89.3,
-            "ball_density": 0.79,
-            "object_density": 0.79,
+            "ball_mass": 126.9,
+            "ball_density": 1.12,
+            "object_density": 1.12,
             "object_volume": 113.10,
             "object_type": "Ball",
             "ball_diameter": 6, // cm

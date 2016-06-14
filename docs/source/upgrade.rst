@@ -45,7 +45,7 @@ Then, the code changes will be there, but they will still not be deployed.  Now 
 
 This will install all the new requirements, will copy everything to the deployment directory. From this point, you may create new WebLab-Deusto instances using the new deployment, by running::
 
- $ weblab-admin.py create sample
+ $ weblab-admin create sample
 
 As already explained in :ref:`first_steps`.
 
@@ -56,7 +56,7 @@ If you already have a running WebLab-Deusto instance, then you may want to
 upgrade it. This means changing the structure of the database, configuration
 variables and so on.
 
-WebLab-Deusto, through its ``weblab-admin.py`` command, manages this, modifying
+WebLab-Deusto, through its ``weblab-admin`` command, manages this, modifying
 the database and converting the old variables. However, this command may fail
 (there are too many combinations), and if it fails, your system might end up in
 an unrecoverable state. For this reason, you are encouraged to make a backup of
@@ -74,14 +74,14 @@ need a command like `mysqldump
 So as to use the automatic upgrader, first stop your current instance, and then
 run the following::
 
- $ weblab-admin.py upgrade sample
+ $ weblab-admin upgrade sample
 
 If you have made further changes (such as the location of the virtualenv, or the directory where the deployment is), you need to reconfigure the paths, by running the following and restart the web server (e.g., Apache)::
 
- $ weblab-admin.py httpd-config-generate sample
+ $ weblab-admin httpd-config-generate sample
 
 Once finished, you will be able to start again your system::
 
- $ weblab-admin.py start sample
+ $ weblab-admin start sample
 
 If there is any error, please :ref:`report it <contact>`.

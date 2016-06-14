@@ -1021,14 +1021,14 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             laboratory_experiment_instances[n] = {}
 
         for n in xrange(1, options[Creation.DUMMY_COPIES] + 1):
-            local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy',\n" % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : n }
+            local_experiments = "            'exp%(n)s|%(dummy)s|%(dummy_category)s'        : 'dummy%(n)s@dummy_queue',\n" % { 'dummy' : options[Creation.DUMMY_NAME], 'dummy_category' : options[Creation.DUMMY_CATEGORY_NAME], 'n' : n }
             lab_id = experiment_counter % options[Creation.LAB_COPIES]
             laboratory_experiments[lab_id] += local_experiments
             if 'dummy' not in laboratory_experiment_instances[lab_id]:
                 laboratory_experiment_instances[lab_id]['dummy'] = []
             laboratory_experiment_instances[lab_id]['dummy'].append(n)
             experiment_counter += 1
-        local_scheduling  += "        'dummy'            : ('PRIORITY_QUEUE', {}),\n"
+        local_scheduling  += "        'dummy_queue'            : ('PRIORITY_QUEUE', {}),\n"
 
         if options[Creation.VISIR_SERVER]:
             for n in xrange(1, options[Creation.VISIR_SLOTS] + 1):
@@ -1162,7 +1162,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
                         "}\n"
                         "\n"
                         "weblabdeusto_federation_demo = ('EXTERNAL_WEBLAB_DEUSTO', {\n"
-                        "                                    'baseurl' : 'https://www.weblab.deusto.es/weblab/',\n"
+                        "                                    'baseurl' : 'https://weblab.deusto.es/weblab/',\n"
                         "                                    'username' : 'weblabfed',\n"
                         "                                    'password' : 'password',\n"
                         "                                    'experiments_map' : {'external-robot-movement@Robot experiments' : 'robot-movement@Robot experiments'}\n"
