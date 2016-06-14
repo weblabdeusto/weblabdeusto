@@ -1,0 +1,3 @@
+This is the webcams proxy used at deusto to avoid accessing the IP webcams directly. The proxy receives the image request and if the image has recently been requested, a cached version of that image is served instead of contacting the actual webcam.
+
+
