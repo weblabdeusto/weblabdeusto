@@ -1,3 +1,18 @@
+
 This is the webcams proxy used at deusto to avoid accessing the IP webcams directly. The proxy receives the image request and if the image has recently been requested, a cached version of that image is served instead of contacting the actual webcam.
+
+This proxy is intended to be deployed using the Apache web server and mod_python_ 2.x.
+
+Also, it is noteworthy that there is no configuration files. Some example webcams are provided in the code. To add a new one, it is necessary to provide a function for it, which can be copy-pasted from, for example, 'pld1'. 
+
+Note also that depending on the IP webcam brand, the image snapshot URL that it provides will be different, and will need to be reflected properly in the webcam's function in the proxy.
+
+Once deployed in Apache, the webcams can be accessed from the following url:
+
+http://<apache-server-url>/proxied.py/<webcam-func-name>
+
+For instance, the webcam pld1, which is provided as an example, could be accessed from:
+
+http://<apache-server-url>/proxied.py/pld1
 
 
