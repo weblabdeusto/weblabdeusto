@@ -35,6 +35,7 @@ from dateutil.relativedelta import relativedelta
 import voodoo.log as log
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
+from weblab.admin.util import password2sha
 
 from weblab.db import db
 import weblab.db.model as model
@@ -1375,6 +1376,52 @@ class DatabaseGateway(object):
             'total_uses_last_month': total_uses_last_month,
             'total_uses_last_year': total_uses_last_year,
         }
+
+    @logged()
+    def create_db_user(self, login, full_name, email, password, role_name):
+
+        session = self.Session()
+        try:
+
+            try:
+                auth_type = session.query(model.DbAuthType).filter_by(name='DB').one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("Auth system '%s' not found in database" % 'DB')
+
+            try:
+                role = session.query(model.DbRole).filter_by(name=role_name).first()
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("Role '%s' not found in database" % role_name)
+
+            try:
+                user = model.DbUser(login, full_name, email, None, role)
+
+                user_auth = model.DbUserAuth(user, auth, configuration=password2sha(password))
+
+                session.add(user)
+                session.add(user_auth)
+                session.commit()
+            except Exception as e:
+                log.log( DatabaseGateway, log.level.Warning, "Couldn't create user: %s" % e)
+                log.log_exc(DatabaseGateway, log.level.Info)
+                raise DbErrors.DatabaseError("Couldn't create user (through create_db_user)! Contact administrator")
+        finally:
+            session.close()
+
+    def _delete_user(self, login):
+        """
+        Deletes a user by login.
+        :param login:
+        :return:
+        """
+        session = self.Session()
+        try:
+            user = self.get_user(login)
+            session.delete(user)
+            session.commit()
+        except:
+            pass
 
 
 def create_gateway(cfg_manager):

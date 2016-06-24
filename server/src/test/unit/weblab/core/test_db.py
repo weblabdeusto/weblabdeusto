@@ -95,6 +95,16 @@ class DatabaseGatewayTestCase(unittest.TestCase):
     def tearDown(self):
         self.session.close()
 
+        # Get rid of the testuser4create user if it exists.
+        self.gateway._delete_user('testuser4create')
+
+    def test_create_db_user(self):
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+
+        # Try to retrieve the user
+        user = self.gateway.get_user('testuser4create')
+        self.assertIsNotNone(user)
+
     def test_get_user_by_name(self):
         self.assertRaises(
             DbProvidedUserNotFoundError,
