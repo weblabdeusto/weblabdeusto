@@ -1,0 +1,78 @@
+{% set title="Invitation" %}
+{% extends "webclient/_base.html" %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-6 col-md-5 col-lg-4">
+                <a href="http://weblab.deusto.es">
+                    <img class="wl-logo" src="{{ url_for(".static", filename="img/ui/logo_flat.png") }}"/>
+                </a>
+            </div>
+
+            <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-3 col-lg-offset-5">
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                    <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
+                </a>
+            </div>
+        </div>
+        <form action="" method="POST" role="form" class="admin-form form-horizontal" style="margin-top:5%" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="login" class="col-md-2 control-label">{{ gettext('Login') }}
+                      <strong style="color: red">*</strong>
+                </label>
+                <div class="col-md-10">
+                    <input class="form-control" id="login" name="login" type="text" value="">
+                    <p class="help-block">{{ gettext('Username (all letters, dots and numbers') }})</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="full_name" class="col-md-2 control-label">{{ gettext('Full name') }}
+                      <strong style="color: red">*</strong>
+                </label>
+                <div class="col-md-10">
+                  <input class="form-control" id="full_name" name="full_name" type="text" value="">
+                  <p class="help-block">{{ gettext('First and Last name') }}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="col-md-2 control-label">{{ gettext('e-mail') }}
+                      <strong style="color: red">*</strong>
+                </label>
+                <div class="col-md-10">
+                  <input class="form-control" id="email" name="email" type="text" value="">
+                  <p class="help-block">{{ gettext('Valid e-mail address') }}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="col-md-2 control-label">{{ gettext('Password') }}
+                      <strong style="color: red">*</strong>
+                </label>
+                <div class="col-md-10">
+                  <input class="form-control" id="password" type="password"  value="">
+                  <p class="help-block">{{ gettext('Your password') }}</p>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="verify" class="col-md-2 control-label">{{ gettext('Repeat password') }}
+                      <strong style="color: red">*</strong>
+                </label>
+                <div class="col-md-10">
+
+                  <input class="form-control" id="verification" name="verification" type="password" value="">
+                  <p class="help-block">{{ gettext('Repeat your password') }}</p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-offset-2 col-md-10 submit-row">
+                    <input type="submit" class="btn btn-primary" value="{{ gettext('Save') }}">
+                    <a href="" class="btn btn-danger" role="button">{{ gettext('Cancel') }}</a>
+                </div>
+            </div>
+
+        </form>
+    </div>
+{% endblock %}
