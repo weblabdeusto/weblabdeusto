@@ -38,6 +38,15 @@ def invitation(id):
         # Create the new user
         weblab_api.db.create_db_user(login, full_name, email, password, 'student')
 
+        # Get the invitation to check that it is valid.
+        invitation = weblab_api.db.get_invitation(id)
+
+        # TODO: Check whether the invitation is valid, etc.
+        if invitation is None:
+            return "BAD"
+
+        # TODO: Accept invitation.
+
         flash(gettext('Registration done'))
 
         print("USER CREATED")

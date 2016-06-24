@@ -1440,9 +1440,9 @@ class DatabaseGateway(object):
             pass
 
     @with_session
-    def get_invite(self, unique_id):
+    def get_invitation(self, unique_id):
         """
-        Retrieves an Invite by unique id, returns None if not found.
+        Retrieves an Invitation by unique id, returns None if not found.
         :return:
         """
         invitation = _current.session.query(model.DbInvitation).filter_by(unique_id=unique_id).first()
