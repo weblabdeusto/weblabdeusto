@@ -1,14 +1,12 @@
 
 from flask import render_template, request, url_for, redirect, flash
+from flask.ext.wtf import validators
 
 from weblab.core.wl import weblab_api
 from weblab.core.i18n import gettext
 
-
-
-@weblab_api.route_webclient("/invitation/<id>", methods=["GET", "POST"])
-def invitation(id):
-
+@weblab_api.route_webclient("/invitation/<id>/register", methods=["GET", "POST"])
+def invitation_register(id):
     # If this was a POST then we must try to create the user.
     if request.method == "POST":
 
@@ -51,6 +49,14 @@ def invitation(id):
 
         print("USER CREATED")
 
-        return redirect(url_for(".invitation", id=id,_external=True, _scheme=request.scheme))
 
-    return render_template("webclient/invitation.html")
+        return redirect(url_for(".invitation_register", id=id,_external=True, _scheme=request.scheme))
+
+    return render_template("webclient/registration_form.html")
+
+@weblab_api.route_webclient("/invitation/<id>", methods=["GET", "POST"])
+def invitation(id):
+    if request.method == "POST":
+        #Add user to the group here
+        return redirect(url_for(".login"))
+    return render_template("webclient/invitation.html", id=id)
