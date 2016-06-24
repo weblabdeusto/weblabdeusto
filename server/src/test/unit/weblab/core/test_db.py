@@ -31,6 +31,8 @@ from weblab.data.experiments import ExperimentId
 import weblab.data.command as Command
 
 from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParameterFormatError
+from weblab.db.model import DbInvitation, DbGroup, DbAcceptedInvitation
+
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
@@ -96,7 +98,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.session.close()
 
         # Get rid of the testuser4create user if it exists.
+        # TODO: Where should this clean-up actually occur?
         self.gateway._delete_user('testuser4create')
+
+        # Get DbInvitations
+        invitations = self.session.query(DbInvitation).all()
+        for i in invitations:
+            self.session.delete(i)
+        self.session.commit()
 
     def test_create_db_user(self):
         self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
@@ -104,6 +113,23 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         # Try to retrieve the user
         user = self.gateway.get_user('testuser4create')
         self.assertIsNotNone(user)
+
+    def test_accept_invitation(self):
+        # Find an existing group to join.
+        group = self.session.query(DbGroup).first()
+
+        # Create an invitation.
+        invitation = DbInvitation(group, 5, True, None)
+        self.session.add(invitation)
+        self.session.commit()
+
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+
+        accepted = self.gateway.accept_invitation('testuser4create', invitation.unique_id, group.name, False)
+
+        self.assertIsNotNone(accepted)
+        self.assertIsInstance(accepted, DbAcceptedInvitation)
+
 
     def test_get_user_by_name(self):
         self.assertRaises(
