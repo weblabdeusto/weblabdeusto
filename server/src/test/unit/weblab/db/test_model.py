@@ -23,6 +23,18 @@ import weblab.permissions as permissions
 
 class ModelTestCase(unittest.TestCase):
 
+    def test_model_invitations(self):
+
+        #
+        # Create objects.
+        #
+        group = Model.DbGroup("InvGroup")
+        role = Model.DbRole("student")
+        user = Model.DbUser("InvUser", "Name of Invitation User", "weblab@deusto.es", None, role)
+        invitation = Model.DbInvitation(group, 5, True)
+        invitation_accept = Model.DbAcceptedInvitation(invitation, user, True)
+
+
     def test_model(self):
 
         #

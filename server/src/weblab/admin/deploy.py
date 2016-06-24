@@ -899,6 +899,15 @@ def populate_weblab_tests(engine, tests):
     for key, value in six.iteritems(client_properties):
         session.add(model.DbClientProperties(key, value))
 
+    # Create some Invitations:
+    # Create an Invitation accepted by 'any' into 'Course tests' group.
+    user_any = session.query(model.DbUser).filter_by(login='any').first()
+    group_ct = session.query(model.DbGroup).filter_by(name='Course tests').first()
+    invitation = model.DbInvitation(group_ct, 5, True)
+    invitation_accept = model.DbAcceptedInvitation(invitation, user_any, True)
+    session.add(invitation)
+    session.add(invitation_accept)
+
     session.commit()
 
 def generate_create_database(engine_str):
