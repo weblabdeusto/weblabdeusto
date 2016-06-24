@@ -1453,6 +1453,10 @@ class DatabaseGateway(object):
         """
         Accepts the specified invitation. Does not check whether the invitation should actually accept it. It just
         joins it and adds the AcceptedInvitation object.
+
+        #TODO: WARNING: Passing DB objects instead of ids will generally result in not-bound-to-session errors.
+        # Clean this up.
+
         @param user: User that accepts the invite, or login of the user.
         @param invite: Invitation that it accepts, or unique_id of the invitation.
         @param group: Group that it will be added to, or name of the group.
