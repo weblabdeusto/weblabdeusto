@@ -1,4 +1,4 @@
-
+import datetime
 from flask import render_template, request, url_for, redirect, flash
 from flask.ext.wtf import validators
 
@@ -34,16 +34,16 @@ def invitation_register(id):
 
 
         # Create the new user
+        registered = True
         weblab_api.db.create_db_user(login, full_name, email, password, 'student')
 
         # Get the invitation to check that it is valid.
         invitation = weblab_api.db.get_invitation(id)
 
-        # TODO: Check whether the invitation is valid, etc.
-        if invitation is None:
-            return "BAD"
 
         # TODO: Accept invitation.
+
+        weblab_api.db.accept_invitation(login, invitation.unique_id, invitation.group.name, registered)
 
         flash(gettext('Registration done'))
 

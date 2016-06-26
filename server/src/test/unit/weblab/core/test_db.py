@@ -18,6 +18,8 @@ from __future__ import print_function, unicode_literals
 import unittest
 import time
 
+import datetime
+
 import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
@@ -127,9 +129,52 @@ class DatabaseGatewayTestCase(unittest.TestCase):
 
         accepted = self.gateway.accept_invitation('testuser4create', invitation.unique_id, group.name, False)
 
+        self.session.close()
+        self.session = self.gateway.Session()
+
+        invitation = self.session.query(DbInvitation).filter_by(unique_id=invitation.unique_id).one()
+
         self.assertIsNotNone(accepted)
         self.assertIsInstance(accepted, DbAcceptedInvitation)
 
+        self.assertEquals(len(invitation.accepted_invitations), 1)
+
+    def test_can_accept_invitation(self):
+
+        # Find an existing group to join.
+        group = self.session.query(DbGroup).first()
+
+        # Create an invitation.
+        invitation = DbInvitation(group, 5, True, None)
+        self.session.add(invitation)
+        self.session.commit()
+
+        # We have no date, so it should be possible to accept.
+        can_accept, why = invitation.can_accept()
+        self.assertTrue(can_accept)
+
+        # We have an old expire date, we should not be able to acept.
+        invitation.expire_date = datetime.datetime.utcnow()
+
+        can_accept, why = invitation.can_accept()
+        self.assertFalse(can_accept)
+        self.assertEquals(why, "expired")
+
+        invitation.max_number = 1
+        invitation.expire_date = None
+        # We should be able to accept the first one
+        can_accept, why = invitation.can_accept()
+        self.assertTrue(can_accept)
+
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+        accepted = self.gateway.accept_invitation('testuser4create', invitation.unique_id, group.name, False)
+
+        self.session.commit()
+        invitation = self.session.query(DbInvitation).filter_by(unique_id=invitation.unique_id).one()
+
+        can_accept, why = invitation.can_accept()
+        self.assertFalse(can_accept)
+        self.assertEquals(why, "limit")
 
     def test_get_user_by_name(self):
         self.assertRaises(

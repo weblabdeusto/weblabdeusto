@@ -264,6 +264,23 @@ class DbInvitation(Base):
             self.id, self.unique_id, self.group_id, self.creation_date, self.expire_date, self.max_number
         )
 
+    def can_accept(self):
+        """
+        Checks whether the invitation can be accepted.
+        :return: (can_accept, reason) Returns whether it can accept. If not, it returns "expired" if the invitation
+        has expired, or "limit" if too many invitations have already be accepted
+        """
+
+        if self.expire_date is not None:
+            current_date = datetime.datetime.utcnow()
+            if current_date > self.expire_date:
+                return False, "expired"
+
+        if len(self.accepted_invitations) >= self.max_number:
+            return False, "limit"
+
+        return True, None
+
 
 class DbAcceptedInvitation(Base):
     __tablename__ = 'AcceptedInvitation'
