@@ -17,6 +17,9 @@ def invitation_register(id):
         # TODO: Render "invitation does not exist" page.
         return "Invitation does not exist"
 
+    # Save the group_name for later
+    group_name = invitation.group.name
+
     can_accept, why = invitation.can_accept()
 
     db_session.close()
@@ -66,7 +69,7 @@ def invitation_register(id):
 
         weblab_api.db.create_db_user(login, full_name, email, password, 'student')
 
-        weblab_api.db.accept_invitation(login, invitation.unique_id, invitation.group.name, True)
+        weblab_api.db.accept_invitation(login, invitation.unique_id, group_name, True)
 
         flash(gettext('Registration done and invitation accepted'))
 
@@ -84,6 +87,9 @@ def invitation(id):
     if invitation is None:
         # TODO: Render "invitation does not exist" page.
         return "Invitation does not exist"
+
+    # Get the group name for later.
+    group_name = invitation.group.name
 
     can_accept, why = invitation.can_accept()
 
@@ -108,6 +114,7 @@ def invitation(id):
         weblab_api.api.check_user_session()
         user_session = True
         login = weblab_api.current_user.login
+        login_url = None
     except SessionNotFoundError:
         login_url = url_for('.login', next=url_for('.invitation',id=id, _external=True, scheme=request.scheme),
                             _external=True, scheme=request.scheme)
@@ -126,7 +133,7 @@ def invitation(id):
             flash('error', gettext('You are not logged in'))
             return redirect(url_for(".invitation", id=id))
 
-        weblab_api.db.accept_invitation(login, invitation.unique_id, invitation.group.name, False)
+        weblab_api.db.accept_invitation(login, invitation.unique_id, group_name, False)
 
         flash(gettext('Invitation accepted'))
 

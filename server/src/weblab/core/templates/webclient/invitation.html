@@ -27,7 +27,9 @@
             {% endif %}
                 <div style="text-align: center;margin-top: 5%">
                     {% if user_session %}
-                        <button onclick="window.location.replace('{{ url_for('.joingroup',id=id) }}')" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                        <form method="POST">
+                            <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                        </form>
                     {% else %}
                         <button onclick="window.location.replace('{{ login_url }}')" class="btn btn-lg btn-primary">{{ gettext('Sign in') }}</button>
                         {{ gettext('or') }}
