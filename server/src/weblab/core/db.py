@@ -1439,13 +1439,13 @@ class DatabaseGateway(object):
         except:
             pass
 
-    @with_session
-    def get_invitation(self, unique_id):
+    def get_invitation(self, session, unique_id):
         """
         Retrieves an Invitation by unique id, returns None if not found.
+        # TODO: Determine from a "cleanliness" perspective how bad not using @with_session is.
         :return:
         """
-        invitation = _current.session.query(model.DbInvitation).filter_by(unique_id=unique_id).first()
+        invitation = session.query(model.DbInvitation).filter_by(unique_id=unique_id).first()
         return invitation
 
     @with_session
