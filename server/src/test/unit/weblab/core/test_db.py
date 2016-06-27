@@ -97,17 +97,14 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.session = self.gateway.Session()
 
     def tearDown(self):
-        self.session.close()
 
         # Get rid of the testuser4create user if it exists.
         # TODO: Where should this clean-up actually occur?
         self.gateway._delete_user('testuser4create')
 
-        # Get DbInvitations
-        invitations = self.session.query(DbInvitation).all()
-        for i in invitations:
-            self.session.delete(i)
         self.session.commit()
+
+        self.session.close()
 
     def test_create_db_user(self):
         self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
@@ -138,6 +135,10 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.assertIsInstance(accepted, DbAcceptedInvitation)
 
         self.assertEquals(len(invitation.accepted_invitations), 1)
+
+        # Clean up the invitation
+        self.session.delete(invitation)
+        self.session.commit()
 
     def test_can_accept_invitation(self):
 
@@ -175,6 +176,9 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         can_accept, why = invitation.can_accept()
         self.assertFalse(can_accept)
         self.assertEquals(why, "limit")
+
+        self.session.delete(invitation)
+        self.session.commit()
 
     def test_get_user_by_name(self):
         self.assertRaises(
