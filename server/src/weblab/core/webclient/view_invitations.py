@@ -5,7 +5,6 @@ from flask.ext.wtf import validators
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
-from weblab.db.model import DbUser
 
 
 @weblab_api.route_webclient("/invitation/<id>/register", methods=["GET", "POST"])
@@ -55,8 +54,7 @@ def invitation_register(id):
 
         # Validate: Check that the user does not exist.
 
-        session = weblab_api.db.Session()
-        user = session.query(DbUser).filter_by(login=login).one_or_none()
+        user = weblab_api.db.get_user(login)
         if user is not None:
             return "User exists already"
 
