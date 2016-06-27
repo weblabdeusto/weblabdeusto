@@ -1,11 +1,35 @@
 import datetime
 from flask import render_template, request, url_for, redirect, flash
 from flask.ext.wtf import validators
+from sqlalchemy.orm import joinedload
 
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
 
+
+@weblab_api.route_webclient("/invitation/", methods=["GET", "POST"])
+def invitation_list():
+    """
+    Shows a list of invitations, but only in DEBUG mode.
+    :return:
+    """
+    # print("DIR: %r" % ((weblab_api.config._values)))
+
+    # TODO: The following doesn't work, so for now, it is commented out.
+    # if not weblab_api.app.config.get('DEBUG'):
+    #     return "List of invitations is only visible in DEBUG mode"
+
+    # Retrieve the list of invitations.
+    from weblab.db.model import DbInvitation
+    db_session = weblab_api.db.Session()
+    invitations = db_session.query(DbInvitation).options(joinedload('group')).all()
+    db_session.close()
+
+    # TODO: Having to close the session and load through joinedload to avoid lazy loading of .group.name is kinda
+    # ugly. Check whether that is really necessary.
+
+    return render_template("webclient/invitations_list.html", invitations=invitations)
 
 @weblab_api.route_webclient("/invitation/<id>/register", methods=["GET", "POST"])
 def invitation_register(id):
@@ -74,7 +98,6 @@ def invitation_register(id):
         flash(gettext('Registration done and invitation accepted'))
 
         return redirect(url_for(".login", _external=True, _scheme=request.scheme))
-
 
 
 
