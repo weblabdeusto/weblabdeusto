@@ -20,30 +20,19 @@
                 <h1 class="panel-title" style="text-align: center; font-size:2em">{{ gettext('You have been invited') }}</h1>
             </div>
             <div class="panel-body">
+            {% if not user_session %}
                 {{ gettext('You have been invited to join a weblab group. Login with your account if you are already registered or create a new one') }}
+            {% else %}
+                 {{ gettext('You have been invited to join a weblab group.') }}
+            {% endif %}
                 <div style="text-align: center;margin-top: 5%">
-                    <form class="form-horizontal" role="form">
-                        <div class="form-group">
-                            <label class="control-label col-sm-offset-2 col-sm-2" for="email">Username:</label>
-                            <div class="col-sm-4">
-                                <input type="email" class="form-control" id="email" placeholder="Enter your username">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label class="control-label col-sm-offset-2 col-sm-2" for="pwd">Password:</label>
-                            <div class="col-sm-4">
-                                <input type="password" class="form-control" id="pwd" placeholder="Enter your password">
-                             </div>
-                         </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-offset-1 col-sm-10">
-                                <button type="submit" class="btn btn-primary">{{ gettext('Sign in') }}</button>
-                                {{ gettext('or') }}
-                                <button formaction="{{ url_for('.invitation_register',id=id) }}" class="btn btn-success">{{ gettext('Sign up') }}</button>
-                            </div>
-                        </div>
-                    </form>
+                    {% if user_session %}
+                        <button onclick="window.location.replace('{{ url_for('.joingroup',id=id) }}')" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                    {% else %}
+                        <button onclick="window.location.replace('{{ login_url }}')" class="btn btn-lg btn-primary">{{ gettext('Sign in') }}</button>
+                        {{ gettext('or') }}
+                        <button onclick="window.location.replace('{{ url_for('.invitation_register',id=id) }}')" class="btn btn-success">{{ gettext('Sign up') }}</button>
+                    {% endif %}
                 </div>
             </div>
         </div>

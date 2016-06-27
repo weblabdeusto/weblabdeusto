@@ -3,6 +3,7 @@ from flask import render_template, request, url_for, redirect, flash
 from flask.ext.wtf import validators
 
 from weblab.core.wl import weblab_api
+from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
 
 @weblab_api.route_webclient("/invitation/<id>/register", methods=["GET", "POST"])
@@ -54,9 +55,24 @@ def invitation_register(id):
 
     return render_template("webclient/registration_form.html")
 
-@weblab_api.route_webclient("/invitation/<id>", methods=["GET", "POST"])
+@weblab_api.route_webclient("/invitation/<id>", methods=["GET"])
 def invitation(id):
-    if request.method == "POST":
-        #Add user to the group here
-        return redirect(url_for(".login"))
-    return render_template("webclient/invitation.html", id=id)
+    try:
+        weblab_api.api.check_user_session()
+        user_session = True
+        login = None
+    except SessionNotFoundError:
+        login = url_for('.login', next=url_for('.invitation',id=id, _external=True, scheme=request.scheme), _external=True, scheme=request.scheme)
+        print login
+        user_session = False
+
+    return render_template("webclient/invitation.html", id=id, user_session=user_session, login_url = login)
+
+@weblab_api.route_webclient("/joingroup/<id>", methods=["GET"])
+def joingroup(id):
+
+    print 'joining group'
+
+    #Add user to the corresponding group
+
+    return weblab_api.make_response(render_template("webclient/labs.html"))
