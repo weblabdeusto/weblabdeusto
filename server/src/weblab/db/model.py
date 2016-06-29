@@ -243,18 +243,17 @@ class DbInvitation(Base):
     id = Column(Integer, primary_key=True)
     unique_id = Column(Unicode(32), nullable=False, index=True)
     group_id = Column(Integer, ForeignKey("Group.id"))
-    creation_date = Column(DateTime, nullable=False)
+    creation_date = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     expire_date = Column(DateTime, nullable=True)
     max_number = Column(Integer)
     allow_register = Column(Boolean, nullable=False)
 
     group = relationship("DbGroup")
 
-    def __init__(self, group, max_number, allow_register, expire_date=None):
+    def __init__(self, group=None, max_number=None, allow_register=True, expire_date=None):
         super(DbInvitation, self).__init__()
         self.unique_id = uuid.uuid4().get_hex()
         self.group = group
-        self.creation_date = datetime.datetime.utcnow()
         self.expire_date = expire_date
         self.max_number = max_number
         self.allow_register = allow_register
