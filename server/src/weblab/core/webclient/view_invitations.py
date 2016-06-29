@@ -7,6 +7,31 @@ from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
 
+from flask.ext.wtf import Form
+from wtforms import StringField, validators, PasswordField
+
+
+class RegistrationForm(Form):
+    login = StringField('Login', [
+        validators.Length(min=4, max=25),
+        validators.DataRequired()
+    ])
+    password = PasswordField('Password', [
+        validators.DataRequired(),
+        validators.EqualTo('verification', message='Passwords must match')
+    ])
+    full_name = StringField('Full name', [
+        validators.DataRequired()
+    ])
+    verification = PasswordField('Repeat password', [
+        validators.DataRequired()
+    ])
+    email = StringField('Email', [
+        validators.Length(min=6, max=35),
+        validators.Email(),
+        validators.DataRequired()
+    ])
+
 
 @weblab_api.route_webclient("/invitation/", methods=["GET", "POST"])
 def invitation_list():
@@ -34,6 +59,8 @@ def invitation_list():
 @weblab_api.route_webclient("/invitation/<id>/register", methods=["GET", "POST"])
 def invitation_register(id):
 
+    form = RegistrationForm(request.form)
+
     db_session = weblab_api.db.Session()
 
     invitation = weblab_api.db.get_invitation(db_session, id)
@@ -58,38 +85,25 @@ def invitation_register(id):
             # TODO: Render "max_number reached" page.
             return "Too many people have used this invitation already"
 
+
+
     if request.method == "GET":
 
         # Render the registration form.
-        return render_template("webclient/registration_form.html")
+        return render_template("webclient/registration_form.html", form=form)
 
     # If this was a POST then we must try to create the user.
-    elif request.method == "POST":
+    elif request.method == "POST" and form.validate():
 
-        login = request.values.get("login")
-        password = request.values.get("password")
-        full_name = request.values.get('full_name')
-        verification = request.values.get("verification")
-        email = request.values.get("email")
-
-        # TODO: Check if username is in use and if password and verification are equal
-        print "Username: {}".format(login)
-        print "Full name: {}".format(full_name)
-        print "Password: {}".format(password)
-        print "Verification: {}".format(verification)
-        print "email: {}".format(email)
-
-        # Validate: Check that the user does not exist.
+        login = form.login.data
+        password = form.password.data
+        full_name = form.full_name.data
+        email = form.email.data
 
         user = weblab_api.db.get_user(login)
         if user is not None:
             return "User exists already"
 
-        # Validate: Check that the passwords meets minimum (very minimum) criteria.
-
-        # Validate: Check that the passwords are the same.
-
-        # Validate: Check that the e-mail is valid.
 
         weblab_api.db.create_db_user(login, full_name, email, password, 'student')
 
@@ -98,6 +112,8 @@ def invitation_register(id):
         flash(gettext('Registration done and invitation accepted'))
 
         return redirect(url_for(".login", _external=True, _scheme=request.scheme))
+    else:
+        return render_template("webclient/registration_form.html", form=form)
 
 
 

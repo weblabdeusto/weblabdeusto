@@ -16,53 +16,74 @@
             </div>
         </div>
         <form action="" method="POST" role="form" class="admin-form form-horizontal" style="margin-top:5%" enctype="multipart/form-data">
+            {{ form.csrf_token }}
             <div class="form-group">
-                <label for="login" class="col-md-2 control-label">{{ gettext('Login') }}
+                <label for="login" class="col-md-2 control-label">{{ gettext(form.login.label) }}
                       <strong style="color: red">*</strong>
                 </label>
                 <div class="col-md-10">
-                    <input class="form-control" id="login" name="login" type="text" value="">
-                    <p class="help-block">{{ gettext('Username (all letters, dots and numbers') }})</p>
+                    <p>{{ form.login(size=60, class="form-control")}}
+                        {% for error in form.login.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="help-block">{{ gettext('Username (all letters, dots and numbers') }}</p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="full_name" class="col-md-2 control-label">{{ gettext('Full name') }}
+                <label for="full_name" class="col-md-2 control-label">{{ gettext(form.full_name.label) }}
                       <strong style="color: red">*</strong>
                 </label>
                 <div class="col-md-10">
-                  <input class="form-control" id="full_name" name="full_name" type="text" value="">
-                  <p class="help-block">{{ gettext('First and Last name') }}</p>
+                    <p>{{ form.full_name(size=60, class="form-control")}}
+                        {% for error in form.full_name.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="help-block">{{ gettext('First and Last name') }}</p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="email" class="col-md-2 control-label">{{ gettext('e-mail') }}
+                <label for="email" class="col-md-2 control-label">{{ gettext(form.email.label) }}
                       <strong style="color: red">*</strong>
                 </label>
                 <div class="col-md-10">
-                  <input class="form-control" id="email" name="email" type="text" value="">
-                  <p class="help-block">{{ gettext('Valid e-mail address') }}</p>
+                    <p>{{ form.email(size=60, class="form-control")}}
+                        {% for error in form.email.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="help-block">{{ gettext('Valid e-mail address') }}</p>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="password" class="col-md-2 control-label">{{ gettext('Password') }}
+                <label for="password" class="col-md-2 control-label">{{ gettext(form.password.label) }}
                       <strong style="color: red">*</strong>
                 </label>
                 <div class="col-md-10">
-                  <input class="form-control" id="password" name="password" type="password"  value="">
-                  <p class="help-block">{{ gettext('Your password') }}</p>
+                    <p>{{ form.password(size=60, class="form-control")}}
+                        {% for error in form.password.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="help-block">{{ gettext('Your password') }}</p>
                 </div>
             </div>
+
             <div class="form-group">
-                <label for="verify" class="col-md-2 control-label">{{ gettext('Repeat password') }}
+                <label for="verification" class="col-md-2 control-label">{{ gettext(form.verification.label) }}
                       <strong style="color: red">*</strong>
                 </label>
                 <div class="col-md-10">
-
-                  <input class="form-control" id="verification" name="verification" type="password" value="">
-                  <p class="help-block">{{ gettext('Repeat your password') }}</p>
+                    <p>{{ form.verification(size=60, class="form-control")}}
+                        {% for error in form.verification.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p class="help-block">{{ gettext('Repeat your password') }})</p>
                 </div>
             </div>
 
