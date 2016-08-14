@@ -714,6 +714,22 @@ the previous step you have located them in the ``laboratory1`` instance in the
                 },
         }
 
+If your laboratory is an unmanaged laboratory, then the client ``redirect``
+could cause problems since when the user is redirected, WebLab-Deusto might
+assume that the user is not anymore logged in and the laboratory should be
+re-scheduled to other user. So as to avoid this, if your experiment is
+unmanaged, add also the ``manages_polling`` variable:
+
+.. code-block:: python
+
+    laboratory_assigned_experiments = {
+            'exp1:dummy@Dummy experiments' : {
+                    'coord_address' : 'experiment1:laboratory1@core_host',
+                    'checkers' : (),
+                    'manages_polling': True,
+                },
+        }
+
 If you have used XML-RPC, the experiment server is somewhere else outside the
 ``core_host``, but you only need to put in ``coord_address`` the identifier.
 For example, if you created a new laboratory using Java, you will need to add
