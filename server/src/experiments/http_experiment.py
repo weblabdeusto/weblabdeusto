@@ -72,8 +72,11 @@ class HttpExperiment(Experiment):
         if self.api != '0': # If API is '0', the /api and /test methods don't even exist
             self._get_info_thread.start()
 
+    def _build_url(self, path):
+        return "%s/weblab/sessions/%s" % (self.base_url, path)
+
     def _request(self, path, data = None):
-        request = urllib2.Request("%s/weblab/sessions/%s" % (self.base_url, path))
+        request = urllib2.Request(self._build_url(path))
 
         if self.username and self.password:
             request.add_header("Authorization", "Basic %s" % self.encoded)
@@ -96,7 +99,7 @@ class HttpExperiment(Experiment):
             response_str = self._request(url, data)
         except:
             if self.verbose:
-                print("Error obtaining %s" % what)
+                print("Error obtaining %s from %s" % (what, self._build_url(url)))
                 traceback.print_exc()
             return False
        
