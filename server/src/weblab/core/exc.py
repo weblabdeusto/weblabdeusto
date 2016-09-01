@@ -83,6 +83,14 @@ class DbUserNotFoundError(DbInvalidUserOrPasswordError):
     def __init__(self,*args,**kargs):
         DbInvalidUserOrPasswordError.__init__(self,*args,**kargs)
 
+class DbInvitationNotFoundError(DatabaseError):
+    def __init__(self,*args,**kwargs):
+        DatabaseError.__init__(*args,**kwargs)
+
+class DbGroupNotFoundError(DatabaseError):
+    def __init__(self,*args,**kwargs):
+        DatabaseError.__init__(*args,**kwargs)
+
 class DbProvidedUserNotFoundError(DatabaseError):
     def __init__(self,*args,**kargs):
         DatabaseError.__init__(self,*args,**kargs)

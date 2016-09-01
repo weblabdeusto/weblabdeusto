@@ -35,6 +35,7 @@ from dateutil.relativedelta import relativedelta
 import voodoo.log as log
 from voodoo.log import logged
 from voodoo.typechecker import typecheck
+from weblab.admin.util import password2sha
 
 from weblab.db import db
 import weblab.db.model as model
@@ -1375,6 +1376,127 @@ class DatabaseGateway(object):
             'total_uses_last_month': total_uses_last_month,
             'total_uses_last_year': total_uses_last_year,
         }
+
+    @logged()
+    def join_group(self, login, group):
+        """
+        Makes the specified user join the specified group.
+        :param user:
+        :param group:
+        :return:
+        """
+
+    @with_session
+    def create_db_user(self, login, full_name, email, password, role_name):
+        """
+        Creates a new database-based auth user.
+        :param login:
+        :param full_name:
+        :param email:
+        :param password:
+        :param role_name:
+        """
+        try:
+
+            try:
+                auth_type = _current.session.query(model.DbAuthType).filter_by(name='DB').one()
+                auth = auth_type.auths[0]
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("Auth system '%s' not found in database" % 'DB')
+
+            try:
+                role = _current.session.query(model.DbRole).filter_by(name=role_name).first()
+            except (NoResultFound, KeyError):
+                raise DbErrors.DbUserNotFoundError("Role '%s' not found in database" % role_name)
+
+            try:
+                user = model.DbUser(login, full_name, email, None, role)
+
+                user_auth = model.DbUserAuth(user, auth, configuration=password2sha(password))
+
+                _current.session.add(user)
+                _current.session.add(user_auth)
+                _current.session.commit()
+
+            except Exception as e:
+                log.log( DatabaseGateway, log.level.Warning, "Couldn't create user: %s" % e)
+                log.log_exc(DatabaseGateway, log.level.Info)
+                raise DbErrors.DatabaseError("Couldn't create user (through create_db_user)! Contact administrator")
+        finally:
+            _current.session.close()
+
+    @with_session
+    def _delete_user(self, login):
+        """
+        Deletes a user by login.
+        :param login:
+        :return:
+        """
+        try:
+            user = self.get_user(login)
+            _current.session.delete(user)
+            _current.session.commit()
+        except:
+            pass
+
+    def get_invitation(self, session, unique_id):
+        """
+        Retrieves an Invitation by unique id, returns None if not found.
+        # TODO: Determine from a "cleanliness" perspective how bad not using @with_session is.
+        :return:
+        """
+        invitation = session.query(model.DbInvitation).filter_by(unique_id=unique_id).first()
+        return invitation
+
+    @with_session
+    def accept_invitation(self, user, invitation, group, registered):
+        """
+        Accepts the specified invitation. Does not check whether the invitation should actually accept it. It just
+        joins it and adds the AcceptedInvitation object.
+
+        #TODO: WARNING: Passing DB objects instead of ids will generally result in not-bound-to-session errors.
+        # Clean this up.
+
+        @param user: User that accepts the invite, or login of the user.
+        @param invite: Invitation that it accepts, or unique_id of the invitation.
+        @param group: Group that it will be added to, or name of the group.
+        @param registered: Whether the user was registered while accepting the invitation.
+
+        :return: DbAcceptedInvitation object.
+        """
+        if isinstance(user, unicode):
+            user = _current.session.query(model.DbUser).filter_by(login=user).first()
+            if user is None:
+                raise DbErrors.DbUserNotFoundError("User with login '%r' was not found" % user)
+
+        if isinstance(invitation, unicode):
+            # TODO: Somewhat unintuitively we cannot call get_invite here because there are session issues.
+            invitation = _current.session.query(model.DbInvitation).filter_by(unique_id=invitation).first()
+            if invitation is None:
+                raise DbErrors.DbInvitationNotFoundError("Invitation with unique_id '%r' not found" % invitation)
+
+        if isinstance(group, unicode):
+            group = _current.session.query(model.DbGroup).filter_by(name=group).first()
+            if group is None:
+                raise DbErrors.DbGroupNotFoundError("Group with login '%r' not found" % group)
+
+        try:
+
+            user.groups.append(group)
+            _current.session.add(user)
+
+            # Create the DbAcceptedInvitation
+            accepted_invitation = model.DbAcceptedInvitation(invitation, user, registered)
+            _current.session.add(accepted_invitation)
+
+            _current.session.commit()
+
+            return accepted_invitation
+
+        except DbErrors.DatabaseError as err:
+            log.log(DatabaseGateway, log.level.Warning, "Couldn't accept invitation: %s" % err)
+            log.log_exc(DatabaseGateway, log.level.Info)
+            raise DbErrors.DatabaseError("Couldn't accept invitation! Contact administrator")
 
 
 def create_gateway(cfg_manager):

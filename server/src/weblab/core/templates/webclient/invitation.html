@@ -1,0 +1,43 @@
+{% set title="Invitation" %}
+{% extends "webclient/_base.html" %}
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-6 col-md-5 col-lg-4">
+                <a href="http://weblab.deusto.es">
+                    <img class="wl-logo" src="{{ url_for(".static", filename="img/ui/logo_flat.png") }}"/>
+                </a>
+            </div>
+
+            <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-3 col-lg-offset-5">
+                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
+                    <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
+                </a>
+            </div>
+        </div>
+        <div class="panel panel-default" style="margin-top:5%;margin-left: 20%;margin-right: 20%">
+            <div class="panel-heading">
+                <h1 class="panel-title" style="text-align: center; font-size:2em">{{ gettext('You have been invited') }}</h1>
+            </div>
+            <div class="panel-body">
+            {% if not user_session %}
+                {{ gettext('You have been invited to join a weblab group. Login with your account if you are already registered or create a new one') }}
+            {% else %}
+                 {{ gettext('You have been invited to join a weblab group.') }}
+            {% endif %}
+                <div style="text-align: center;margin-top: 5%">
+                    {% if user_session %}
+                        <form method="POST">
+                            <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                        </form>
+                    {% else %}
+                        <button onclick="window.location.replace('{{ login_url }}')" class="btn btn-lg btn-primary">{{ gettext('Sign in') }}</button>
+                        {{ gettext('or') }}
+                        <button onclick="window.location.replace('{{ url_for('.invitation_register',id=id) }}')" class="btn btn-success">{{ gettext('Sign up') }}</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+{% endblock %}

@@ -6,7 +6,6 @@
     <div class="container">
 
         <div class="row">
-
             <div class="col-xs-6 col-md-5 col-lg-4">
                 <a href="http://weblab.deusto.es">
                     <img class="wl-logo" src="{{ url_for(".static", filename="img/ui/logo_flat.png") }}"/>
@@ -163,7 +162,7 @@
                         $scope.error.message = "{{ gettext('Error logging in') }}";
                     }).finally(function() {
                         $scope.status.waiting = false;
-                    });;
+                    });
             }
         }
 

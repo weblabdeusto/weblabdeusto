@@ -126,6 +126,8 @@ class AdministrationApplication(object):
         self.admin.add_view(admin_views.UsersAddingView(db_session,  category = category_users, name = lazy_gettext('Add multiple users'),  endpoint = 'users/multiple'))
         self.admin.add_view(admin_views.UsersPanel(db_session,  category = category_users, name = lazy_gettext('Users'),  endpoint = 'users/users', url='users'))
         self.admin.add_view(admin_views.GroupsPanel(db_session, category = category_users, name = lazy_gettext('Groups'), endpoint = 'users/groups', url='groups'))
+        self.admin.add_view(admin_views.InvitationsPanel(db_session, category = category_users, name = lazy_gettext('Invitations'),
+                                                         endpoint = 'users/invitations', url='invitations'))
 
         self.admin.add_view(admin_views.UserUsedExperimentPanel(files_directory, db_session, category = category_logs, name = lazy_gettext('User logs'), endpoint = 'logs/users', url='logs'))
 

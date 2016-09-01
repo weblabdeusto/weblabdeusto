@@ -18,6 +18,8 @@ from __future__ import print_function, unicode_literals
 import unittest
 import time
 
+import datetime
+
 import test.unit.configuration as configuration
 
 import voodoo.configuration as ConfigurationManager
@@ -31,6 +33,8 @@ from weblab.data.experiments import ExperimentId
 import weblab.data.command as Command
 
 from weblab.core.exc import DbProvidedUserNotFoundError, InvalidPermissionParameterFormatError
+from weblab.db.model import DbInvitation, DbGroup, DbAcceptedInvitation
+
 
 def create_usage(gateway, reservation_id = 'my_reservation_id'):
         session = gateway.Session()
@@ -93,7 +97,88 @@ class DatabaseGatewayTestCase(unittest.TestCase):
         self.session = self.gateway.Session()
 
     def tearDown(self):
+
+        # Get rid of the testuser4create user if it exists.
+        # TODO: Where should this clean-up actually occur?
+        self.gateway._delete_user('testuser4create')
+
+        self.session.commit()
+
         self.session.close()
+
+    def test_create_db_user(self):
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+
+        # Try to retrieve the user
+        user = self.gateway.get_user('testuser4create')
+        self.assertIsNotNone(user)
+
+    def test_accept_invitation(self):
+        # Find an existing group to join.
+        group = self.session.query(DbGroup).first()
+
+        # Create an invitation.
+        invitation = DbInvitation(group, 5, True, None)
+        self.session.add(invitation)
+        self.session.commit()
+
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+
+        accepted = self.gateway.accept_invitation('testuser4create', invitation.unique_id, group.name, False)
+
+        self.session.close()
+        self.session = self.gateway.Session()
+
+        invitation = self.session.query(DbInvitation).filter_by(unique_id=invitation.unique_id).one()
+
+        self.assertIsNotNone(accepted)
+        self.assertIsInstance(accepted, DbAcceptedInvitation)
+
+        self.assertEquals(len(invitation.accepted_invitations), 1)
+
+        # Clean up the invitation
+        self.session.delete(invitation)
+        self.session.commit()
+
+    def test_can_accept_invitation(self):
+
+        # Find an existing group to join.
+        group = self.session.query(DbGroup).first()
+
+        # Create an invitation.
+        invitation = DbInvitation(group, 5, True, None)
+        self.session.add(invitation)
+        self.session.commit()
+
+        # We have no date, so it should be possible to accept.
+        can_accept, why = invitation.can_accept()
+        self.assertTrue(can_accept)
+
+        # We have an old expire date, we should not be able to acept.
+        invitation.expire_date = datetime.datetime.utcnow()
+
+        can_accept, why = invitation.can_accept()
+        self.assertFalse(can_accept)
+        self.assertEquals(why, "expired")
+
+        invitation.max_number = 1
+        invitation.expire_date = None
+        # We should be able to accept the first one
+        can_accept, why = invitation.can_accept()
+        self.assertTrue(can_accept)
+
+        self.gateway.create_db_user('testuser4create', 'Test User For Create', 'user@user.com', 'password', 'student')
+        accepted = self.gateway.accept_invitation('testuser4create', invitation.unique_id, group.name, False)
+
+        self.session.commit()
+        invitation = self.session.query(DbInvitation).filter_by(unique_id=invitation.unique_id).one()
+
+        can_accept, why = invitation.can_accept()
+        self.assertFalse(can_accept)
+        self.assertEquals(why, "limit")
+
+        self.session.delete(invitation)
+        self.session.commit()
 
     def test_get_user_by_name(self):
         self.assertRaises(
