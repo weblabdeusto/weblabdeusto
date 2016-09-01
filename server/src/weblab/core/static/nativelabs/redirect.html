@@ -13,6 +13,9 @@
             };
         });
 
+        // Everything is fine
+        weblab.disableFinishOnClose();
+
         weblab.onStart(function (time, initialConfig) {
             try {
                 var results = JSON.parse(initialConfig);
@@ -37,10 +40,6 @@
                 $("#messages_block").show();
                 $("#messages").text("Configuration error: this experiment is 'redirect' and it is expected to receive an initialization message that contains a 'url' and it did not.");
             }
-
-            // Everything is fine
-            weblab.disableFinishOnClose();
-
 
             if (client_secret != null && client_secret != undefined) {
                 $("#secret_block").show();
