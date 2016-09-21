@@ -119,7 +119,7 @@ class UserProcessor(object):
             raise core_exc.WebLabCoreError( "Invalid client_initial_data provided: a json-serialized object expected" )
 
         if 'back' not in client_initial_data:
-            client_initial_data['back'] = url_for('core_webclient.lab', experiment_name=experiment_id.exp_name, category_name=experiment_id.cat_name, finished=True, _external = True)
+            client_initial_data['back'] = url_for('core_webclient.lab', experiment_name=experiment_id.exp_name, category_name=experiment_id.cat_name, _external = True) + '?finished=true'
 
         if self.is_access_forward_enabled():
             try:
