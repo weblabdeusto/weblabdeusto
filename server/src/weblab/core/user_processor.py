@@ -119,7 +119,11 @@ class UserProcessor(object):
             raise core_exc.WebLabCoreError( "Invalid client_initial_data provided: a json-serialized object expected" )
 
         if 'back' not in client_initial_data:
-            client_initial_data['back'] = url_for('core_webclient.lab', experiment_name=experiment_id.exp_name, category_name=experiment_id.cat_name, _external = True) + '?finished=true'
+            try:
+                client_initial_data['back'] = url_for('core_webclient.lab', experiment_name=experiment_id.exp_name, category_name=experiment_id.cat_name, _external = True) + '?finished=true'
+            except RuntimeError:
+                # If there is a runtime error due to url_for not working in unit tests, it's fine
+                pass
 
         if self.is_access_forward_enabled():
             try:

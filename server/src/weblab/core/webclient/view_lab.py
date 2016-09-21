@@ -17,7 +17,6 @@ def lab(category_name, experiment_name):
     """
     Renders a specific laboratory.
     """
-    finished = session.get('finished', 'false').lower() == 'true'
     federated_reservation_id = session.get('reservation_id')
     federated_mode = federated_reservation_id is not None
     if federated_mode:
@@ -27,6 +26,7 @@ def lab(category_name, experiment_name):
 
     experiment = None
     if federated_mode:
+        finished = request.args.get('finished', 'false').lower() == 'true'
         if finished:
             return render_template("webclient/error.html", error_level='info', error_message = gettext("You have finished using this experiment."), federated_mode = True, back_url = back_url)
             
