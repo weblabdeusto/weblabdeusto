@@ -40,7 +40,7 @@ def lab(category_name, experiment_name):
             try:
                 experiment_list = weblab_api.api.list_experiments(experiment_name, category_name)
             except SessionNotFoundError:
-                return render_template("webclient/error.html", error_message = gettext("The reservation you used has expired."), federated_mode = True, back_url = back_url)
+                return render_template("webclient/error.html", error_message = gettext("Your use has finished."), federated_mode = True, back_url = back_url)
         else:
             if experiment is not None and reservation_status is not None and experiment['type'] == 'redirect':
                 if reservation_status.status == Reservation.CONFIRMED:

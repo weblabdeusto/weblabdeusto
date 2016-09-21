@@ -15,6 +15,8 @@
 #
 from __future__ import print_function, unicode_literals
 
+from flask import url_for
+
 import time as time_module
 import json
 
@@ -115,6 +117,9 @@ class UserProcessor(object):
         except ValueError:
             # TODO: to be tested
             raise core_exc.WebLabCoreError( "Invalid client_initial_data provided: a json-serialized object expected" )
+
+        if 'back' not in client_initial_data:
+            client_initial_data['back'] = url_for('core_webclient.lab', experiment_name=experiment_id.exp_name, category_name=experiment_id.cat_name, _external = True)
 
         if self.is_access_forward_enabled():
             try:
