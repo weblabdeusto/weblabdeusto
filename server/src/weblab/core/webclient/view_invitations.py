@@ -78,12 +78,16 @@ def invitation_register(id):
     if not can_accept:
 
         if why == "expired":
-            # TODO: Render "invitation has expired" page.
-            return "Invitation has expired"
+            error_message =  "Invitation has expired"
+            return render_template("webclient/error.html",error_message=error_message)
 
         elif why == "limit":
-            # TODO: Render "max_number reached" page.
-            return "Too many people have used this invitation already"
+            error_message = "Too many people have used this invitation already"
+            return render_template("webclient/error.html", error_message=error_message)
+
+        else:
+            error_message = "Cannot accept invitation: " + why
+            return render_template("webclient/error.html", error_message=error_message)
 
 
 
