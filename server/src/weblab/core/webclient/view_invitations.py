@@ -1,13 +1,13 @@
 import datetime
 from flask import render_template, request, url_for, redirect, flash
-from flask.ext.wtf import validators
+from flask_wtf import validators
 from sqlalchemy.orm import joinedload
 
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
 
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import StringField, validators, PasswordField
 
 
@@ -137,16 +137,16 @@ def invitation(id):
     if not can_accept:
 
         if why == "expired":
-            # TODO: Render "invitation has expired" page.
-            return "Invitation has expired"
+            error_message =  "Invitation has expired"
+            return render_template("webclient/error.html",error_message=error_message)
 
         elif why == "limit":
-            # TODO: Render "max_number reached" page.
-            return "Too many people have used this invitation already"
+            error_message = "Too many people have used this invitation already"
+            return render_template("webclient/error.html", error_message=error_message)
 
         else:
-            # TODO: Cannot accept invitation due to unrecognized cause page.
-            return "Cannot accept invitation: " + why
+            error_message = "Cannot accept invitation: " + why
+            return render_template("webclient/error.html", error_message=error_message)
 
     login = None
     try:
@@ -177,3 +177,12 @@ def invitation(id):
         flash(gettext('Invitation accepted'))
 
         return redirect(url_for(".labs"))
+
+@weblab_api.route_webclient("/invitation/<id>/logout", methods=["GET"])
+def invitation_logout(id):
+    try:
+        weblab_api.api.logout()
+    except SessionNotFoundError:
+        # We weren't logged in but it doesn't matter because we want to logout anyway.
+        pass
+    return redirect(url_for(".invitation",id=id,_external=True,_scheme=request.scheme))
