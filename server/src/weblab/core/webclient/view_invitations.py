@@ -1,8 +1,6 @@
-import datetime
 from flask import render_template, request, url_for, redirect, flash
 from flask_wtf import validators
 from sqlalchemy.orm import joinedload
-
 from weblab.core.wl import weblab_api
 from weblab.core.exc import SessionNotFoundError
 from weblab.core.i18n import gettext
@@ -12,20 +10,25 @@ from wtforms import StringField, validators, PasswordField
 
 
 class RegistrationForm(Form):
+
     login = StringField('Login', [
         validators.Length(min=4, max=25),
         validators.DataRequired()
     ])
+
     password = PasswordField('Password', [
         validators.DataRequired(),
         validators.EqualTo('verification', message='Passwords must match')
     ])
+
     full_name = StringField('Full name', [
         validators.DataRequired()
     ])
+
     verification = PasswordField('Repeat password', [
         validators.DataRequired()
     ])
+
     email = StringField('Email', [
         validators.Length(min=6, max=35),
         validators.Email(),
@@ -64,9 +67,10 @@ def invitation_register(id):
     db_session = weblab_api.db.Session()
 
     invitation = weblab_api.db.get_invitation(db_session, id)
+
     if invitation is None:
-        # TODO: Render "invitation does not exist" page.
-        return "Invitation does not exist"
+        error_message = "Invitation does not exist"
+        return render_template("webclient/error.html",error_message=error_message)
 
     # Save the group_name for later
     group_name = invitation.group.name
@@ -89,8 +93,6 @@ def invitation_register(id):
             error_message = "Cannot accept invitation: " + why
             return render_template("webclient/error.html", error_message=error_message)
 
-
-
     if request.method == "GET":
 
         # Render the registration form.
@@ -106,8 +108,8 @@ def invitation_register(id):
 
         user = weblab_api.db.get_user(login)
         if user is not None:
-            return "User exists already"
-
+            flash(gettext('User exists already'))
+            return render_template("webclient/registration_form.html", form=form)
 
         weblab_api.db.create_db_user(login, full_name, email, password, 'student')
 
@@ -128,11 +130,11 @@ def invitation(id):
 
     invitation = weblab_api.db.get_invitation(db_session, id)
     if invitation is None:
-        # TODO: Render "invitation does not exist" page.
-        return "Invitation does not exist"
+        error_message = "Invitation does not exist"
+        return render_template("webclient/error.html",error_message=error_message)
 
     # Get the group name for later.
-    group_name = invitation.group.name
+    group = invitation.group
 
     can_accept, why = invitation.can_accept()
 
@@ -153,20 +155,31 @@ def invitation(id):
             return render_template("webclient/error.html", error_message=error_message)
 
     login = None
+    collective = False
+    in_group = False
     try:
         weblab_api.api.check_user_session()
         user_session = True
         login = weblab_api.current_user.login
         login_url = None
+        user = weblab_api.db.get_user_by_name(login)
+        collective = user.role.name == 'federated' or user.login == 'demo'
+        in_group = weblab_api.db.user_in_group(login,group)
+
     except SessionNotFoundError:
         login_url = url_for('.login', next=url_for('.invitation',id=id, _external=True, scheme=request.scheme),
                             _external=True, scheme=request.scheme)
         user_session = False
 
-
     if request.method == "GET":
 
-        return render_template("webclient/invitation.html", id=id, user_session=user_session, login_url = login_url)
+        return render_template("webclient/invitation.html",
+                               id=id,
+                               user_session = user_session,
+                               login_url = login_url,
+                               group_name = group.name,
+                               collective = collective,
+                               in_group = in_group)
 
     elif request.method == "POST":
 
@@ -175,8 +188,14 @@ def invitation(id):
             # We have no valid session. We redirect back to the invitation screen.
             flash('error', gettext('You are not logged in'))
             return redirect(url_for(".invitation", id=id))
+        if collective:
+            flash('error', gettext('You are logged with a collective account'))
+            return redirect(url_for(".invitation", id=id))
+        if in_group:
+            flash(gettext('Your user is already in this group'))
+            return redirect(url_for('.labs'))
 
-        weblab_api.db.accept_invitation(login, invitation.unique_id, group_name, False)
+        weblab_api.db.accept_invitation(login, invitation.unique_id, group.name, False)
 
         flash(gettext('Invitation accepted'))
 
@@ -184,9 +203,11 @@ def invitation(id):
 
 @weblab_api.route_webclient("/invitation/<id>/logout", methods=["GET"])
 def invitation_logout(id):
+
     try:
         weblab_api.api.logout()
     except SessionNotFoundError:
         # We weren't logged in but it doesn't matter because we want to logout anyway.
         pass
+
     return redirect(url_for(".invitation",id=id,_external=True,_scheme=request.scheme))

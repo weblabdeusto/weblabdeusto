@@ -29,15 +29,25 @@
             </div>
             <div class="panel-body">
             {% if not user_session %}
-                {{ gettext('You have been invited to join a weblab group. Login with your account if you are already registered or create a new one') }}
+                {{ gettext('You have been invited to join')}} <b>{{ group_name }}</b> {{ gettext(' group. ')}} {{ gettext('Login with your account if you are already registered or create a new one') }}
             {% else %}
-                 {{ gettext('You have been invited to join a weblab group.') }}
+                {% if not collective %}
+                    {{ gettext('You have been invited to join ')}} <b> {{group_name}} </b> {{ gettext(' group.') }}
+                {% else %}
+                    {{ gettext('You have been invited to join ')}} <b> {{group_name}} </b> {{ gettext(' group but you are logged with a collective account. Please, logout before joining the group') }}
+                {% endif %}
             {% endif %}
                 <div style="text-align: center;margin-top: 5%">
                     {% if user_session %}
-                        <form method="POST">
-                            <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
-                        </form>
+                        {%  if not collective %}
+                            <form method="POST">
+                                <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                            </form>
+                        {% else %}
+                            <form method="GET" action="{{ url_for('.invitation_logout',id=id) }}">
+                                <button type="submit" class="btn btn-danger btn-lg">{{ gettext('Logout') }}</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                         <button onclick="window.location.replace('{{ login_url }}')" class="btn btn-lg btn-primary">{{ gettext('Sign in') }}</button>
                         {{ gettext('or') }}
