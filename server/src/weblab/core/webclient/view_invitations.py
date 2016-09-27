@@ -192,7 +192,7 @@ def invitation(id):
             flash('error', gettext('You are logged with a collective account'))
             return redirect(url_for(".invitation", id=id))
         if in_group:
-            flash(gettext('Your user is already in this group'))
+            flash(gettext('You are already in this group'))
             return redirect(url_for('.labs'))
 
         weblab_api.db.accept_invitation(login, invitation.unique_id, group.name, False)
