@@ -899,7 +899,7 @@ if (window.weblab === undefined) {
          * @param server
          */
         this.dbgSetFakeServer = function(server) {
-            this.mDbgFakeServer = server;
+            mDbgFakeServer = server;
 
             if(this.isDebuggingMode())
                 this._dbgRunFakeServer();
