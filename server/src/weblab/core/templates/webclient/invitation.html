@@ -1,35 +1,53 @@
 {% set title="Invitation" %}
-{% extends "webclient/_base.html" %}
+{% if user_session %}
+    {% extends "webclient/_logged_base.html" %}
+{% else %}
+    {% extends "webclient/_base.html" %}
+{% endif %}
+
 {% block body %}
+{{ super() }}
     <div class="container">
+        {% if not user_session %}
         <div class="row">
             <div class="col-xs-6 col-md-5 col-lg-4">
                 <a href="http://weblab.deusto.es">
-                    <img class="wl-logo" src="{{ url_for(".static", filename="img/ui/logo_flat.png") }}"/>
+                    <img class="wl-logo" src="{{ url_for('.static', filename='img/ui/logo_flat.png') }}">
                 </a>
             </div>
 
             <div class="col-xs-6 col-md-5 col-md-offset-1 col-lg-3 col-lg-offset-5">
-                <a href="{{ weblab_api.config.client["host.entity.link"] }}">
-                    <img class="wl-logo" src="{{ url_for("core_web.logo") }}"/>
+                <a href="{{ weblab_api.config.client['host.entity.link'] }}">
+                    <img class='wl-logo' src='{{ url_for("core_web.logo") }}'/>
                 </a>
             </div>
         </div>
+        {% endif %}
         <div class="panel panel-default" style="margin-top:5%;margin-left: 20%;margin-right: 20%">
             <div class="panel-heading">
                 <h1 class="panel-title" style="text-align: center; font-size:2em">{{ gettext('You have been invited') }}</h1>
             </div>
             <div class="panel-body">
             {% if not user_session %}
-                {{ gettext('You have been invited to join a weblab group. Login with your account if you are already registered or create a new one') }}
+                {{ gettext('You have been invited to join')}} <b>{{ group_name }}</b> {{ gettext(' group. ')}} {{ gettext('Login with your account if you are already registered or create a new one') }}
             {% else %}
-                 {{ gettext('You have been invited to join a weblab group.') }}
+                {% if not collective %}
+                    {{ gettext('You have been invited to join ')}} <b> {{group_name}} </b> {{ gettext(' group.') }}
+                {% else %}
+                    {{ gettext('You have been invited to join ')}} <b> {{group_name}} </b> {{ gettext(' group but you are logged with a collective account. Please, logout before joining the group') }}
+                {% endif %}
             {% endif %}
                 <div style="text-align: center;margin-top: 5%">
                     {% if user_session %}
-                        <form method="POST">
-                            <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
-                        </form>
+                        {%  if not collective %}
+                            <form method="POST">
+                                <button type="submit" class="btn btn-success btn-lg">{{ gettext('Join group') }}</button>
+                            </form>
+                        {% else %}
+                            <form method="GET" action="{{ url_for('.invitation_logout',id=id) }}">
+                                <button type="submit" class="btn btn-danger btn-lg">{{ gettext('Logout') }}</button>
+                            </form>
+                        {% endif %}
                     {% else %}
                         <button onclick="window.location.replace('{{ login_url }}')" class="btn btn-lg btn-primary">{{ gettext('Sign in') }}</button>
                         {{ gettext('or') }}

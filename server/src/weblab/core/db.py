@@ -116,6 +116,12 @@ class DatabaseGateway(object):
         return _current.session.query(model.DbUser).filter_by(login=login).first()
 
     @with_session
+    def user_in_group(self, login, group):
+        user = _current.session.query(model.DbUser).filter_by(login=login).first()
+        group_ids = [g.id for g in user.groups]
+        return group.id in group_ids
+
+    @with_session
     def get_user_preferences(self, login):
         user = _current.session.query(model.DbUser).filter_by(login=login).first()
         if user is None:
