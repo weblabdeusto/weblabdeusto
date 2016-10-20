@@ -73,7 +73,7 @@ six==1.9.0
 
 # celery is right now used in wcloud. In the near future, it will be a core
 # component in WebLab-Deusto
-celery==3.1.17
+# celery==3.1.17
 
 # geoip2 is used for retrieving information about the user IP address
 geoip2==2.1.0
