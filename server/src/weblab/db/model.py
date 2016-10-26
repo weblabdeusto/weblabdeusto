@@ -573,6 +573,38 @@ class DbExperimentCategory(Base):
         return ExperimentCategory(self.name)
 
 
+class DbExperimentTranslation(Base):
+    __tablename__ = 'ExperimentTranslation'
+
+    id = Column(Integer, primary_key=True)
+    experiment_id = Column(Integer, ForeignKey("Experiment.id"), nullable=False, index=True)
+    lang_code = Column(Unicode(8), nullable=False)
+
+    public_name = Column(Unicode(255))
+    public_description = Column(Unicode(3000))
+
+    experiment = relationship("DbExperiment", backref='translations')
+
+    def __repr__(self):
+        return "DbExperimentTranslation(id = {}, experiment_id = {}, lang_code = {}, public_name = {}".format(
+                self.id, self.experiment_id, self.lang_code, self.public_name)
+
+    def __init__(self, lang_code='en'):
+        self.lang_code = 'en'
+
+    def get_translation(self, lang_code):
+        """
+        Tries to get the specified translation. If not present, then the closest or the default translation will be returned.
+        If none exist, then None is returned.
+        :param lang_code:
+        :return:
+        """
+        tr = self.translations.get(lang_code)
+        if tr is None:
+            tr = self.translations.get('en')
+        return tr
+
+
 class DbExperiment(Base):
     __tablename__ = 'Experiment'
     __table_args__ = (UniqueConstraint('name', 'category_id'), TABLE_KWARGS)
@@ -628,12 +660,12 @@ class DbExperiment(Base):
 
         client = ExperimentClient(self.client, configuration)
         return Experiment(
-            self.name,
-            self.category.to_business(),
-            self.start_date,
-            self.end_date,
-            client,
-            self.id
+                self.name,
+                self.category.to_business(),
+                self.start_date,
+                self.end_date,
+                client,
+                self.id
         )
 
     def to_dto(self):
@@ -846,12 +878,12 @@ class DbUserUsedExperiment(Base):
 
     def to_dto(self):
         use = ExperimentUse(
-            self.start_date,
-            self.end_date,
-            self.experiment.to_dto(),
-            self.user.to_dto(),
-            self.origin,
-            self.id
+                self.start_date,
+                self.end_date,
+                self.experiment.to_dto(),
+                self.user.to_dto(),
+                self.origin,
+                self.id
         )
         return use
 
@@ -950,12 +982,12 @@ class DbUserFile(Base):
 
     def to_business(self):
         return FileSent(
-            self.file_sent,
-            self.file_hash,
-            _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response) if self.response is not None else NullCommand(),
-            _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro),
-            self.file_info
+                self.file_sent,
+                self.file_hash,
+                _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
+                Command(self.response) if self.response is not None else NullCommand(),
+                _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro),
+                self.file_info
         )
 
 
@@ -1000,10 +1032,10 @@ class DbUserCommand(Base):
 
     def to_business(self):
         return CommandSent(
-            Command(self.command) if self.command is not None else NullCommand(),
-            _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
-            Command(self.response) if self.response is not None else NullCommand(),
-            _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro)
+                Command(self.command) if self.command is not None else NullCommand(),
+                _splitted_utc_datetime_to_timestamp(self.timestamp_before, self.timestamp_before_micro),
+                Command(self.response) if self.response is not None else NullCommand(),
+                _splitted_utc_datetime_to_timestamp(self.timestamp_after, self.timestamp_after_micro)
         )
 
 
