@@ -38,7 +38,7 @@ following example:
     5.0
 
 The ``$`` will represent ``C:\something>`` in Windows environments and
-``user@machine:directory$`` in certain UNIX environments. You must not write that.
+``user@machine:directory$`` in certain UNIX (Linux, Mac OS X) environments. You must not write that.
 Whenever there is no ``$`` in the beginning of the line (such as ``5.0`` in the
 example), is the expected output. Finally, sometimes the output is too long, so
 ``[...]`` is used to declare "a long output will be shown".
@@ -77,6 +77,16 @@ Run the following (don't take into account the particular versions, these are ju
   $ python --version 
 
   Python 2.7.6
+
+.. note::
+
+   If it reports that it is using a higher version (e.g., 3.5.1), then your system is using by default Python 3 instead of Python 2. At the time of this writing, WebLab-Deusto is incompatible with that version. If this is the case, try running ``python2.7`` to verify that it is installed::
+
+      $ python2.7 --version
+      Python 2.7.6
+      $
+
+   If it is installed (even if it is not by default), it is fine.
 
 4. Install ``setuptools`` if you don't have them. In Windows, nowadays the installer of Python comes with ``pip``, so you don't need to install anything else. In Linux, you usually can install it from the repositories (e.g., ``sudo apt-get install python-pip`` in Ubuntu/Debian). If in doubt, follow `the instructions <https://pypi.python.org/pypi/setuptools#installation-instructions>`_. 
 
@@ -148,6 +158,19 @@ If you do this, you will need to do:
   Installing pip...............done.
   $ 
 
+.. note::
+
+   Make sure that the virtualenv is in a directory with no spaces. For example,
+   if you have it in a directory such as ``/Users/Tom/Google Drive/`` or
+   ``C:\Users\Tom\Desktop\My folder``, there can be problems with different
+   dependencies of Python. It is safer if you use ``/Users/user/projects``.
+ 
+.. note::
+   
+   If by default your system is using Python 3, then make sure you provide the following parameter::
+    
+      $ virtualenv --python=/usr/bin/python2.7 weblab_env
+
 And then, each time you want to workin the virtualenv, run:
 
 .. code-block:: bash
@@ -169,21 +192,32 @@ If this also generates problems, you can safely avoid using a virtual environmen
 Installing WebLab-Deusto
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Create a virtualenv. In UNIX systems:
+Create a virtualenv. In Linux/Mac OS X systems:
 
 .. code-block:: bash
 
-  user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB (e.g., /opt/weblabdeusto/ )
+  user@machine:/opt/weblabdeusto$ cd WHEREVER-IS-WEBLAB 
+  
+  (e.g., /opt/weblabdeusto/  Avoid directories with spaces -e.g., /Users/Tom/Google Drive/-)
 
   user@machine:/opt/weblabdeusto$ mkvirtualenv weblab
 
   (weblab) user@machine:/opt/weblabdeusto$
 
+.. note::
+   
+   If by default your system is using Python 3, then make sure you provide the following parameter::
+    
+      $ mkvirtualenv --python=/usr/bin/python2.7 weblab
+
+
 In Microsoft Windows environments:
 
 .. code-block:: batch
 
-  C:\> cd WHEREVER-IS-WEBLAB (e.g., C:\weblabdeusto\ )
+  C:\> cd WHEREVER-IS-WEBLAB 
+  
+  (e.g., C:\weblabdeusto\  Avoid directories with spaces -e.g., C:\Users\Tom\My Projects\-)
 
   C:\weblabdeusto> mkvirtualenv weblab
 
@@ -216,7 +250,7 @@ to time to obtain the latest features.
 Whenever you open a new terminal, you'll find that ``weblab-admin`` is not
 installed. However, whenever you activate the environment where you installed
 WebLab-Deusto, it will be installed. For instance, if you open a new terminal,
-do the following in UNIX systems:
+do the following in UNIX (Linux, Mac OS X) systems:
 
 .. code-block:: bash
 
