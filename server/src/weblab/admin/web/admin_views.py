@@ -228,7 +228,7 @@ class UsersPanel(AdministratorModelView):
                          email=lazy_gettext("e-mail"), groups=lazy_gettext("Groups"), logs=lazy_gettext("Logs"),
                          permissions=lazy_gettext("Permissions"), auths=lazy_gettext("Credentials"))
 
-    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions', 'preferences'
+    form_excluded_columns = 'avatar', 'experiment_uses', 'permissions', 'preferences', 'accepted_invitations'
     form_args = dict(email=dict(validators=[Email()]), login=dict(validators=[Regexp(LOGIN_REGEX)]))
 
     column_descriptions = dict(login=lazy_gettext('Username (all letters, dots and numbers)'),
