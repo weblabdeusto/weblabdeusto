@@ -33,5 +33,5 @@ def labs():
 @login_required
 def labs_json():
     experiments_raw = weblab_api.api.list_experiments()
-    experiments = [ _get_experiment(raw_exp) for raw_exp in experiments_raw ]
+    experiments = [_get_experiment(raw_exp) for raw_exp in experiments_raw]
     return weblab_api.jsonify(experiments=experiments)

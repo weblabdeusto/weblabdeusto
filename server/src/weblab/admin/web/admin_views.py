@@ -195,12 +195,24 @@ class UserAuthForm(InlineFormAdmin):
 LOGIN_REGEX = '^[A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-][A-Za-z0-9\._-]*$'
 
 
+def invitation_link_formatter(v, c, m, p):
+    """
+    Formatter for the link column.
+    :return:
+    """
+    invitation_url = url_for("core_webclient.invitation", id=m.unique_id, _external=True)
+    html = """
+    <a href="{}">{}<a>
+    """.format(invitation_url, invitation_url)
+    return Markup(html)
+
+
 class InvitationsPanel(AdministratorModelView):
     """
     Describes the panel for DbInvitation management.
     """
 
-    column_list = ('unique_id', 'creation_date', 'expire_date', 'max_number', 'allow_register')
+    column_list = ('invitation_url', 'group', 'creation_date', 'expire_date', 'max_number', 'allow_register')
 
     form_excluded_columns = ('creation_date', 'unique_id')
 
@@ -216,8 +228,11 @@ class InvitationsPanel(AdministratorModelView):
         }
     }
 
+    column_formatters = dict(invitation_url=invitation_link_formatter)
+
     def __init__(self, session, **kwargs):
         super(InvitationsPanel, self).__init__(model.DbInvitation, session, **kwargs)
+
 
 
 class UsersPanel(AdministratorModelView):
