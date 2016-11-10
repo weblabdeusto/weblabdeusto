@@ -6,10 +6,16 @@
     <div class="row">
         <div class="container">
             <div class="col-md-8 col-md-offset-2">
+                {% if error_level == 'info' %}
+                <div class="alert alert-info text-center">
+                    <h4>{{ error_message }}</h4>
+                </div>
+                {% else %}
                 <div class="alert alert-danger text-center">
                     <h1>{{ gettext("Error") }}</h1>
                     <h4>{{ error_message }}</h4>
                 </div>
+                {% endif %}
 
                 {% if back_url %}
                     <a class="btn btn-default" href="{{ back_url }}"><i class="glyphicon glyphicon-chevron-left"></i> {{ gettext("Go back") }}</a>

@@ -112,9 +112,12 @@ def _get_experiment_data(experiment_raw):
         if exp['type'] == 'js' and not exp['config'].get('builtin'):
             exp['logo_link'] = url_for('core_web.pub', path=exp['config'].get('experiment.picture'))
         else:
-            exp['logo_link'] = url_for('.gwt', path='weblabclientlab' + exp['config'].get('experiment.picture'))
+            if exp['config'].get('experiment.picture', '').startswith('/'):
+                exp['logo_link'] = url_for('.static', filename=exp['config'].get('experiment.picture')[1:])
+            else:
+                exp['logo_link'] = url_for('.static', filename=exp['config'].get('experiment.picture'))
     else:
-        default_logo = url_for('.gwt', path='weblabclientlab/img/experiments/default.jpg')
+        default_logo = url_for('.static', filename='img/experiments/default.jpg')
         exp['logo_link'] = default_logo
 
     exp['lab_link'] = url_for('.lab', category_name = exp['category'], experiment_name = exp['name'])

@@ -129,7 +129,7 @@ class LocationRetriever(threading.Thread):
                 local_directory = os.path.abspath(".")
                 if " " in local_directory:
                     local_directory = '"{0}"'.format(local_directory)
-                print("{filepath} not found. Run:  weblab-admin.py locations {directory} --reset-database --reset-cache".format(filepath=geoip2_city_filepath, directory=local_directory))
+                print("{filepath} not found. Run:  weblab-admin locations {directory} --reset-database --reset-cache".format(filepath=geoip2_city_filepath, directory=local_directory))
         else:
             if self.local_country is None or self.local_city is None:
                 try:

@@ -94,4 +94,3 @@ def suite():
     return unittest.TestSuite((
             unittest.makeSuite(TestViewLogin),
         ))
-

@@ -369,7 +369,9 @@ if (window.weblab === undefined) {
                     // TODO:
 
                     // TODO: We should also add a way to retrieve the finish information. For now an empty call.
-                    if (!mClosing) {
+                    // mFinishOnClose since if finish on close has been disabled it doesn't make sense to finish the experiment if a poll fails
+                    // for a connectivity issue
+                    if (!mClosing && mFinishOnClose) {
                         this.finishExperiment();
                     }
 
@@ -897,7 +899,7 @@ if (window.weblab === undefined) {
          * @param server
          */
         this.dbgSetFakeServer = function(server) {
-            this.mDbgFakeServer = server;
+            mDbgFakeServer = server;
 
             if(this.isDebuggingMode())
                 this._dbgRunFakeServer();
@@ -1330,6 +1332,14 @@ if (window.weblab === undefined) {
         this.disableFinishOnClose = function () {
             mFinishOnClose = false;
         };
+
+        /**
+         * Is finish on close activated?
+         */
+        this.isFinishOnClose = function () {
+            return mFinishOnClose;
+        };
+
 
         /**
          * Show the body whenever loaded

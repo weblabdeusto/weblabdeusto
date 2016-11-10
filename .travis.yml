@@ -4,6 +4,7 @@ language: python
 cache: pip
 services:
   - redis-server
+  - mysql
 python: 2.7
 install:
     - echo "Setting mysql params to get around 'mysql has gone away' errors"

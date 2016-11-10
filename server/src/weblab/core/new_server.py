@@ -438,9 +438,20 @@ class WebLabAPI(object):
 
             size = 50 # To be configured
 
+            url = urlparse.urlparse(request.url_root)
+            is_local = False
+            if url.netloc.startswith('192.168') or url.netloc.startswith('localhost') or url.netloc.startswith('127.0.0.1'):
+                is_local = True
+
             # Calculate the Gravatar from the mail
             gravatar_url = "//www.gravatar.com/avatar/" + hashlib.md5(email.lower()).hexdigest() + "?"
-            gravatar_url += urllib.urlencode({'d': url_for('core_web.avatar', login=self.current_user.login, size=size, _external=True), 's': str(size)})
+            parameters = {'s':str(size)}
+            if not is_local:
+                parameters['d'] = url_for('core_web.avatar', login=self.current_user.login, size=size, _external=True)
+            else:
+                parameters['d'] = 'identicon'
+                
+            gravatar_url += urllib.urlencode(parameters)
             return gravatar_url
         return None
 
