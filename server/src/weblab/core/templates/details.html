@@ -17,7 +17,13 @@
         {% if 'external_user' in properties %}
         <tr>
             <td><strong>{{ gettext("In the name of") }}</strong></td>
-            <td>{{ properties['external_user'] }} </td>
+            <td>{{ properties['external_user'] }} {% if 'user_fullname' in properties %}({{ properties['user_fullname'] }}){% endif %}</td>
+        </tr>
+        {% endif %}
+        {% if 'group_id' in properties %}
+        <tr>
+            <td><strong>{{ gettext("As part of group") }}</strong></td>
+            <td>{{ properties['group_id'] }} {% if 'group_name' in properties %}({{ properties['group_name'] }}){% endif %}</td>
         </tr>
         {% endif %}
         <tr>
