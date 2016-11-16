@@ -190,6 +190,35 @@ add them to an existing group, or to a new one:
 For instance, if you add them to the Physics groups, they will inherit the permissions granted 
 to this group.
 
+Inviting users to register or to join a group
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In some cases, you will want to explicitly manage your users, creating their accounts yourself and
+placing them into specific groups. However, often you will want to give your users the chance
+to register themselves, or to join a specific group (to get access to certain labs) on their own.
+
+This is useful, for instance:
+  - When you don't want to specify the login, name and e-mail for every user.
+  - When you want a broad group of people to join, without knowing exactly who belong to that group.
+  - When you want to publicly invite people to join.
+
+To use the invitations system, you can follow the following steps:
+
+  1. First, you will need to create a WebLab group for your invitees to join (unless you have that group
+     already). All invitations are linked to a group, which they automatically join after accepting
+     the invitation. That way, they will automatically get access to the experiments you intend, thanks to
+     that group's privileges.
+  2. Now, you will need to create the Invitation itself. This can be done through the WebLab administrator.
+     Go to the administrator, then to the "Users" menu, then click on "Invitations". To create the invitation
+     you will need to specify the group to join, the expire date, the max number of people who can accept it,
+     and whether the invitation can be used to register new users. If that last option is disabled, then
+     only existing WebLab-Deusto users will be able to use the invitation to join a group. Users without
+     an account won't be able to create one.
+  3. Once you have created the invitation, in the list of invitations you will see the URL of each one.
+     Now all that is left is to share the Invitation URL with your prospective students. Depending
+     on the invitation, they will be able to use it to register a new account altogether, or to join
+     the invitation's group with their existing account.
+
 Tracking users
 ~~~~~~~~~~~~~~
 
