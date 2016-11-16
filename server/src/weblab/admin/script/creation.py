@@ -816,6 +816,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
         print("ERROR: starting port number must be at least 1", file=stderr)
         exit_func(-1)
 
+    default_logo = False
     if options[Creation.LOGO_PATH] is not None:
         original_logo_path = options[Creation.LOGO_PATH]
         if not os.path.exists(original_logo_path):
@@ -823,6 +824,7 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             exit_func(-1)
     else:
         original_logo_path = data_filename(os.path.join('weblab','admin','generic-logo.jpg'))
+        default_logo = True
 
 
     if options[Creation.INLINE_LAB_SERV] and options[Creation.CORES] > 1:
@@ -1941,18 +1943,20 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     creation_results[CreationResult.IMG_FILE]        = logo_path
     creation_results[CreationResult.IMG_MOBILE_FILE] = logo_mobile_path
 
-    if PIL_AVAILABLE:
-        try:
-            resize_image(original_logo_path, 250, 120, logo_path)
-            resize_image(original_logo_path, 100,  50, logo_mobile_path)
-        except Exception as e:
-            print("Error resizing images (%s). Original images will be used." % e, file=stderr)
-            processed = False
+    processed = False
+    if not default_logo:
+        if PIL_AVAILABLE:
+            try:
+                resize_image(original_logo_path, 250, 120, logo_path)
+                resize_image(original_logo_path, 100,  50, logo_mobile_path)
+            except Exception as e:
+                print("Error resizing images (%s). Original images will be used." % e, file=stderr)
+                processed = False
+            else:
+                processed = True
         else:
-            processed = True
-    else:
-        processed = False
-        print("PIL (pip install pillow) not installed. Not resizing images.", file=stderr)
+            processed = False
+            print("PIL (pip install pillow) not installed. Not resizing images.", file=stderr)
 
     if not processed:
         logo_contents = open(original_logo_path, 'rb').read()
