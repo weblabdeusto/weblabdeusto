@@ -37,8 +37,8 @@ def start(client_key, username, url, time):
     message = '@@@'.join(('start', WEBLAB_SECRET, client_key, username, url, str(time)))
     _send_message(message)
 
-def status():  
-    message = '@@@'.join(('status', WEBLAB_SECRET))
+def status(client_key):  
+    message = '@@@'.join(('status', WEBLAB_SECRET, client_key))
     response = _send_message(message)
     if response:
         try:
@@ -46,8 +46,8 @@ def status():
         except:
             pass
 
-def end():
-    message = '@@@'.join(('end', WEBLAB_SECRET))
+def end(client_key):
+    message = '@@@'.join(('end', WEBLAB_SECRET, client_key))
     _send_message(message)
 
 
@@ -59,12 +59,12 @@ _dbg_command("Started")
 time.sleep(2)
 
 _dbg_command("Current status...")
-status_result = status()
+status_result = status('CLIENT_KEY')
 _dbg_command("status: %r" % status_result)
 
 time.sleep(2)
 _dbg_command("end")
-end()
+end('CLIENT_KEY')
 _dbg_command("ended")
 
 print "Now fast in a loop"
