@@ -102,7 +102,7 @@ def _apache_generation(directory, base_url, ports, static_directories):
     """</Location>\n"""
     """\n"""
     """<Directory "%(directory)s">\n"""
-    """    Options Indexes\n"""
+    """    Options Indexes FollowSymLinks\n"""
     """\n"""
     """    <IfModule authz_core_module>\n"""
     """        Require all granted\n"""
