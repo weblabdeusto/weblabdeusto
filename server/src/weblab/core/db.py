@@ -921,17 +921,32 @@ class DatabaseGateway(object):
         """
         counter = 0
         uses_without_location = list(_current.session.query(model.DbUserUsedExperiment).filter_by(hostname = None).limit(1024).all()) # Do it iterativelly, never process more than 1024 uses
-        origins = set()
-        for use in uses_without_location:
-            origins.add(use.origin)
 
-        if origins:
+
+        if uses_without_location:
+            from_direct_ip_name = _current.session.query(model.DbUserUsedExperimentProperty).filter_by(name='from_direct_ip').first()
+            all_direct_ips = _current.session.query(model.DbUserUsedExperimentPropertyValue).filter(model.DbUserUsedExperimentPropertyValue.property_name_id == from_direct_ip_name.id, model.DbUserUsedExperimentPropertyValue.experiment_use_id.in_([ use.id for use in uses_without_location ])).all()
+            from_direct_ips = { p.experiment_use_id : p.value for p in all_direct_ips }
+            
+            origins = set()
+            origins_string = set()
+            pack2ip = {
+                # '<ip1>::<ip2>' : (ip1, ip2)
+            }
+            for use in uses_without_location:
+                from_direct_ip = from_direct_ips.get(use.id)
+                origins.add( (use.origin, from_direct_ip) )
+                pack = '{}::{}'.format(use.origin, from_direct_ip)
+                origins_string.add(pack)
+                pack2ip[pack] = (use.origin, from_direct_ip)
+
+
             cached_origins = {
-                # origin: result
+                # origin::direct: result
             }
             last_month = datetime.datetime.utcnow() - datetime.timedelta(days = 31)
-            for cached_origin in  _current.session.query(model.DbLocationCache).filter(model.DbLocationCache.ip.in_(origins), model.DbLocationCache.lookup_time > last_month).all():
-                cached_origins[cached_origin.ip] = {
+            for cached_origin in  _current.session.query(model.DbLocationCache).filter(model.DbLocationCache.pack.in_(origins_string), model.DbLocationCache.lookup_time > last_month).all():
+                cached_origins[cached_origin.pack] = {
                     'city' : cached_origin.city,
                     'hostname': cached_origin.hostname,
                     'country': cached_origin.country,
@@ -939,15 +954,18 @@ class DatabaseGateway(object):
                 }
 
             for use in uses_without_location:
-                if use.origin in cached_origins:
-                    use.city = cached_origins[use.origin]['city']
-                    use.hostname = cached_origins[use.origin]['hostname']
-                    use.country = cached_origins[use.origin]['country']
-                    use.most_specific_subdivision = cached_origins[use.origin]['most_specific_subdivision']
+                from_direct_ip = from_direct_ips.get(use.id)
+                pack = '{}::{}'.format(use.origin, from_direct_ip)
+
+                if pack in cached_origins:
+                    use.city = cached_origins[pack]['city']
+                    use.hostname = cached_origins[pack]['hostname']
+                    use.country = cached_origins[pack]['country']
+                    use.most_specific_subdivision = cached_origins[pack]['most_specific_subdivision']
                     counter += 1
                 else:
                     try:
-                        result = location_func(use.origin)
+                        result = location_func(use.origin, from_direct_ip)
                     except Exception:
                         traceback.print_exc()
                         continue
@@ -955,8 +973,8 @@ class DatabaseGateway(object):
                     use.hostname = result['hostname']
                     use.country = result['country']
                     use.most_specific_subdivision = result['most_specific_subdivision']
-                    cached_origins[use.origin] = result
-                    new_cached_result = model.DbLocationCache(ip = use.origin, lookup_time = datetime.datetime.utcnow(), hostname = result['hostname'], city = result['city'], country = result['country'], most_specific_subdivision = result['most_specific_subdivision'])
+                    cached_origins[pack] = result
+                    new_cached_result = model.DbLocationCache(pack = pack, lookup_time = datetime.datetime.utcnow(), hostname = result['hostname'], city = result['city'], country = result['country'], most_specific_subdivision = result['most_specific_subdivision'])
                     _current.session.add(new_cached_result)
                     counter += 1
 

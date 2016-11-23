@@ -44,7 +44,7 @@ class AddressLocator(object):
         self.local_city = local_city
         self.local_country = local_country
 
-    def locate(self, ip_address):
+    def locate(self, ip_address, if_local = None):
         if ip_address.startswith("<unknown client. retrieved from ") and ip_address.endswith(">"):
             ip_address = ip_address[len("<unknown client. retrieved from "):-1]
 
@@ -63,12 +63,20 @@ class AddressLocator(object):
             resolved = socket.gethostbyaddr(ip_address)[0]
         except Exception:
             if is_private(ip_address):
+                # If if_local is provided, then return the result of the other address
+                if if_local is not None:
+                    return self.locate(if_local, if_local=None)
+
                 resolved = "local"
             else:
                 resolved = ip_address
 
         city = country = most_specific_subdivision = None
         if is_private(ip_address):
+            # If if_local is provided, then return the result of the other address
+            if if_local is not None:
+                return self.locate(if_local, if_local=None)
+
             country = self.local_country
             city = self.local_city
 
