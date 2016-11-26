@@ -175,10 +175,11 @@ class ComponentConfig(object):
         return 'ComponentConfig(%r, %r, %r, %r, %r)' % (self.config_files, self.config_values, self.component_type, self.component_class, self.protocols)
 
 class ProtocolsConfig(dict):
-    def __init__(self, port = None, path = None):
+    def __init__(self, port = None, path = None, auth = None):
         super(ProtocolsConfig, self).__init__()
         self.port = port
         self.path = path
+        self.auth = auth
 
 
 ############################################
@@ -277,7 +278,8 @@ def _load_contents(contents, directory):
                         raise GeneratorError("Protocols defined but missing port on %s:%s@%s" % (component_name, process_name, host_name))
 
                     path = protocols.pop('path', None)
-                    protocols_config = ProtocolsConfig(port, path)
+                    auth = protocols.pop('path', None)
+                    protocols_config = ProtocolsConfig(port, path, auth)
                     supports = protocols.get('supports', PROTOCOL_PRIORITIES)
                     if isinstance(supports, basestring):
                         if ',' in supports:

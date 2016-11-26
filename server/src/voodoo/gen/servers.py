@@ -37,6 +37,13 @@ def xmlrpc():
     if request.method == 'GET':
         return render_template('xmlrpc-methods.html', methods = current_app.wl_server_methods)
 
+    if current_app.wl_auth:
+        weblab_auth = request.headers.get('X-WebLab-Auth')
+        if current_app.wl_auth != weblab_auth:
+            weblab_auth = request.args.get('auth')
+            if current_app.wl_auth != weblab_auth:
+                return xmlrpclib.dumps(xmlrpclib.Fault("Invalid X-WebLab-Auth header (or ?auth=)", "Invalid X-WebLab-Auth header (or ?auth=)"))
+
     raw_data = request.get_data()
     params, method_name = xmlrpclib.loads(raw_data)
     if method_name.startswith('Util.'):
@@ -66,6 +73,13 @@ def xmlrpc():
 def http_method(method_name):
     if request.method == 'GET':
         return render_template('xmlrpc-methods.html', methods = current_app.wl_server_methods)
+
+    if current_app.wl_auth:
+        weblab_auth = request.headers.get('X-WebLab-Auth')
+        if current_app.wl_auth != weblab_auth:
+            weblab_auth = request.args.get('auth')
+            if current_app.wl_auth != weblab_auth:
+                return "Invalid X-WebLab-Auth header (or ?auth=)", 403
 
     if method_name not in current_app.wl_server_methods:
         return "Method name not supported", 404
@@ -175,6 +189,7 @@ def _create_server(instance, coord_address, component_config):
         app = Flask(__name__)
         app.wl_server_instance = instance
         app.wl_server_methods = tuple(methods) + ('test_me',)
+        app.wl_auth = protocols.auth
         logger = logging.getLogger('werkzeug')
         logger.setLevel(logging.CRITICAL)
 
