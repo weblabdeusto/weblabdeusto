@@ -81,9 +81,9 @@ for x in range(10):
     start('CLIENT_KEY', USER, 'https://weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=PLD%20experiments&exp.name=ud-test-pld2', 192)
     _dbg_command("Started")
     _dbg_command("Current status...")
-    status_result = status()
+    status_result = status('CLIENT_KEY')
     _dbg_command("status: %r" % status_result)
     _dbg_command("end")
-    end()
+    end('CLIENT_KEY')
     _dbg_command("ended")
 
