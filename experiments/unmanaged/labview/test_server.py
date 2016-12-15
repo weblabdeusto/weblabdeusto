@@ -5,6 +5,7 @@ WEBLAB_SECRET = "12345@&"
 DEBUG_MESSAGE = True
 DEBUG_COMMAND = True
 
+import os
 import socket
 import time
 
@@ -17,7 +18,11 @@ def _dbg_command(msg):
         print msg
 
 def _send_message(message):
-    message = message + '\r\n'
+    if os.name.startswith('win'):
+        message = message + '\n'
+    else:
+        message = message + '\r\n'
+
     _dbg_message("Creating socket")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     _dbg_message("Connecting...")

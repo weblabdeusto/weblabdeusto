@@ -12,6 +12,7 @@
 #
 # Author: Pablo Orduña <pablo.orduna@deusto.es>
 #
+import os
 import base64
 import socket
 import time
@@ -56,7 +57,10 @@ class LabviewRemotePanels(Experiment):
             print(msg)
 
     def _send_message(self, message):
-        message = message + '\r\n'
+        if os.name.startswith('win'):
+            message = message + '\n'
+        else:
+            message = message + '\r\n'
         self._dbg_message("Creating socket")
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._dbg_message("Connecting...")
