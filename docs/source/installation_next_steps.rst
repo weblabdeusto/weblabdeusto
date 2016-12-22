@@ -139,8 +139,10 @@ For this reason, in Ubuntu GNU/Linux install the following packages:
    $ sudo apt-get install build-essential python-dev 
    # MySQL client, for an optimized version of the MySQL plug-in
    $ sudo apt-get install libmysqlclient-dev
-   # SASL, for supporting LDAP
-   $ sudo apt-get install libsasl2-dev libsasl2-dev
+   # LDAP
+   $ sudo apt-get install libldap2-dev 
+   # SASL, SSL for supporting LDAP
+   $ sudo apt-get install libsasl2-dev libsasl2-dev libssl-dev
    # XML libraries for validating the configuration files
    $ sudo apt-get install libxml2-dev libxslt1-dev 
    # Avoid problems with freetype:
