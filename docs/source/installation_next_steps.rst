@@ -61,8 +61,12 @@ you only need to install the following::
 
 If you are not using PHP, it is highly recommended to install the ``worker`` MPM
 by running::
-
    sudo apt-get install apache2-mpm-worker
+   
+.. note::
+
+   For apache on Ubuntu (>16.04) ``apache2-mpm-worker`` is included by default.
+
 
 This makes that Apache uses threads rather than processes when attending a new
 request. This way, the amount of memory required with a high number of
