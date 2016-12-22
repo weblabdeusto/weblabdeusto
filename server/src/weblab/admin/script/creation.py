@@ -1975,30 +1975,28 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     if http_server_port is None:
         apache_httpd_path = r'your apache httpd.conf ( typically /etc/apache2/httpd.conf or C:\xampp\apache\conf\ )'
         if os.path.exists("/etc/apache2/conf-available"):
-            print("Copy the file %s to /etc/apache/conf-available/apache_weblab_generic.conf" % os.path.abspath(apache_conf_path).replace('\\','/'), file=stdout)
-            print("", file=stdout)
+            apache_httpd_path = 'a new file that you must create called /etc/apache2/conf-available/weblab.conf'
+        if os.path.exists("/etc/apache2/conf.d"):
+            apache_httpd_path = 'a new file that you must create called /etc/apache2/conf.d/weblab'
+        elif os.path.exists("/etc/apache2/httpd.conf"):
+            apache_httpd_path = '/etc/apache2/httpd.conf'
+        elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
+            apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
+
+        print(r"Append the following to", apache_httpd_path, file=stdout)
+        print("", file=stdout)
+        print("    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/'), file=stdout)
+        if sys.platform.find('win') == 0:
+            print("    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/'), file=stdout)
+        print("", file=stdout)
+
+        if os.path.exists("/etc/apache2/conf-available"):
             print("Then, enable the configuration file by running this command:", file=stdout)
             print("", file=stdout)
-            print("    $ sudo a2enconf apache_weblab_generic", file=stdout)
+            print("    $ sudo a2enconf weblab", file=stdout)
             print("", file=stdout)
-            print("Then, reload the apache service:", file=stdout)
-            print("", file=stdout)
-            print("    $ sudo service apache2 reload", file=stdout)
-        else:
-            if os.path.exists("/etc/apache2/conf.d"):
-                apache_httpd_path = 'a new file that you must create called /etc/apache/conf.d/weblab'
-            elif os.path.exists("/etc/apache2/httpd.conf"):
-                apache_httpd_path = '/etc/apache2/httpd.conf'
-            elif os.path.exists('C:\\xampp\\apache\\conf\\httpd.conf'):
-                apache_httpd_path = 'C:\\xampp\\apache\\conf\\httpd.conf'
 
-            print(r"Append the following to", apache_httpd_path, file=stdout)
-            print("", file=stdout)
-            print("    Include \"%s\"" % os.path.abspath(apache_conf_path).replace('\\','/'), file=stdout)
-            if sys.platform.find('win') == 0:
-                print("    Include \"%s\"" % os.path.abspath(apache_windows_conf_path).replace('\\','/'), file=stdout)
         if sys.platform.find('win') == -1:
-            print("", file=stdout)
             print("And enable the modules proxy proxy_balancer proxy_http headers.", file=stdout)
             print("For instance, in Ubuntu you can run: ", file=stdout)
             print("", file=stdout)
@@ -2007,8 +2005,15 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
             print("and depending on the version (in 14.04 onwards), also:", file=stdout)
             print("", file=stdout)
             print("    $ sudo a2enmod lbmethod_bybusyness", file=stdout)
+            print("", file=stdout)
+            print("Then, restart the apache service:", file=stdout)
+            print("", file=stdout)
+            print("    $ sudo service apache2 restart", file=stdout)
+        else:
+            print("Then restart apache.", file=stdout)
+
         print("", file=stdout)
-        print("Then restart apache. If you don't have apache don't worry, delete %s and " % directory, file=stdout)
+        print("If you don't have apache don't worry, delete %s and " % directory, file=stdout)
         print("run the creation script again but passing %s=8000 (or any free port)." % CreationFlags.HTTP_SERVER_PORT, file=stdout)
         print("", file=stdout)
         print("Then run:", file=stdout)
