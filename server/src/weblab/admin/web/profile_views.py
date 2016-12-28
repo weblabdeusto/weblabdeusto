@@ -41,6 +41,7 @@ class ProfileEditView(WebLabBaseView):
         login = get_app_instance(self).get_user_information().login
         user = self._session.query(model.DbUser).filter_by(login = login).one()
         
+        facebook_auth_obj = self._session.query(model.DbAuth).filter_by(name = 'FACEBOOK').first()
         facebook_id = ''
 
         change_password = True
@@ -88,9 +89,9 @@ class ProfileEditView(WebLabBaseView):
             
             if form.facebook.data:
                 if facebook_auth is None:
-                    auth = self._session.query(model.DbAuth).filter_by(name = 'FACEBOOK').one()
-                    new_auth = model.DbUserAuth(user, auth, form.facebook.data)
-                    self._session.add(new_auth)
+                    if facebook_auth_obj is not None:
+                        new_auth = model.DbUserAuth(user, facebook_auth_obj, form.facebook.data)
+                        self._session.add(new_auth)
                 else:
                     facebook_auth.configuration = form.facebook.data
             else:
@@ -105,7 +106,7 @@ class ProfileEditView(WebLabBaseView):
             else:
                 flash(gettext("Saved"))
 
-        return self.render("profile/profile-edit.html", form=form, change_password=change_password, change_profile=change_profile)
+        return self.render("profile/profile-edit.html", form=form, change_password=change_password, change_profile=change_profile, facebook_available=facebook_auth_obj is not None)
 
     def is_accessible(self):
         return get_app_instance(self).get_user_information() is not None
