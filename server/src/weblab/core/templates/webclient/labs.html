@@ -19,10 +19,10 @@
     <div ng-controller="LabsScreenController">
         <div ng-cloak ng-show="experiments.length > 0" class="container-fluid labs-block">
             <div class="row">
-                <div class="pull-left">
+                {# <div class="pull-left">
                     <a href="#details" title="{{ gettext('Go to details') }}" class="btn"
                        style="margin-left: 10px"><i class="glyphicon glyphicon-list-alt"></i></a>
-                </div>
+                </div> #}
                 <div class="pull-right wl-order-buttons-wrapper">
                     <a href="#" title="{{ gettext('Order by Category') }}" ng-disabled="experiment_list.order == 'category'" ng-click="set_order('category')" class="btn"><i class="glyphicon glyphicon-sort"></i></a>
                     <a href="#" title="{{ gettext('Order Alphabetically') }}" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a>
