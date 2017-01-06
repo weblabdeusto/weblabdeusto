@@ -442,7 +442,9 @@ automatically upgraded when you upgrade WebLab-Deusto). Usually in the main
 screen of WebLab-Deusto you have a link to GitHub (where it says ``version
 r<number>``). If you click that link and compare it with `this one
 <https://github.com/weblabdeusto/weblabdeusto/commits/master>`_, you can see if
-there were new versions since you last upgraded it.
+there were new versions since you last upgraded it. You may also use the
+:ref:`WebLab-Deusto mailing list <contact>` to receive notifications on
+potential issues.
 
 Summary
 -------
