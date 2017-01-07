@@ -420,20 +420,21 @@ discovered and fixed, when you upgrade them, the vulnerabilities are not there
 anymore. However, if you upgrade once a month, then you might run into troubles
 for that month.
 
-This does not mean that you need to use the latest Ubuntu distribution. For
-example, if you are using a Ubuntu Server 12.04 LTS, it will be supported until
-June 2017. You are of course encouraged to use Ubuntu 16.04 LTS (the latest
-LTS), but it is not really a priority. What is important is to use an Operating
-System version that is still supported (and for this reason, in the case of
-Ubuntu, it is better to install LTS versions -that are supported for longer:
-e.g., 14.04, 16.04- than not LTS versions -e.g., 16.10-) and upgrade it every
-day (you can install a script for that). If you are using software not managed
-by your operating system (e.g., Apache on Windows), you should also upgrade it
-frequently (and you can join for example their `mailing lists
-<http://httpd.apache.org/lists.html#http-announce>`_ to be notified of new
-versions). This is not required in systems as Linux, where most of the software
-required by WebLab-Deusto is installed from the repositories. However, you still
-have to make sure that it is upgraded frequently.
+This does not mean that you need to use the latest version of the software, just
+those which are maintained. For example in the case of Ubuntu, you do not need
+to install the latest Ubuntu distribution. If you are using a Ubuntu Server
+12.04 LTS, it will be supported until June 2017. You are of course encouraged to
+use Ubuntu 16.04 LTS (the latest LTS), but it is not really a priority. What is
+important is to use an Operating System version that is still supported (and for
+this reason, in the case of Ubuntu, it is better to install LTS versions -that
+are supported for longer: e.g., 14.04, 16.04- than not LTS versions -e.g.,
+16.10-) and upgrade it every day (you can install a script for that). If you are
+using software not managed by your operating system (e.g., Apache on Windows),
+you should also upgrade it frequently (and you can join for example their
+`mailing lists <http://httpd.apache.org/lists.html#http-announce>`_ to be
+notified of new versions). This is not required in systems as Linux, where most
+of the software required by WebLab-Deusto is installed from the repositories.
+However, you still have to make sure that it is upgraded frequently.
 
 It is also important to :ref:`upgrade the WebLab-Deusto <upgrade>` regularly
 (not so often as every day, but keep it in mind). It's not only about
