@@ -622,7 +622,7 @@ to start them all::
    example2: stopped
    $ 
 
-If you have to make any change on the example.conf, remember to run::
+If you have to make any change on the ``example.conf``, remember to run::
 
    $ sudo supervisorctl update
 
@@ -642,6 +642,14 @@ So supervisor checks the settings again.
       $ sudo supervisorctl status
       unix:///var/run/supervisor.sock no such file
       $
+
+.. note::
+
+   If you want to use this for testing environments, and you don't need them to
+   start every time (e.g., only when you want them to start), you just have to
+   detail that in the ``example.conf`` file by appending::
+
+      autostart=false
 
 Summary
 -------
