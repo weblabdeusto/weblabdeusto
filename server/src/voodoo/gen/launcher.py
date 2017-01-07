@@ -86,7 +86,11 @@ class RawInputWait(EventWait):
         super(RawInputWait, self).__init__()
         self.message = message
     def wait(self):
-        raw_input(self.message)
+        try:
+            raw_input(self.message)
+        except EOFError:
+            # If we are not in a terminal, just ignore this waiter
+            return True # don't call
 
 class ConditionWait(EventWait):
     def __init__(self, condition = None):
@@ -185,8 +189,8 @@ class EventWaitHolder(threading.Thread):
         self.event        = event
 
     def run(self):
-        self.event_waiter.wait()
-        self.event.set()
+        if not self.event_waiter.wait():
+            self.event.set()
 
 class AbstractLauncher(object):
     def __init__(self,

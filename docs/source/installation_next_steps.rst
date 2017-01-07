@@ -341,8 +341,8 @@ Additionally, in Apache there is a directive that you might want to use in the
 So that everything that arrives to the 80 port (**http://**) is forwarded to the 
 443 port (**https://**).
 
-Secure the services
-^^^^^^^^^^^^^^^^^^^
+Close access to local services
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The internet is a quite dangerous place, where there are robots constantly
 checking random IPs and searching for open services to attack (such as
@@ -412,8 +412,8 @@ these services (e.g., SSH). This way, even if someone checks all the ports open
 in your server, they will only find the public ones (e.g., Apache), and only if
 they connect to different ports in an order they will see that service available.
 
-Upgrade your software
-^^^^^^^^^^^^^^^^^^^^^
+Upgrade your software frequently
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 All software is inherently subject to have vulnerabilities. Once they are
 discovered and fixed, when you upgrade them, the vulnerabilities are not there
@@ -445,6 +445,172 @@ r<number>``). If you click that link and compare it with `this one
 there were new versions since you last upgraded it. You may also use the
 :ref:`WebLab-Deusto mailing list <contact>` to receive notifications on
 potential issues.
+
+Deployment
+----------
+
+.. note::
+
+   This section is only for deployments in UNIX environments. In Windows
+   environments you can use services by wrapping WebLab into ``.bat`` files.
+
+WebLab-Deusto can be run as a script, but you might want to deploy it as a
+service. However, given that it is very recommendable **not** to install it as
+root (unless you play with virtuaelnvs to avoid corrupting the system with wrong
+versions of the libraries), it is better to install it in a system such as
+`supervisor <http://supervisord.org/>`_. In supervisor you can add any type of
+program and they will run as services. You also have a tool to control which
+services are started, or restart them when required (e.g., when upgrading or
+modifying the ``.py`` or ``.yml`` files).
+
+This section is focused on how to install this tool in a UNIX (e.g., Linux)
+environment.
+
+Step 1: installation of supervisor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Depending on your Operating System, you might find it in the OS packages itself.
+For example, in Ubuntu run::
+
+  $ sudo apt-get install supervisor
+
+And you're done. Otherwise go to `supervisor docs on installation
+<http://supervisord.org/installing.html>`_ for futher information.
+
+Once installed, you'll see that you can start supervisor and check the status::
+
+  $ sudo service supervisor start
+  $ sudo supervisorctl help
+
+  default commands (type help <topic>):
+  =====================================
+  add    exit      open  reload  restart   start   tail   
+  avail  fg        pid   remove  shutdown  status  update 
+  clear  maintail  quit  reread  signal    stop    version
+
+  $ sudo supervisorctl status
+  $ 
+
+It is normal that status returns nothing since we have not installed any service
+yet.
+
+Step 2: prepare WebLab for being used as a service
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Let's imagine that you have installed WebLab-Deusto using ``virtualenvwrapper``
+and called it ``weblab``. Then, the virtualenv will typically be located in
+something like::
+
+   /home/tom/.virtualenvs/weblab/
+
+And the activation script will be in::
+
+   /home/tom/.virtualenvs/weblab/bin/activate
+
+And let's imagine that you have created a new WebLab-Deusto instance in your
+home directory, in a ``deployments`` directory and called it ``example``, such
+as::
+
+   $ cd /home/tom/deployments/
+   $ weblab-admin create example --http-server-port=12345
+
+Then, we will create a wrapper file in any folder (e.g., in the ``deployments``) directory called for example ``weblab-wrapper.sh`` which will contain the following three lines:
+
+.. code-block:: bash
+
+   #!/bin/bash
+   _term() {
+      kill -TERM "$child" 2>/dev/null
+   }
+
+   # When SIGTERM is sent, send it to weblab-admin
+   trap _term SIGTERM
+
+   source /home/tom/.virtualenvs/weblab/bin/activate
+   weblab-admin $@ &
+   
+   child=$!
+   wait "$child"
+
+And then we will grant execution privileges to that file::
+
+    $ chmod +x /home/tom/deployments/weblab-wrapper.sh
+
+From this point, calling it from anywhere will use the virtualenv will work::
+
+    $ cd /tmp/
+    $ /home/tom/deployments/weblab-wrapper.sh
+    Usage: /home/tom/.virtualenvs/weblab/bin/weblab-admin option DIR [option arguments]
+
+        create                  Create a new weblab instance
+        start                   Start an existing weblab instance
+        stop                    Stop an existing weblab instance
+        monitor                 Monitor the current use of a weblab
+        instance
+        upgrade                 Upgrade the current setting
+        locations               Manage the locations
+        database
+        httpd-config-generate   Generate the HTTPd
+        config files (apache, simple, etc.)
+
+    $ 
+
+Step 3: Create the configuration for supervisor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Now what you have to do is to create a file such as ``example.conf`` (it is
+important that it ends by ``.conf``) for running the example instance as a
+service. To do so, create a file such as the following::
+
+    [program:example]
+    command=/home/tom/deployments/weblab-wrapper.sh start example
+    directory=/home/tom/deployments/
+    user=tom
+    stdout_logfile=/home/tom/deployments/example/logs/stdout.log
+    stderr_logfile=/home/tom/deployments/example/logs/stderr.log
+    killasgroup=true
+
+There are plenty more of configuration variables in supervisor (such as not
+exceeding the stdout/stderr logs in more than a number of MB, moving them until
+you have more than 10 files, etc.): check the documentation at the `supervisor
+[program:x] section documentation
+<http://supervisord.org/configuration.html#program-x-section-values>`_.
+
+Step 4: Add the configuration to supervisor
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Then, you have to add this file to supervisor. In Ubuntu Linux this is typically
+done by copying the file to ``/etc/supervisor/conf.d/`` and then using the
+``supervisorctl`` to add it::
+
+    $ sudo cp example.conf /etc/supervisor/conf.d/
+    $ sudo supervisorctl update
+    example: added process group
+    $ 
+
+At this point, you might check that your WebLab-Deusto instance is running. By
+default when you update the supervisorctl, it runs the process. First check in::
+
+    $ sudo supervisorctl status
+    example                          RUNNING   pid 12428, uptime 0:00:04
+    $ 
+
+And then go with your web browser to see if it is running (in the example
+created, you can go to ``http://localhost:12345/``, but you should be using
+Apache as described above).
+
+Step 5: Try supervisor
+^^^^^^^^^^^^^^^^^^^^^^
+
+Once configured, it becomes easier to start the cycle of the deployment. For example::
+
+   $ sudo supervisorctl start example
+   example: started
+   $ sudo supervisorctl status example
+   example                          RUNNING   pid 19320, uptime 0:00:18
+   $ sudo supervisorctl stop example
+   example: stopped
+
 
 Summary
 -------
