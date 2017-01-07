@@ -611,6 +611,22 @@ Once configured, it becomes easier to start the cycle of the deployment. For exa
    $ sudo supervisorctl stop example
    example: stopped
 
+If you have more than WebLab-Deusto deployment, you can always do the following
+to start them all::
+
+   $ sudo supervisorctl start all
+   example1: started
+   example2: started
+   $ sudo supervisorctl stop all
+   example1: stopped
+   example2: stopped
+   $ 
+
+If you have to make any change on the example.conf, remember to run::
+
+   $ sudo supervisorctl update
+
+So supervisor checks the settings again.
 
 Summary
 -------
