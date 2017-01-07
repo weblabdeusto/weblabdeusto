@@ -628,6 +628,21 @@ If you have to make any change on the example.conf, remember to run::
 
 So supervisor checks the settings again.
 
+.. note::
+
+   Make sure that supervisor starts itself when you reboot your computer (so try
+   rebooting). In some systems by default it doesn't. In Ubuntu 16.04, for
+   example, you have to run the following command::
+
+      $ sudo systemctl enable supervisor
+
+   You might know that supervisor is active because otherwise any command will
+   fail with a message such as::
+
+      $ sudo supervisorctl status
+      unix:///var/run/supervisor.sock no such file
+      $
+
 Summary
 -------
 
