@@ -25,6 +25,7 @@ import urlparse
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask, Blueprint, request, escape, url_for
+from flask_assets import Environment
 from werkzeug.contrib.fixers import ProxyFix
 
 from functools import wraps
@@ -484,6 +485,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
+        env = Environment(self.app)
 
         # Initialize internationalization code.
         self.babel = initialize_i18n(self.app)
