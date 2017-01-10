@@ -206,21 +206,27 @@
     </script>
 
 
-    {# TODO: Switch for .min files on release #}
-    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular-translate/angular-translate.min.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular-translate-loader-url/angular-translate-loader-url.min.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.min.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="js/iframeResizer.contentWindow.js") }}"></script>
+    {% assets filters="rjsmin", output="gen/webclient_lab_vendor.min.js",
+                "bower_components/angular-translate/angular-translate.min.js",
+                "bower_components/angular-translate-loader-url/angular-translate-loader-url.min.js",
+                "js/iframeResizer.min.js",
+                "js/iframeResizer.contentWindow.js" %}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
 
+    {% assets filters="rjsmin", output="gen/webclient_lab_app.min.js", 
+                "webclient/apps/lab/app.js", 
+                "webclient/apps/lab/lab.controller.js", 
+                "webclient/apps/lab/expinfo/expinfo.directive.js", 
+                "webclient/apps/lab/iframe/resizer.factory.js", 
+                "webclient/apps/lab/iframe/experiment-iframe.controller.js",
+                "webclient/apps/lab/iframe/experiment-iframe.directive.js",
+                "webclient/apps/lab/reserve-status/reserve-status.directive.js",
+                "webclient/apps/lab/reserve/reserve.controller.js",
+                "webclient/apps/lab/reserve/reserve.directive.js"
+            %}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
 
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/app.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/lab.controller.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/expinfo/expinfo.directive.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/resizer.factory.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.controller.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/iframe/experiment-iframe.directive.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve-status/reserve-status.directive.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.controller.js") }}"></script>
-    <script type="text/javascript" src="{{ url_for(".static", filename="webclient/apps/lab/reserve/reserve.directive.js") }}"></script>
 
 {% endblock %}

@@ -202,5 +202,9 @@
         var LABS_ORDER = "{{ weblab_api.current_user_preferences.labs_sort_method }}";
     </script>
 
-    <script type="text/javascript" src="{{ url_for('.static', filename="webclient/labs.js") }}"></script>
+    {% assets filters="rjsmin", output="gen/webclient_labs_app.min.js",
+                "webclient/labs.js"  %}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
+
 {% endblock %}

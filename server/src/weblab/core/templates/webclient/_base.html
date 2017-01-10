@@ -75,16 +75,14 @@
     </div>
 {% endif %}
 
-<script src="{{ url_for(".static", filename="js/jquery.min.js") }}"></script>
-<script src="{{ url_for(".static", filename="bootstrap3/js/bootstrap.min.js") }}"></script>
-<script src="{{ url_for(".static", filename="js/persist-min.js") }}"></script>
-<script src="{{ url_for(".static", filename="js/md5.js") }}"></script>
-<script src="{{ url_for(".static", filename="js/sprintf.min.js") }}"></script>
-<script src="{{ url_for(".static", filename="js/jquery.cookie-1.4.1.min.js") }}"></script>
-
-<script type="text/javascript" src="{{ url_for(".static", filename="bower_components/angular/angular.min.js") }}"></script>
-<script type="text/javascript" src="{{ url_for(".static", filename="js/base.js") }}"></script>
-
+{% assets filters="rjsmin", output="gen/webclient_base_vendor.min.js", "js/jquery.min.js", "bootstrap3/js/bootstrap.min.js", "js/persist-min.js", "js/md5.js", "js/sprintf.min.js", "js/jquery.cookie-1.4.1.min.js", "bower_components/angular/angular.min.js" 
+%}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
+{% assets filters="rjsmin", output="gen/webclient_base_app.min.js", "js/base.js" 
+%}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
 <script src="{{ url_for("core_web.version") }}"></script>
 <script type="text/javascript">
     if (wlVersionMessage != null) {
