@@ -4,7 +4,7 @@
                 <strong>{{ "TIME"|translate }}:</strong>
                 <span style="margin-right: 10px">{{ ::experiment['display_time'] }}</span>
             <span>
-                <a ng-disabled="experiment.isExperimentReserving() || experiment.isExperimentLoading()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
+                <a ng-show="experiment.isReserveButtonShown()" ng-disabled="experiment.isExperimentReserving() || experiment.isExperimentLoading()" href="#" class="btn btn-primary reserve-btn reserve-frame-btn"
                    id="reserve-frame-btn" ng-click="experiment.reserve('frame')">{{ 'RESERVE'|translate }}</a>
             </span>
         </div>

@@ -38,7 +38,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment.reloading = false;
     $scope.experiment.active = false;
     $scope.experiment.federated = FEDERATED_MODE;
-    
+
     $scope.latest_uses = {
         uses: []
     };
@@ -73,6 +73,7 @@ function LabController($scope, $injector, $http) {
     $scope.experiment_info.experiment.isExperimentLoading = isExperimentLoading;
     $scope.experiment_info.experiment.isExperimentReloading = isExperimentReloading;
     $scope.experiment_info.experiment.isExperimentFederated = isExperimentFederated;
+    $scope.experiment_info.experiment.isReserveButtonShown = isReserveButtonShown;
     $scope.experiment_info.experiment.reserve = reserve;
 
     $scope.reserveMessage = {
@@ -166,6 +167,13 @@ function LabController($scope, $injector, $http) {
     function isExperimentFederated() {
         return $scope.experiment.federated;
     }
+
+    /**
+    * Checks whether the reserve button should be shown or not.
+    */
+    function isReserveButtonShown() {
+        return EXPERIMENT_DATA['config']['experiment.reserve.button.shown'];
+    };
 
 
     /**

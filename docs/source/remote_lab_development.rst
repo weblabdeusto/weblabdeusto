@@ -1143,6 +1143,10 @@ Sometimes, for instance, it is convenient to be able to run your HTML interface 
 to behave in a way that more closely resembles in its intended way, you can use these to simulate command responses
 from the server and the like.
 
+.. note::
+
+   If you want to start the experiment from your JavaScript code, you may call ``weblab.startReservation();``
+
 After reading this, keep either reading in this document about tools
 (:ref:`remote_lab_devel_managed_tools`) or summary
 (:ref:`remote_lab_devel_summary`), or jump to the deployment section
