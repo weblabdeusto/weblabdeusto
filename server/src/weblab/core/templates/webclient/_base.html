@@ -13,9 +13,14 @@
     <meta name="msapplication-navbutton-color" content="#0c48ad">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    {% assets filters="cssmin", output="gen/webclient_base_vendor.min.css", "bootstrap3/css/bootstrap.css" %}
+    <link href="{{ ASSET_URL }}" rel="stylesheet"/>
+    {% endassets %}
 
-    <link href="{{ url_for(".static", filename="bootstrap3/css/bootstrap.css") }}" rel="stylesheet"/>
-    <link href="{{ url_for(".static", filename="css/website.css") }}" rel="stylesheet"/>
+    {% assets filters="cssmin", output="gen/webclient_base_app.min.css", "css/website.css" %}
+    <link href="{{ ASSET_URL }}" rel="stylesheet"/>
+    {% endassets %}
 
     <script>
         if (console === undefined) {

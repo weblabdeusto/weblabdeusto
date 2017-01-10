@@ -2,4 +2,5 @@ version.json
 weblabdeusto_data
 env
 admin_app.log
+.webassets-cache
 *.db

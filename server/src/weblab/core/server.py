@@ -479,13 +479,16 @@ class WebLabFlaskServer(WebLabWsgiServer):
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
         self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
 
+        url_plus_weblab = self.script_name + '/weblab/'
+
         self.app = Flask('weblab.core.wl')
         self.app.wsgi_app = ProxyFix(self.app.wsgi_app)
         self.app.config['SECRET_KEY'] = os.urandom(32)
         self.app.config['APPLICATION_ROOT'] = self.script_name
-        self.app.config['SESSION_COOKIE_PATH'] = self.script_name + '/weblab/'
+        self.app.config['SESSION_COOKIE_PATH'] = url_plus_weblab
         self.app.config['SESSION_COOKIE_NAME'] = 'weblabsession'
         env = Environment(self.app)
+        env.url = url_plus_weblab + 'static/'
 
         # Initialize internationalization code.
         self.babel = initialize_i18n(self.app)
