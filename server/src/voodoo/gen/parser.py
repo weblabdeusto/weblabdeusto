@@ -278,7 +278,7 @@ def _load_contents(contents, directory):
                         raise GeneratorError("Protocols defined but missing port on %s:%s@%s" % (component_name, process_name, host_name))
 
                     path = protocols.pop('path', None)
-                    auth = protocols.pop('path', None)
+                    auth = protocols.pop('auth', None)
                     protocols_config = ProtocolsConfig(port, path, auth)
                     supports = protocols.get('supports', PROTOCOL_PRIORITIES)
                     if isinstance(supports, basestring):

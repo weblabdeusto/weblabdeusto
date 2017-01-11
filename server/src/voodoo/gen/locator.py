@@ -27,6 +27,7 @@ class Locator(object):
             'host' : '127.0.0.1',
             'port' : 12345,
             'path' : '/foo/bar'
+            'auth' : 'random-token'
         }
         """
         if coord_address.host == self.my_coord_address.host and coord_address.process == self.my_coord_address.process:
@@ -54,6 +55,7 @@ class Locator(object):
                 'host' : host,
                 'port' : protocols.port,
                 'path' : protocols.path or '',
+                'auth' : protocols.auth or '',
             }
             return_data.update(protocols['http'])
             return return_data
@@ -64,6 +66,7 @@ class Locator(object):
                 'host' : host,
                 'port' : protocols.port,
                 'path' : protocols.path or '',
+                'auth' : protocols.auth or '',
             }
             return_data.update(protocols['xmlrpc'])
             return return_data
