@@ -172,7 +172,7 @@ function LabController($scope, $injector, $http) {
     * Checks whether the reserve button should be shown or not.
     */
     function isReserveButtonShown() {
-        return EXPERIMENT_DATA['config']['experiment.reserve.button.shown'];
+        return EXPERIMENT_DATA['config']['experiment.reserve.button.shown'] !== false;
     };
 
 
