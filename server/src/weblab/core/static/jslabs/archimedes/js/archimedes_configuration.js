@@ -241,7 +241,7 @@
             "liquid_diameter": 7, // cm
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes2_rotate"
         },
-        "archimedes3" : {
+        /*"archimedes3" : {
             "name": $.i18n._("instance3"),
             "ball_mass": 134,
             "ball_diameter": 6, // cm
@@ -267,7 +267,7 @@
             "liquid_name": "water",
             "webcam": "//cams.weblab.deusto.es/webcam/proxied.py/arquimedes4_rotate"
         },
-        "archimedes5" : {
+        */"archimedes5" : {
             "name": $.i18n._("instance5"),
             "ball_mass": 111,
             "ball_diameter": 6.0    , // cm
