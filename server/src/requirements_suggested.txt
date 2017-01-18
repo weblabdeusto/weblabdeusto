@@ -6,7 +6,11 @@
 # in Ubuntu, do the following: 
 #   $ cd /usr/include
 #   $ sudo ln -s freetype2 freetype
-pillow==2.0
+# 
+# There is sometimes this problem, and it's only used once (for resizing the image if provided through weblab-admin),
+# so by default it's not installed anymore.
+# 
+# pillow==2.0
 
 # All these modules require a C compiler and sometimes a set of 
 # libraries. The required libraries are specified after the name 

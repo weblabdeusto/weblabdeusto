@@ -79,6 +79,7 @@ class HttpClient(AbstractClient):
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
+        self.auth = server_config.get('auth')
         self.timeout = timeout
         self.url = "http://%s:%s%s" % (host, port, path)
 
@@ -100,6 +101,8 @@ class HttpClient(AbstractClient):
                 kwargs['timeout'] = (10, 60)
             else:
                 kwargs['timeout'] = (60, self.timeout or 600)
+            if self.auth:
+                kwargs['headers'] = {'X-WebLab-Auth': self.auth}
             content = requests.post(self.url + '/' + name, data = request_data, **kwargs).content
             result = pickle.loads(content)
         except:
@@ -152,7 +155,11 @@ class XmlRpcClient(AbstractClient):
         path = server_config.get('path', '/')
         host = server_config.get('host')
         port = server_config.get('port')
-        self.url = "http://%s:%s%s" % (host, port, path)
+        auth = server_config.get('auth')
+        if auth:
+            self.url = "http://%s:%s%s?auth=%s" % (host, port, path, auth)
+        else:
+            self.url = "http://%s:%s%s" % (host, port, path)
 
         long_transport = TimeoutTransport()
         long_transport.set_timeout(timeout or 600.0)

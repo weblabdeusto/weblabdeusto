@@ -7,14 +7,17 @@
 </script>
 </head>
 <body onload="javascript:submit_form();">
-    <p>Please, click on 'Submit'</p>
-    <form action="." method="POST" id="reservation_form">
-        <input type="text" name="reservation_id" value="{{ reservation_id }}" />
-        <input type="text" name="back_url" value="{{ back_url }}" />
-        <input type="text" name="locale" value="{{ locale }}" />
-        <input type="text" name="widget" value="{{ widget }}" />
-        <input type="submit" value="Submit"/>
-    </form>
+    <p>Redirect...</p>
+    <div style="display: none">
+        <p>Please, click on 'Submit'</p>
+        <form action="." method="POST" id="reservation_form">
+            <input type="text" name="reservation_id" value="{{ reservation_id }}" />
+            <input type="text" name="back_url" value="{{ back_url }}" />
+            <input type="text" name="locale" value="{{ locale }}" />
+            <input type="text" name="widget" value="{{ widget }}" />
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
     <p>Reason: {{ reason }}</p>
     <input type="submit" value="Back" onclick="window.history.back()"/>
 </body>

@@ -5,6 +5,7 @@ WEBLAB_SECRET = "12345@&"
 DEBUG_MESSAGE = True
 DEBUG_COMMAND = True
 
+import os
 import socket
 import time
 
@@ -17,7 +18,11 @@ def _dbg_command(msg):
         print msg
 
 def _send_message(message):
-    message = message + '\r\n'
+    if os.name.startswith('win'):
+        message = message + '\n'
+    else:
+        message = message + '\r\n'
+
     _dbg_message("Creating socket")
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     _dbg_message("Connecting...")
@@ -37,8 +42,8 @@ def start(client_key, username, url, time):
     message = '@@@'.join(('start', WEBLAB_SECRET, client_key, username, url, str(time)))
     _send_message(message)
 
-def status():  
-    message = '@@@'.join(('status', WEBLAB_SECRET))
+def status(client_key):  
+    message = '@@@'.join(('status', WEBLAB_SECRET, client_key))
     response = _send_message(message)
     if response:
         try:
@@ -46,8 +51,8 @@ def status():
         except:
             pass
 
-def end():
-    message = '@@@'.join(('end', WEBLAB_SECRET))
+def end(client_key):
+    message = '@@@'.join(('end', WEBLAB_SECRET, client_key))
     _send_message(message)
 
 
@@ -59,12 +64,12 @@ _dbg_command("Started")
 time.sleep(2)
 
 _dbg_command("Current status...")
-status_result = status()
+status_result = status('CLIENT_KEY')
 _dbg_command("status: %r" % status_result)
 
 time.sleep(2)
 _dbg_command("end")
-end()
+end('CLIENT_KEY')
 _dbg_command("ended")
 
 print "Now fast in a loop"
@@ -81,9 +86,9 @@ for x in range(10):
     start('CLIENT_KEY', USER, 'https://weblab.deusto.es/weblab/client/?locale=es#page=experiment&exp.category=PLD%20experiments&exp.name=ud-test-pld2', 192)
     _dbg_command("Started")
     _dbg_command("Current status...")
-    status_result = status()
+    status_result = status('CLIENT_KEY')
     _dbg_command("status: %r" % status_result)
     _dbg_command("end")
-    end()
+    end('CLIENT_KEY')
     _dbg_command("ended")
 

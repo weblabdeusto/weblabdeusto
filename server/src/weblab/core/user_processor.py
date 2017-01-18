@@ -36,7 +36,7 @@ from weblab.data.experiments import RunningReservationResult, WaitingReservation
 
 from weblab.core.wl import weblab_api
 
-FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale'
+FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale', 'group_name', 'group_id', 'user_fullname', 'user_username'
 SERVER_UUIDS   = 'server_uuid'
 
 class UserProcessor(object):

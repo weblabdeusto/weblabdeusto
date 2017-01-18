@@ -19,10 +19,10 @@
     <div ng-controller="LabsScreenController">
         <div ng-cloak ng-show="experiments.length > 0" class="container-fluid labs-block">
             <div class="row">
-                <div class="pull-left">
+                {# <div class="pull-left">
                     <a href="#details" title="{{ gettext('Go to details') }}" class="btn"
                        style="margin-left: 10px"><i class="glyphicon glyphicon-list-alt"></i></a>
-                </div>
+                </div> #}
                 <div class="pull-right wl-order-buttons-wrapper">
                     <a href="#" title="{{ gettext('Order by Category') }}" ng-disabled="experiment_list.order == 'category'" ng-click="set_order('category')" class="btn"><i class="glyphicon glyphicon-sort"></i></a>
                     <a href="#" title="{{ gettext('Order Alphabetically') }}" ng-disabled="experiment_list.order == 'name'" ng-click="set_order('name')" class="btn"><i class="glyphicon glyphicon-sort-by-alphabet"></i></a>
@@ -62,7 +62,17 @@
             </div>
             {% endraw %}
         </div>
-            
+        
+        <div class="container-fluid">
+            <div class="row">
+                <div ng-show="experiment_list.loading" class="col-xs-10 col-xs-offset-1 col-lg-offset-0 col-lg-4 col-lg-push-4 text-center well">
+                    <h3>{{ gettext("Loading laboratories...") }}</h3>
+                    <img class="rotating-ball" src="{{ url_for('.static', filename='img/flat_ball_201x201.png') }}">
+                </div>
+            </div>
+        </div>
+
+        {#
         <div class="container-fluid">
             <a name="details"></a>
             <h3 ng-cloak ng-show="!experiment_list.loading">{{ gettext("Details") }}</h3>
@@ -106,7 +116,7 @@
                             <div class="col-sm-10">
                                 <!--<p>{{ ::experiment.description }}</p>-->
                                 <a ng-href="{{ ::experiment.lab_link }}">
-                                    {% endraw %} {# use gettext() using jinja #}
+                                    {% endraw %}
                                     <button class="btn btn-info reserve-new" id="reserve-new">{{ gettext("Open") }} »</button>
                                     {% raw %}
                                 </a>
@@ -178,7 +188,7 @@
 
                 </div>  <!-- categories menu -->
             </div> <!-- container -->
-
+            #}
     </div> <!-- controller -->
 
 {% endblock %}
@@ -192,5 +202,9 @@
         var LABS_ORDER = "{{ weblab_api.current_user_preferences.labs_sort_method }}";
     </script>
 
-    <script type="text/javascript" src="{{ url_for('.static', filename="webclient/labs.js") }}"></script>
+    {% assets filters="rjsmin", output="gen/webclient_labs_app.min.js",
+                "webclient/labs.js"  %}
+    <script src="{{ ASSET_URL }}"></script>{% 
+    endassets %}
+
 {% endblock %}

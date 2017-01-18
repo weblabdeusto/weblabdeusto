@@ -433,6 +433,36 @@ Where it defines "there is a Laboratory server which is identified by ``laborato
 
 Here, the configuration establishes that a particular experiment (at database level) is located in a particular address. You will notice that this address is using the format explained.
 
+Security
+~~~~~~~~
+
+If you are going to deploy one of the servers in a different network and you
+want some basic security (e.g., the ``core`` server in a location and a
+``laboratory`` server in a different location), you're encouraged to use one of
+the two following options (or both):
+
+* Configure your firewall so only your ``core`` server can access (via IP)
+* Use the ``auth`` parameter in the ``protocols`` section
+
+For example, if you put the following in your ``configuration.yml``::
+
+     exp_host:
+      runner: run-xmlrpc.py
+      host: 127.0.0.1
+      processes:
+        exp_process:
+          components:
+            experiment1:
+              class: experiments.dummy.DummyExperiment
+              protocols:
+                port: 10002
+                auth: RANDOM-SHARED-KEY
+              type: experiment
+ 
+Then the clients will always provide that shared key (``RANDOM-SHARED-KEY`` in
+this case, put something random in your case) when contacting that server, and
+the server will require that shared key so as to process requests.
+
 Summary
 ~~~~~~~
 

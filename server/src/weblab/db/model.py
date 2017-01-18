@@ -150,15 +150,15 @@ class DbLocationCache(Base):
     __tablename__ = 'LocationCache'
 
     id = Column(Integer, primary_key=True)
-    ip = Column(Unicode(64), index=True, nullable=False)
+    pack = Column(Unicode(255), index=True, nullable=False)
     lookup_time = Column(DateTime, index=True, nullable=False)
     hostname = Column(Unicode(255), index=True)
     city = Column(Unicode(255), index=True)
     country = Column(Unicode(255), index=True)
     most_specific_subdivision = Column(Unicode(255), index=True)
 
-    def __init__(self, ip, lookup_time, hostname, city=None, country=None, most_specific_subdivision=None):
-        self.ip = ip
+    def __init__(self, pack, lookup_time, hostname, city=None, country=None, most_specific_subdivision=None):
+        self.pack = pack
         self.lookup_time = lookup_time
         self.hostname = hostname
         self.city = city

@@ -100,6 +100,8 @@ function wlExperimentIframe($injector) {
                     var seconds = parseInt(time);
                     clearTimeout(loadingTimeout);
                     loadingTimeout = setTimeout(_timeoutFunction, seconds * 1000);
+                } else if(new String(e.data).indexOf("weblabdeusto::reserve") == 0) {
+                    scope.experiment.reserve('frame');
                 }
             }
         }

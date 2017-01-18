@@ -19,7 +19,9 @@
                 {{ render_field(form.login) }}
                 {{ render_field(form.full_name) }}
                 {{ render_field(form.email) }}
+                {% if facebook_available %}
                 {{ render_field(form.facebook) }}
+                {% endif %}
                 {% if change_password %}
                     {{ render_field(form.password) }}
                 {% endif %}

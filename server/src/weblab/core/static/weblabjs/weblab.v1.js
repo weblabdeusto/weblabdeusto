@@ -1354,6 +1354,9 @@ if (window.weblab === undefined) {
             return promise.promise();
         };
 
+        this.startReservation = function() {
+            window.parent.postMessage('weblabdeusto::reserve', '*');
+        }
 
         /**
          * Reserves an experiment.

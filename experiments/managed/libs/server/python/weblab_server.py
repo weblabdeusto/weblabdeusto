@@ -82,7 +82,7 @@ class Launcher(object):
         self.experiment_server = experiment_server
 
     def start(self):
-        self.server = XMLRPCServer(("localhost", self.port), WebLabHandler)
+        self.server = XMLRPCServer(("", self.port), WebLabHandler)
         self.server.register_function(self.experiment_server.test_me, "Util.test_me")
         self.server.register_function(self.experiment_server.is_up_and_running, "Util.is_up_and_running")
         self.server.register_function(self.experiment_server.start_experiment, "Util.start_experiment")
