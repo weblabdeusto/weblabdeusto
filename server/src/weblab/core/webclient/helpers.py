@@ -109,7 +109,7 @@ def _get_experiment_data(experiment_raw):
     exp['type'] = experiment_raw.client.client_id
     exp['config'] = experiment_raw.client.configuration or {}
     if 'experiment.picture' in exp['config']:
-        if exp['type'] == 'js' and not exp['config'].get('builtin'):
+        if exp['config'].get('pub.picture') or (exp['type'] == 'js' and not exp['config'].get('builtin')):
             exp['logo_link'] = url_for('core_web.pub', path=exp['config'].get('experiment.picture'))
         else:
             if exp['config'].get('experiment.picture', '').startswith('/'):
