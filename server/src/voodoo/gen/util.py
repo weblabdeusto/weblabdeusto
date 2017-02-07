@@ -24,6 +24,6 @@ def _get_type_name(klass):
 def _load_type(type_name):
     """ _load_type('exceptions.KeyError') -> KeyError """
     module_name, name = type_name.rsplit('.', 1)
-    mod = __import__(module_name, fromlist = [name])
+    mod = __import__(module_name, fromlist = [str(name)])
     return getattr(mod, name)
 
