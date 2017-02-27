@@ -477,6 +477,7 @@ def get_reservation_status():
 class ForceHostFix(object):
     def __init__(self, app, core_server_url):
         self.app = app
+        self.old_wsgi_app = app.wsgi_app
         parsed = urlparse.urlparse(core_server_url)
         self.host_name = parsed.hostname
         self.https = parsed.scheme == 'https'
@@ -487,7 +488,8 @@ class ForceHostFix(object):
         environ['HTTP_HOST'] = self.host_name
         if self.https:
             environ['HTTPS'] = 'on'
-        return self.app(environ, start_response)
+            environ['wsgi.url_scheme'] = 'https'
+        return self.old_wsgi_app(environ, start_response)
 
 class WebLabFlaskServer(WebLabWsgiServer):
     def __init__(self, server, cfg_manager):
@@ -499,7 +501,7 @@ class WebLabFlaskServer(WebLabWsgiServer):
 
         self.app = Flask('weblab.core.wl')
         if force_host_name:
-            self.app.wsgi_app = ForceHostFix(self.app.wsgi_app, core_server_url)
+            self.app.wsgi_app = ForceHostFix(self.app, core_server_url)
         else:
             self.app.wsgi_app = ProxyFix(self.app.wsgi_app)
 
