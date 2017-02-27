@@ -474,15 +474,28 @@ def get_reservation_status():
     weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
     return reservation_processor.get_status()
 
+class ForceHostFix(object):
+    def __init__(self, app, host_name):
+        self.app = app
+        self.host_name = host_name
+ 
+    def __call__(self, environ, start_response):
+        environ['HTTP_HOST'] = self.host_name
+        return self.app(environ, start_response)
+
+
 class WebLabFlaskServer(WebLabWsgiServer):
     def __init__(self, server, cfg_manager):
         core_server_url  = cfg_manager.get_value( 'core_server_url', '' )
         self.script_name = urlparse.urlparse(core_server_url).path.split('/weblab')[0] or ''
+        host_name = cfg_manager.get_value( 'force_host_name', '')
 
         url_plus_weblab = self.script_name + '/weblab/'
 
         self.app = Flask('weblab.core.wl')
         self.app.wsgi_app = ProxyFix(self.app.wsgi_app)
+        if host_name:
+            self.app.wsgi_app = ForceHostFix(self.app.wsgi_app, host_name)
         self.app.config['SECRET_KEY'] = os.urandom(32)
         self.app.config['APPLICATION_ROOT'] = self.script_name
         self.app.config['SESSION_COOKIE_PATH'] = url_plus_weblab
