@@ -480,10 +480,13 @@ class ForceHostFix(object):
         parsed = urlparse.urlparse(core_server_url)
         self.host_name = parsed.hostname
         self.https = parsed.scheme == 'https'
+        if self.https:
+            self.app.config['PREFERRED_URL_SCHEME'] = 'https'
  
     def __call__(self, environ, start_response):
         environ['HTTP_HOST'] = self.host_name
-        environ['HTTPS'] = 'on' if self.https else 'off'
+        if self.https:
+            environ['HTTPS'] = 'on'
         return self.app(environ, start_response)
 
 class WebLabFlaskServer(WebLabWsgiServer):
