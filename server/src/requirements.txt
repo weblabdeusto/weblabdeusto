@@ -71,7 +71,7 @@ requests==2.5.1
 #
 # six is used for starting to support compatibility with Python 3
 # 
-six==1.9.0
+six
 
 # celery is right now used in wcloud. In the near future, it will be a core
 # component in WebLab-Deusto
