@@ -1,6 +1,5 @@
 <div class="container-fluid">
 
-
     <!-- Modal for the guide -->
     <script type="text/ng-template" id="modal.controller.html">
         <div class="modal-header">
@@ -8,6 +7,26 @@
         </div>
         <div class="modal-body">
             {{ params.message }}
+        </div>
+        <div ng-if="params.canClose" class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">{{ "ok"|translate }}</button>
+            <!--<button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>-->
+        </div>
+    </script>
+
+    <!-- Modal for the reserve warning. This is a somewhat customized version of the generic modal. -->
+    <script type="text/ng-template" id="reserve_modal.controller.html">
+        <div class="modal-header">
+            <h3 class="modal-title">{{ params.title }}</h3>
+        </div>
+        <div class="modal-body">
+            <p>{{ params.message }}</p>
+            <div>
+                <p>{{ params.startCreatingMessage }}</p>
+                <div class="text-center">
+                    <a target="_blank" style="font-weight: bold" ng-href="{{ params.booleLink }}" class="btn btn-primary">{{ params.openBooleMessage }}</a>
+                </div>
+            </div>
         </div>
         <div ng-if="params.canClose" class="modal-footer">
             <button class="btn btn-primary" type="button" ng-click="ok()">{{ "ok"|translate }}</button>

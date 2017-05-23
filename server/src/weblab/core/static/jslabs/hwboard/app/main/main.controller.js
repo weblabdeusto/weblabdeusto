@@ -42,11 +42,22 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     $scope.openModal = openModal;
     window.debug = debug;
 
-    $scope.modals.reserveModal = openModal(1000, {
-        title: $filter("translate")("welcome"),
-        message: $filter("translate")("welcomeMsg"),
-        canClose: false
-    });
+    if ($rootScope.BOOLEWEB_EXTERNAL !== undefined) {
+        $scope.modals.reserveModal = openModal(1000, {
+            title: $filter("translate")("welcome"),
+            message: $filter("translate")("welcomeMsg"),
+            openBooleMessage: $filter("translate")("openBooleMessage"),
+            startCreatingMessage: $filter("translate")("startCreatingMessage"),
+            booleLink: $rootScope.BOOLEWEB_EXTERNAL,
+            canClose: false
+        });
+    } else {
+        $scope.modals.reserveModal = openModal(1000, {
+            title: $filter("translate")("welcome"),
+            message: $filter("translate")("welcomeMsg"),
+            canClose: false
+        });
+    }
 
 
     // ----------------
@@ -62,16 +73,29 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
         if (!params.canClose)
             backdrop = "static";
 
-        var modalInstance = $uibModal.open({
-            animation: true,
-            templateUrl: 'modal.controller.html',
-            controller: 'ModalController',
-            size: size,
-            resolve: {
-                params: params
-            },
-            backdrop: backdrop
-        });
+        if ($rootScope.BOOLEWEB_EXTERNAL !== undefined) {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'reserve_modal.controller.html',
+                controller: 'ReserveModalController',
+                size: size,
+                resolve: {
+                    params: params
+                },
+                backdrop: backdrop
+            });
+        } else {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'modal.controller.html',
+                controller: 'ModalController',
+                size: size,
+                resolve: {
+                    params: params
+                },
+                backdrop: backdrop
+            });
+        }
 
         return modalInstance;
     } // !openModal
