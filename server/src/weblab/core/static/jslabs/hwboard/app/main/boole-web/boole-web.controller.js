@@ -4,7 +4,9 @@ angular
 
 
 
-function BooleWebController($scope) {
+function BooleWebController($scope, $sce, $rootScope) {
+
+    $scope.booleWebURL = $sce.trustAsResourceUrl($rootScope.BOOLEWEB);
 
     // ---------------
     // Implementations

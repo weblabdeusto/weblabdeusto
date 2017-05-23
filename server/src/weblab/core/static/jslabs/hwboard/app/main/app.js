@@ -102,6 +102,10 @@ angular
                 console.log("BooleWeb blank because 'booleweb' client property is not defined");
                 $rootScope.BOOLEWEB = "";
             }
+
+            // DEV ONLY, REMOVE BEFORE COMMIT.
+            // $rootScope.BOOLEWEB = "https://weblab.deusto.es/boole-web/solucion.html";
+            // console.log("BOOLEWEB: " + $rootScope.BOOLEWEB);
         });
 
     })

@@ -16,7 +16,7 @@
     </script>
 
     <!-- Initial row with the webcam and optionally the virtual model -->
-    <div ng-if="!VIRTUALMODEL" class="row">
+    <div ng-if="!VIRTUALMODEL && !BOOLEWEB" class="row">
         <div class="text-center col-xs-offset-3 col-xs-6">
             <wl-webcam src="//cams.weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
         </div>
@@ -28,6 +28,15 @@
         </div>
         <div class="text-center col-xs-6 wl-display-col">
             <wl-virtual-model></wl-virtual-model>
+        </div>
+    </div>
+
+    <div ng-if="BOOLEWEB" class="row">
+        <div class="text-center col-xs-6 wl-display-col">
+            <wl-webcam src="//cams.weblab.deusto.es/webcam/proxied.py/fpga1"></wl-webcam>
+        </div>
+        <div class="text-center col-xs-6 wl-display-col">
+            <wl-boole-web></wl-boole-web>
         </div>
     </div>
 
