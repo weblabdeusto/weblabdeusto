@@ -94,6 +94,14 @@ angular
                 console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
                 $rootScope.VIRTUALMODEL = "";
             }
+
+            // Recognize the Boole-Web mode.
+            try {
+                $rootScope.BOOLEWEB = weblab.config.booleweb;
+            } catch (ex) {
+                console.log("BooleWeb blank because 'booleweb' client property is not defined");
+                $rootScope.BOOLEWEB = "";
+            }
         });
 
     })
