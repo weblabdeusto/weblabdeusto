@@ -37,6 +37,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     $scope.time = 0;
     $scope.uploading = false;
     $scope.modals = {};
+    $scope.webcamUrl = "images/video.png";
 
     $scope.doFileUpload = doFileUpload;
     $scope.openModal = openModal;
@@ -222,6 +223,9 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
         statusUpdater.start();
         ledUpdater.start();
         virtualmodelUpdater.start();
+
+        // Set the webcam URL
+        $scope.webcamUrl = config.webcam;
 
         // Initialize the Virtual Model
         var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
