@@ -11,6 +11,9 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     // Debugging purposes.
     window.$rootScope = $rootScope;
 
+    // For debugging
+    window.mainScope = $scope;
+
     // ---------------
     // Dependencies & Initialization
     // ---------------
@@ -211,9 +214,13 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
 
     /**
      * To receive a notification whenever the interaction begins.
+     * @param time
      * @param config
      */
     function onStartInteraction(time, config) {
+
+        console.log("Received config on start: ");
+        console.log(config);
 
         // Remove the 'Please reserve' modal.
         $scope.modals.reserveModal.close("Reserve done");
@@ -226,13 +233,13 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
 
         // Set the webcam URL
         $scope.webcamUrl = config.webcam;
+        $scope.$apply();
 
         // Initialize the Virtual Model
         var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
         weblab.sendCommand(command)
             .done(onVirtualModelSetSuccess)
             .fail(onVirtualModelSetFailure);
-
     } // !onStartInteraction
 
     function onVirtualModelSetSuccess(response) {

@@ -11,6 +11,9 @@ function WebcamController($scope, $injector) {
     ///
     var controller = this;
 
+    // Debugging
+    window.webcamScope = $scope;
+
     ///
     /// Dependencies
     ///
@@ -38,9 +41,9 @@ function WebcamController($scope, $injector) {
     function refresh() {
         // To prevent cache-related issues we add a random parameter to the URL.
         // Randomly change a number in the rnd parameter so that it always gets downloaded.
-        var uri = URI($scope.src);
+        var uri = URI($scope.url);
         uri.query({rnd: Math.random() * 100000});
-        $scope.src = uri.toString();
+        $scope.url = uri.toString();
     }
 
 } // !WebcamController

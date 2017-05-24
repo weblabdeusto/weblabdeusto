@@ -14,7 +14,9 @@ function wlWebcam() {
     return {
         restrict: "E",
         scope: {
-            src: "@src"
+            // TODO: For some reason, if 'url' is called 'webcamUrl', just like in the bound scope, then it does
+            // not work. It would be interesting to know why that happens.
+            url: "@"
         },
         templateUrl: "main/webcam/webcam.directive.html",
         controller: "WebcamController",
@@ -28,7 +30,6 @@ function wlWebcam() {
         /// Bindings
         /// ---------------
         elem.find("img").bind("load error", handleLoadAndError);
-
 
         /// ---------------
         /// Implementations
