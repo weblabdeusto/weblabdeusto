@@ -221,6 +221,7 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
 
         console.log("Received config on start: ");
         console.log(config);
+        config = JSON.parse(config);
 
         // Remove the 'Please reserve' modal.
         $scope.modals.reserveModal.close("Reserve done");
