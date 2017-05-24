@@ -117,6 +117,7 @@ angular
                 $rootScope.BOOLEWEB_EXTERNAL = weblab.config.boolewebExternal;
             } catch (ex) {
                 console.log("BooleWebExternal blank because 'boolewebExternal' client property is not defined");
+                $rootScope.BOOLEWEB_EXTERNAL = "";
             }
 
             // DEV ONLY, REMOVE BEFORE COMMIT.
