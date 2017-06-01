@@ -139,7 +139,7 @@ class HttpExperiment(Experiment):
         if not api_version:
             if self.verbose:
                 print("Invalid api_version")
-                print(response_str)
+                print(api_version)
             return False
         
         self.api = api_version
