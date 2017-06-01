@@ -120,6 +120,7 @@ Run the following (don't take into account the particular versions):
 
   1.11.4
 
+
 Troubleshooting
 ```````````````
 
@@ -222,6 +223,13 @@ In Microsoft Windows environments:
   C:\weblabdeusto> mkvirtualenv weblab
 
   (weblab) C:\weblabdeusto> 
+
+Then, make sure you're running the latest versions of setuptools and pip:
+
+.. code-block:: bash
+
+  (weblab) $ pip install --upgrade setuptools
+  (weblab) $ pip install --upgrade pip
 
 And then, install WebLab-Deusto:
 

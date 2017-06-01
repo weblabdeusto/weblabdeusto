@@ -40,7 +40,9 @@ angular
                 "no.file": "No file chosen",
                 "choose.file": "Choose file",
                 "welcome": "Welcome",
-                "welcomeMsg": "Welcome! Before sending your program or using the device, you will need to RESERVE the experiment. You can find the Reserve button at the bottom of the page. Please, prepare your program before reserving so that you have more time. Thank you!"
+                "welcomeMsg": "Welcome! Before sending your program or using the device, you will need to RESERVE the experiment. You can find the Reserve button at the bottom of the page. Please, prepare your program before reserving so that you have more time. Thank you!",
+                "openBooleMessage": "Open Boole-Web",
+                "startCreatingMessage": "To start creating your digital system, you can:"
             },
             "es": {
                 "advise.unrecognized.termination": "El archivo que has subido tiene una terminación desconocida (no parece ser ni un archivo VHDL ni un archivo BITSTREAM). Por favor, asegurate de que estás subiendo el archivo correcto. Si el archivo es realmente el correcto, asegúrate de que tu nombre de archivo concuerda con su tipo.",
@@ -58,7 +60,9 @@ angular
                 "no.file": "No se ha elegido archivo",
                 "choose.file": "Elige archivo",
                 "welcome": "Bienvenido",
-                "welcomeMsg": "Bienvenido! Antes de enviar tu programa o utilizar el dispositivo, necesitarás RESERVAR el experimento. Puedes encontrar el botón RESERVAR al final de la página. Por favor, prepara tu programa antes de reservar, para poder así disponer de más tiempo. Gracias!"
+                "welcomeMsg": "Bienvenido! Antes de enviar tu programa o utilizar el dispositivo, necesitarás RESERVAR el experimento. Puedes encontrar el botón RESERVAR al final de la página. Por favor, prepara tu programa antes de reservar, para poder así disponer de más tiempo. Gracias!",
+                "openBooleMessage": "Abrir Boole-Web",
+                "startCreatingMessage": "Para empezar a crear tu sistema digital, puedes:"
             }
         };
 
@@ -94,6 +98,32 @@ angular
                 console.log("VirtualModel blank because 'virtualmodel' client property is not defined");
                 $rootScope.VIRTUALMODEL = "";
             }
+
+            // Recognize the Boole-Web mode.
+            // When this config variable is set, it is loaded alongside in an iframe.
+            try {
+                $rootScope.BOOLEWEB = weblab.config.booleweb;
+            } catch (ex) {
+                console.log("BooleWeb blank because 'booleweb' client property is not defined");
+                $rootScope.BOOLEWEB = "";
+            }
+
+            // Recognize the Boole-Web in Link-Only mode.
+            // When this config variable is set, then Boole-Web is linked externally.
+            // In this case, the interface and workflow changes very little. There is simply an info box
+            // on top, redirecting users to an external BooleWeb instance so that they can generate a VHD file
+            // and compile it normally.
+            try {
+                $rootScope.BOOLEWEB_EXTERNAL = weblab.config.boolewebExternal;
+            } catch (ex) {
+                console.log("BooleWebExternal blank because 'boolewebExternal' client property is not defined");
+                $rootScope.BOOLEWEB_EXTERNAL = "";
+            }
+
+            // DEV ONLY, REMOVE BEFORE COMMIT.
+            // $rootScope.BOOLEWEB_EXTERNAL = "https://weblab.deusto.es/boole-web/solucion.html";
+            // $rootScope.BOOLEWEB = "https://weblab.deusto.es/boole-web/solucion.html";
+            // console.log("BOOLEWEB: " + $rootScope.BOOLEWEB);
         });
 
     })

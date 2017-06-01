@@ -11,6 +11,9 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     // Debugging purposes.
     window.$rootScope = $rootScope;
 
+    // For debugging
+    window.mainScope = $scope;
+
     // ---------------
     // Dependencies & Initialization
     // ---------------
@@ -37,16 +40,28 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
     $scope.time = 0;
     $scope.uploading = false;
     $scope.modals = {};
+    $scope.webcamUrl = "images/video.png";
 
     $scope.doFileUpload = doFileUpload;
     $scope.openModal = openModal;
     window.debug = debug;
 
-    $scope.modals.reserveModal = openModal(1000, {
-        title: $filter("translate")("welcome"),
-        message: $filter("translate")("welcomeMsg"),
-        canClose: false
-    });
+    if ($rootScope.BOOLEWEB_EXTERNAL !== undefined) {
+        $scope.modals.reserveModal = openModal(1000, {
+            title: $filter("translate")("welcome"),
+            message: $filter("translate")("welcomeMsg"),
+            openBooleMessage: $filter("translate")("openBooleMessage"),
+            startCreatingMessage: $filter("translate")("startCreatingMessage"),
+            booleLink: $rootScope.BOOLEWEB_EXTERNAL,
+            canClose: false
+        });
+    } else {
+        $scope.modals.reserveModal = openModal(1000, {
+            title: $filter("translate")("welcome"),
+            message: $filter("translate")("welcomeMsg"),
+            canClose: false
+        });
+    }
 
 
     // ----------------
@@ -62,16 +77,29 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
         if (!params.canClose)
             backdrop = "static";
 
-        var modalInstance = $uibModal.open({
-            animation: true,
-            templateUrl: 'modal.controller.html',
-            controller: 'ModalController',
-            size: size,
-            resolve: {
-                params: params
-            },
-            backdrop: backdrop
-        });
+        if ($rootScope.BOOLEWEB_EXTERNAL !== undefined) {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'reserve_modal.controller.html',
+                controller: 'ReserveModalController',
+                size: size,
+                resolve: {
+                    params: params
+                },
+                backdrop: backdrop
+            });
+        } else {
+            var modalInstance = $uibModal.open({
+                animation: true,
+                templateUrl: 'modal.controller.html',
+                controller: 'ModalController',
+                size: size,
+                resolve: {
+                    params: params
+                },
+                backdrop: backdrop
+            });
+        }
 
         return modalInstance;
     } // !openModal
@@ -186,9 +214,14 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
 
     /**
      * To receive a notification whenever the interaction begins.
+     * @param time
      * @param config
      */
     function onStartInteraction(time, config) {
+
+        console.log("Received config on start: ");
+        console.log(config);
+        config = JSON.parse(config);
 
         // Remove the 'Please reserve' modal.
         $scope.modals.reserveModal.close("Reserve done");
@@ -199,12 +232,15 @@ function MainController($scope, $rootScope, $injector, $log, $uibModal, $filter,
         ledUpdater.start();
         virtualmodelUpdater.start();
 
+        // Set the webcam URL
+        $scope.webcamUrl = config.webcam;
+        $scope.$apply();
+
         // Initialize the Virtual Model
         var command = sprintf("VIRTUALWORLD_MODEL %s", $rootScope.VIRTUALMODEL);
         weblab.sendCommand(command)
             .done(onVirtualModelSetSuccess)
             .fail(onVirtualModelSetFailure);
-
     } // !onStartInteraction
 
     function onVirtualModelSetSuccess(response) {

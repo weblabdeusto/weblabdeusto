@@ -1432,7 +1432,7 @@ if (window.weblab === undefined) {
             }
         });
 
-        // TODO: Add description.s
+        // TODO: Add description.
         this.onConfigLoad(function () {
             if (mExperimentLoadedPromise == null) {
                 window.parent.postMessage('weblabdeusto::experimentLoaded', '*');
