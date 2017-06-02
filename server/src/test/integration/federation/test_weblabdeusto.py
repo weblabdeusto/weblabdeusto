@@ -86,11 +86,13 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         #
         session_id = self.consumer_client.login('fedstudent1', 'password')
 
-        reservation_id = self._test_reservation(session_id, self.dummy2, 'Consumer', True, True)
+        reservation_id, reservation_status = self._test_reservation(session_id, self.dummy2, 'Consumer', True, True, return_reservation_status=True)
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
         self._find_command(reservation_result, 'Consumer')
+
+        self.assertEqual('fedstudent1', reservation_result.experiment_use.request_info['username_unique'])
 
 
         #######################################################
@@ -101,11 +103,17 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         #   has. There is no load balance, neither
         #   subcontracting
         #
-        reservation_id = self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True)
+        reservation_id, reservation_status = self._test_reservation(session_id, self.dummy3, 'Provider 1', True, True, return_reservation_status=True)
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
         self._find_command(reservation_result, 'Provider 1')
+
+        provider1_reservation_id = reservation_status.remote_reservation_id
+        provider1_session_id = self.provider1_client.login('consumer1', 'password')
+        provider1_reservation_result = self.provider1_client.get_experiment_use_by_id(provider1_session_id, provider1_reservation_id)
+        self.assertEqual('fedstudent1@consumer1', provider1_reservation_result.experiment_use.request_info['username_unique'])
+
 
         #######################################################
         #
@@ -115,11 +123,16 @@ class AbstractFederatedWebLabDeustoTestCase(object):
         #   has. There is no load balance, but Consumer will
         #   contact Provider 1, which will contact Provider 2
         #
-        reservation_id = self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True)
+        reservation_id, reservation_status = self._test_reservation(session_id, self.dummy4, 'Provider 2', True, True, return_reservation_status=True)
         self._wait_multiple_reservations(20, session_id, [ reservation_id ], [0])
         reservation_result = self.consumer_client.get_experiment_use_by_id(session_id, reservation_id)
         self.assertTrue(reservation_result.is_finished())
         self._find_command(reservation_result, 'Provider 2')
+        
+        provider2_reservation_id = reservation_status.remote_reservation_id
+        provider2_session_id = self.provider2_client.login('provider1', 'password')
+        provider2_reservation_result = self.provider2_client.get_experiment_use_by_id(provider2_session_id, provider2_reservation_id)
+        self.assertEqual('fedstudent1@consumer1@provider1', provider2_reservation_result.experiment_use.request_info['username_unique'])
 
         #######################################################
         #
@@ -250,7 +263,7 @@ class AbstractFederatedWebLabDeustoTestCase(object):
                 self.assertEquals(expected_response, response, "Message %s not found in commands %s; instead found %s" % (expected_response, commands, response))
         self.assertTrue(found, "server_info not found in commands")
 
-    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None):
+    def _test_reservation(self, session_id, experiment_id, expected_server_info, wait, finish, user_agent = None, return_reservation_status=False):
         debug("Reserving with session_id %r a experiment %r; will I wait? %s; will I finish? %s" % (session_id, experiment_id, wait, finish))
         reservation_status = self.consumer_client.reserve_experiment(session_id, experiment_id, "{}", "{}", user_agent = user_agent)
 
@@ -261,13 +274,17 @@ class AbstractFederatedWebLabDeustoTestCase(object):
                 debug("Finishing... %r" % reservation_id)
                 self.consumer_client.finished_experiment(reservation_id)
             debug("Not waiting... %r" % reservation_id)
+            if return_reservation_status:
+                return reservation_id, reservation_status
             return reservation_id
 
-        reservation_id = self._wait_reservation(reservation_id, expected_server_info, finish)
+        reservation_id, reservation_status = self._wait_reservation(reservation_id, expected_server_info, finish, return_reservation_status=True)
         debug("Finished waiting... %r" % reservation_id)
+        if return_reservation_status:
+            return reservation_id, reservation_status
         return reservation_id
 
-    def _wait_reservation(self, reservation_id, expected_server_info, finish):
+    def _wait_reservation(self, reservation_id, expected_server_info, finish, return_reservation_status=False):
         max_timeout = 10
         initial_time = time.time()
 
@@ -291,7 +308,9 @@ class AbstractFederatedWebLabDeustoTestCase(object):
 
         if finish:
             self.consumer_client.finished_experiment(reservation_id)
-
+        
+        if return_reservation_status:
+            return reservation_id, reservation_status
         return reservation_id
 
 class SqlFederatedWebLabDeustoTestCase(AbstractFederatedWebLabDeustoTestCase, unittest.TestCase):

@@ -129,6 +129,8 @@ class ExternalWebLabDeustoScheduler(Scheduler):
             if forwarded_key in request_info:
                 consumer_data[forwarded_key] = request_info[forwarded_key]
 
+        consumer_data['external_user_unique'] = request_info.get('username_unique', request_info.get('username', ''))
+
         # TODO: identifier of the server
         login_client = self._create_login_client()
         session_id = login_client.login(self.username, self.password)

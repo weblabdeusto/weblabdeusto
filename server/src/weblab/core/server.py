@@ -663,10 +663,11 @@ class UserProcessingServer(object):
 
         clean = cfg_manager.get('core_number') == 0
         if clean:
-            print("Starting core server... %s" % time.asctime())
-            sys.stdout.flush()
-            print("Starting core server... %s" % time.asctime(), file=sys.stderr)
-            sys.stderr.flush()
+            if not is_testing():
+                print("Starting core server... %s" % time.asctime())
+                sys.stdout.flush()
+                print("Starting core server... %s" % time.asctime(), file=sys.stderr)
+                sys.stderr.flush()
             self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
             self._location_retriever.start()
         else:

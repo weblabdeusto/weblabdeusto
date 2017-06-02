@@ -36,7 +36,7 @@ from weblab.data.experiments import RunningReservationResult, WaitingReservation
 
 from weblab.core.wl import weblab_api
 
-FORWARDED_KEYS = 'external_user','user_agent','referer','mobile','facebook','from_ip','locale', 'group_name', 'group_id', 'user_fullname', 'user_username'
+FORWARDED_KEYS = 'external_user','external_user_unique','user_agent','referer','mobile','facebook','from_ip','locale', 'group_name', 'group_id', 'user_fullname', 'user_username'
 SERVER_UUIDS   = 'server_uuid'
 
 class UserProcessor(object):
@@ -107,6 +107,7 @@ class UserProcessor(object):
         reservation_info['facebook']       = weblab_api.is_facebook
         reservation_info['route']          = self._server_route or 'no-route-found'
         reservation_info['username']       = self.username
+        reservation_info['username_unique'] = self.username
         reservation_info['from_ip']        = client_address
         reservation_info['from_direct_ip'] = client_address
 #        reservation_info['full_name']      = self._session['user_information'].full_name
@@ -132,6 +133,10 @@ class UserProcessor(object):
                     if forwarded_key in consumer_data:
                         if consumer_data[forwarded_key] is not None:
                             reservation_info[forwarded_key] = consumer_data[forwarded_key]
+                
+                external_username = consumer_data.get('external_user_unique', consumer_data.get('external_user'))
+                if external_username:
+                    reservation_info['username_unique'] = '{}@{}'.format(external_username, reservation_info['username_unique'])
 
                 server_uuids = consumer_data.get(SERVER_UUIDS, [])
                 for server_uuid, server_uuid_human in server_uuids:

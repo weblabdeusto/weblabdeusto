@@ -504,6 +504,7 @@ class PriorityQueueScheduler(Scheduler):
                 client_initial_data       = reservation_data[CLIENT_INITIAL_DATA]
                 request_info              = json.loads(reservation_data[REQUEST_INFO])
                 username                  = request_info.get('username')
+                username_unique           = request_info.get('username_unique')
                 locale                    = request_info.get('locale')
 
                 requested_experiment_type = ExperimentId.parse(reservation_data[EXPERIMENT_TYPE])
@@ -544,6 +545,7 @@ class PriorityQueueScheduler(Scheduler):
                         'request.experiment_id.experiment_name'            : selected_experiment_instance.exp_name,
                         'request.experiment_id.category_name'              : selected_experiment_instance.cat_name,
                         'request.username'                                 : username,
+                        'request.username.unique'                          : username_unique,
                         'request.full_name'                                : username,
                         'request.locale'                                   : locale,
                         # TODO: add the username and user full name here

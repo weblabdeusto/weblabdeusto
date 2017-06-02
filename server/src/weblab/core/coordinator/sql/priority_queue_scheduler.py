@@ -468,6 +468,7 @@ class PriorityQueueScheduler(Scheduler):
                     client_initial_data = first_waiting_reservation.reservation.client_initial_data
                     request_info = json.loads(first_waiting_reservation.reservation.request_info)
                     username     = request_info.get('username')
+                    username_unique = request_info.get('username_unique')
                     locale       = request_info.get('locale')
 
                     reservation_id = first_waiting_reservation.reservation_id
@@ -530,6 +531,7 @@ class PriorityQueueScheduler(Scheduler):
                                 'request.experiment_id.experiment_name'            : experiment_instance_id.exp_name,
                                 'request.experiment_id.category_name'              : experiment_instance_id.cat_name,
                                 'request.username'                                 : username,
+                                'request.username.unique'                          : username_unique,
                                 'request.full_name'                                : username,
                                 'request.locale'                                   : locale,
                             }
