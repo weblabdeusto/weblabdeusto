@@ -301,9 +301,6 @@ class HttpExperiment(Experiment):
             raise
 
 
-# TODO: support the concurrent version
-
-
 class ConcurrentHttpExperiment(Experiment):
 
     def __init__(self, coord_address, locator, config, *args, **kwargs):
