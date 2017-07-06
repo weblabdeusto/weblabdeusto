@@ -890,7 +890,8 @@ class DbUserUsedExperimentPropertyValue(Base):
 
     def __init__(self, value=None, property_name=None, experiment_use=None, id=None):
         self.id = id
-        self.value = value
+        if value:
+            self.value = value[:255]
         self.property_name = property_name
         self.experiment_use = experiment_use
 
