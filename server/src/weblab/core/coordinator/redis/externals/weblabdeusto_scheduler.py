@@ -166,7 +166,7 @@ class ExternalWebLabDeustoScheduler(Scheduler):
         pipeline.hset(external_weblabdeusto_pending_results, reservation_id, json.dumps({
             'remote_reservation_id'   : remote_reservation_id,
             'username'                : request_info.get('username',''),
-            'serialized_request_info' : pickle.dumps(request_info),
+            'serialized_request_info' : json.dumps(request_info),
             'experiment_id_str'       : experiment_id.to_weblab_str(),
         }))
 
