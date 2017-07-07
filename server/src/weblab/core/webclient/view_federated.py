@@ -60,6 +60,8 @@ def federated():
 
     session['reservation_id'] = reservation_id
     session['back_url'] = request.args.get('back_url')
+    if request.args.get('locale'):
+        session['locale'] = request.args.get('locale')
     response = redirect(url_for('.lab', experiment_name=experiment.name, category_name=experiment.category.name))
     reservation_id_plus_route = '%s.%s' % (reservation_id, weblab_api.ctx.route)
     weblab_api.fill_session_cookie(response, reservation_id_plus_route, reservation_id)
