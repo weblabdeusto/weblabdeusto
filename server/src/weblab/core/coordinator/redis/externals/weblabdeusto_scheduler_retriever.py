@@ -14,7 +14,6 @@
 #
 from __future__ import print_function, unicode_literals
 
-import cPickle as pickle
 import threading
 import time
 import numbers
@@ -94,7 +93,7 @@ class ResultsRetriever(threading.Thread):
 
                 username      = pending_result['username']
                 try:
-                    request_info  = pickle.loads(pending_result['serialized_request_info'].encode('utf-8'))
+                    request_info  = json.loads(pending_result['serialized_request_info'])
                 except Exception as e:
                     log.log(ResultsRetriever, log.level.Critical, "Probably serialized_request_info was truncated in %s" % pending_result)
                     log.log_exc(ResultsRetriever, log.level.Error)
