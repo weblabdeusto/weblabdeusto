@@ -316,7 +316,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     @logged()
-    def do_start_experiment(self, lab_session_id, *args, **kwargs):
+    def do_start_experiment(self, lab_session_id, client_initial_data, server_initial_data):
         """
         Callback run when the experiment is started
         """
@@ -335,7 +335,17 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
         if DEBUG: dbg("[DBG] Measure server target: %s" % self.measure_server_target)
 
-        setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys())
+        try:
+            initial_data = json.loads(client_initial_data or '{}')
+        except:
+            initial_data = {}
+
+        if 'savedata' in initial_data:
+            savedata = initial_data['savedata']
+        else:
+            savedata = None
+
+        setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys(), savedata)
 
         self._session_manager.create_session(lab_session_id.id)
         self._session_manager.modify_session(lab_session_id, {'cookie' : "", 'electro_lab_cookie' : ""})
@@ -456,7 +466,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if n.nodeName != "#text":
                 return n.nodeName
 
-    def build_setup_data(self, cookie, url, circuits_list):
+    def build_setup_data(self, cookie, url, circuits_list, client_savedata):
         """
         Helper function that will return a structure with the initialization data,
         json-encoded in a string.
@@ -467,7 +477,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         """
         data = {
                 "cookie"   : cookie,
-                "savedata" : urllib.quote(self.savedata, ''),
+                "savedata" : urllib.quote(client_savedata or self.savedata, ''),
                 "url"      : url,
                 "teacher"  : self.teacher,
                 "experiments" : self.teacher,
