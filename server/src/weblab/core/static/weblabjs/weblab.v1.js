@@ -610,6 +610,9 @@ if (window.weblab === undefined) {
                     mFileUploadURL = success.fileUploadURL;
                     that._setCurrentURL(success.currentURL);
                     that._setConfiguration(success.config);
+                    if (success.config && success.config.debug) 
+                        weblab.debug = true;
+
                     $.each(success.scripts, function (i, scriptURL) {
                         $.getScript(scriptURL);
                     });
