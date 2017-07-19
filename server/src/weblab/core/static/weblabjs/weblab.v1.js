@@ -152,6 +152,12 @@ if (window.weblab === undefined) {
 
         var mFileUploadURL = "";
 
+        this._dbg = function() {
+            if (this.debug) {
+                console.log.apply(arguments);
+            }
+        };
+
 
         ///////////////////////////////////////////////////////////////
         //
@@ -174,7 +180,7 @@ if (window.weblab === undefined) {
             var mode;
             mode = $.QueryString["free"] == undefined;
 
-            console.debug("Guess Frame Mode: " + mode);
+            this._dbg("Guess Frame Mode: " + mode);
 
             return mode;
         };
@@ -195,8 +201,8 @@ if (window.weblab === undefined) {
         this._reservationReady = function (reservationID, time, initialConfig) {
             this.show();
 
-            console.debug("[reservationReady] ReservationReady called");
-            console.debug("Frame Mode: " + this.isFrameMode());
+            this._dbg("[reservationReady] ReservationReady called");
+            this._dbg("Frame Mode: " + this.isFrameMode());
 
             if (mStartCalled == true)
                 throw new Error("_reservationReady should only be called once");
@@ -210,7 +216,7 @@ if (window.weblab === undefined) {
             // Start the polling mechanism.
             this._startPolling();
 
-            console.debug("[reservationReady] Resolving START promise on ReservationReady");
+            this._dbg("[reservationReady] Resolving START promise on ReservationReady");
             mOnStartPromise.resolve(Math.round(time), initialConfig);
             mOnSetTimePromise.resolve(Math.round(time));
         };
@@ -248,7 +254,6 @@ if (window.weblab === undefined) {
         this._setCurrentURL = function (currentURL) {
             this.currentURL = currentURL;
         };
-
 
         /**
          * Sets the target URLs to the standard ones. That is, the ones that will work
@@ -480,11 +485,12 @@ if (window.weblab === undefined) {
                 "method": "send_command",
                 "params": {"command": {"commandstring": command}, "reservation_id": {"id": mReservation}}
             };
-            console.log("Sending command: " + command);
+            this._dbg("Sending command: " + command);
+            var self = this;
             this._send(request)
                 .done(function (successData) {
-                    console.debug("Data received: " + successData.commandstring);
-                    console.debug(successData);
+                    self._dbg("Data received: " + successData.commandstring);
+                    self._dbg(successData);
                     promise.resolve(successData);
                 })
                 .fail(function (error) {
@@ -1011,7 +1017,7 @@ if (window.weblab === undefined) {
                 // input = $("<input type='hidden' name='file_sent'></input>");
                 // input.val(inputObject);
 
-                console.log("Adding string: " + inputObject);
+                this._dbg("Adding string: " + inputObject);
                 blob = new Blob([inputObject]);
 
             } else {
@@ -1036,10 +1042,9 @@ if (window.weblab === undefined) {
 
             var promise = $.Deferred();
             var fileUploadUrl = this.getFileUploadUrl();
+            var self = this;
             $form.submit(function (e) {
-                if (weblab.debug) {
-                    console.log("Submitting file with fileInfo", fileInfo);
-                }
+                self._dbg("Submitting file with fileInfo", fileInfo);
                 var formData = new FormData(this);
 
                 // If blob is not undefined we created a blob to fake the file content,
@@ -1056,9 +1061,7 @@ if (window.weblab === undefined) {
                     contentType: false
                 })
                     .done(function (response) {
-                        if (weblab.debug) {
-                            console.log("File submitted with fileInfo", fileInfo, "returned", response);
-                        }
+                        self._dbg("File submitted with fileInfo", fileInfo, "returned", response);
 
                         if (response.is_exception) {
                             promise.reject(response.message);
@@ -1067,9 +1070,7 @@ if (window.weblab === undefined) {
                         }
                     })
                     .fail(function (error) {
-                        if (weblab.debug) {
-                            console.log("File submitted with fileInfo", fileInfo, "failed with:", error);
-                        }
+                        self._dbg("File submitted with fileInfo", fileInfo, "failed with:", error);
 
                         promise.reject(error);
                     });
@@ -1093,10 +1094,10 @@ if (window.weblab === undefined) {
         this.testCommand = function (command) {
 
             var promise = $.Deferred();
-
+            var self = this;
             this.sendCommand(command)
                 .done(function (success) {
-                    console.debug("SUCCESS: " + success);
+                    self._dbg("SUCCESS: " + success);
                     promise.resolve(success);
                 })
                 .fail(function (error) {
