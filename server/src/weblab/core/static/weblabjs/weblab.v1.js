@@ -398,7 +398,7 @@ if (window.weblab === undefined) {
          * @private
          *
          */
-        this._send = function (request) {
+        this._send = function (request, sync) {
             if (this.debug) {
                 if (request.method != "poll" || this.debug_poll) {
                     console.log("Requesting: ", request);
@@ -412,12 +412,18 @@ if (window.weblab === undefined) {
                 return;
             }
 
+            var async = true;
+            if (sync === true) {
+                async = false;
+            }
+
             $.ajax({
                 "type": "POST",
                 "url": this.CORE_URL,
                 "data": JSON.stringify(request),
                 "dataType": "json",
-                "contentType": "application/json"
+                "contentType": "application/json",
+                "async": async
             })
                 .done(function (success, status, jqXHR) {
                     // Example of a response: {"params":{"session_id":{"id":"2da9363c-c5c4-4905-9f22-817cbdf1e397;2da9363c-c5c4-4905-9f22-817cbdf1e397.default-route-to-server"}}, "method":"get_reservation_status"}
@@ -524,7 +530,7 @@ if (window.weblab === undefined) {
             if (forceCallServer || justCalledEnd) {
                 var request = {"method": "finished_experiment", "params": {"reservation_id": {"id": mReservation}}};
 
-                this._send(request)
+                this._send(request, forceCallServer)
                     .done(function (successData) {
                         if (mExpectsPostEnd) {
                             this._pollForPostReservation()
