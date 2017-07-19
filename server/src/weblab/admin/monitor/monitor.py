@@ -13,7 +13,7 @@
 # Author: Jaime Irurzun <jaime.irurzun@gmail.com>
 #         Pablo Orduña <pablo@ordunya.com>
 #
-from __future__ import print_function, unicode_literals
+from __future__ import print_function
 
 import telnetlib
 import traceback
@@ -103,7 +103,7 @@ class WebLabShell(object):
         return handle_response(response)
 
     def _create_telnet(self):
-        return telnetlib.Telnet(self.address, self.port)
+        return telnetlib.Telnet(self.address, int(self.port))
 
     def connect(self):
         try:
