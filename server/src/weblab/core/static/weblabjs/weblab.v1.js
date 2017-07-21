@@ -133,6 +133,8 @@ if (window.weblab === undefined) {
         var mOnExperimentActive = $.Deferred();
         var mOnExperimentDeactive = $.Deferred();
 
+        var mReservationStarted = false;
+
         // Reset WebLab whenever the experiment has been deactivated
         mOnExperimentDeactive.done(function () {
             this.reset();
@@ -612,12 +614,12 @@ if (window.weblab === undefined) {
                 }).done(function (success, status, jqXHR) {
                     that._setTargetURL(success.targetURL);
                     that.locale = success.locale;
-                    weblab.debug = success.debug || false;
+                    that.debug = success.debug || false;
                     mFileUploadURL = success.fileUploadURL;
                     that._setCurrentURL(success.currentURL);
                     that._setConfiguration(success.config);
                     if (success.config && success.config.debug) 
-                        weblab.debug = true;
+                        that.debug = true;
 
                     $.each(success.scripts, function (i, scriptURL) {
                         $.getScript(scriptURL);
@@ -1393,6 +1395,8 @@ if (window.weblab === undefined) {
                 .done(function (reservationResponse) {
                     // This will call itself repeteadly if needed.
                     var reservationID = reservationResponse["reservation_id"]["id"];
+                    mReservationStarted = true;
+                    mReservation = reservationResponse["reservation_id"]["id"];
                     this._checkStatus(reservationID, promise);
                 }.bind(this))
                 .fail(function (result) {
@@ -1436,7 +1440,7 @@ if (window.weblab === undefined) {
 
         var that = this;
         $(window).bind('beforeunload', function () {
-            if (mFinishOnClose && mExperimentActive) {
+            if (mFinishOnClose && (mExperimentActive || mReservationStarted)) {
                 mClosing = true;
                 that.finishExperiment();
             }
