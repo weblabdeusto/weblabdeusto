@@ -51,6 +51,7 @@
             "instance6": "6th Tube",
             "instance7": "7th Tube",
             "instance8": "8th Tube",
+            "instance9": "9th Tube",
 
             "toggle-show-hide": "Toggle to <strong style=\"color: green\">show</strong> or <strong style=\"color: slategray\">hide</strong> each tube</div>"
         },
