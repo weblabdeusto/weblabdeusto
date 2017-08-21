@@ -3,8 +3,8 @@ language: python
 cache: pip
 os:
   - linux
-  - windows
-  - osx
+#  - windows
+#  - osx
 services:
   - redis-server
   - mysql
