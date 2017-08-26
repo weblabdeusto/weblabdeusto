@@ -1670,9 +1670,38 @@ The unmanaged approach is just a different model for developing remote
 laboratories. At the time of this writing, there are mainly three types of
 unmanaged laboratories:
 
+* :ref:`remote_lab_devel_unmanaged_weblablib` (recommended)
 * :ref:`remote_lab_devel_unmanaged_http` (recommended)
 * :ref:`remote_lab_devel_unmanaged_labview` (experimental)
 * :ref:`remote_lab_devel_unmanaged_vm` (limited)
+
+.. _remote_lab_devel_unmanaged_weblablib:
+
+Using weblablib
+^^^^^^^^^^^^^^^
+
+`weblablib <https://weblablib.readthedocs.io>`_ is a Python library which enables
+you to develop unmanaged laboratories easily if you have certain Python knowledge.
+
+So as to put a simple example:
+
+.. code-block:: python
+
+   # Install using "pip install weblablib"
+   weblab = WebLab(app)
+
+   @weblab.initial_url
+   def initial_url():
+       return url_for("index")
+
+   @weblab.on_dispose
+   def stop():
+       print("Cleaning code...")
+
+   @app.route("/")
+   @requires_active
+   def index():
+       return "Hello {}".format(weblab_user.username)
 
 .. _remote_lab_devel_unmanaged_http:
 
