@@ -27,6 +27,11 @@ Which are described below.
     register the new laboratory and use it. So you probably need to go from one
     document to the other during the development cycle.
 
+.. note::
+
+    If you are familiar with Python, you could go to http://weblablib.readthedocs.io/
+    which is a Python library suitable for web developers using Python and Flask.
+
 Managed laboratories
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -93,6 +98,7 @@ The main **advantages** of unmanaged laboratories are:
 
 * You can use any web framework in any web framework you already know. There is no restriction on how the communications have to be managed.
 * It supports further protocols not supported by WebLab-Deusto. For example, you might use WebSockets, which is not natively supported by WebLab-Deusto. But in an unmanaged laboratory, you can use them. Or if you use Virtual Machines, you can use SSH/VNC/Remote Desktop or whatever protocol you consider necessary for your laboratory.
+* You can use libraries such as https://weblablib.readthedocs.io
 
 Which one should I use?
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -2149,7 +2155,7 @@ Examples
 
 We provide the following examples:
 
-* :ref:`remote_lab_devel_unmanaged_http_examples_flask_library` (which uses a library, so it is more reliable)
+* :ref:`remote_lab_devel_unmanaged_http_examples_flask_library` (which uses weblablib, so it is more reliable)
 * :ref:`remote_lab_devel_unmanaged_http_examples_flask` (which shows how to implement a simplified version)
 * :ref:`remote_lab_devel_unmanaged_http_examples_php_multiple` (which uses multiple files and regular forms)
 * :ref:`remote_lab_devel_unmanaged_http_examples_php_single` (which uses a single file and the standard form)
@@ -2159,163 +2165,7 @@ We provide the following examples:
 Flask (with a library)
 ``````````````````````
 
-In the following part of the repository:
-
-* https://github.com/weblabdeusto/weblabdeusto/tree/master/experiments/unmanaged/http/python/flask
-
-We provide two files (``advanced.py`` and ``weblablib.py``) which implement the described interface in a more appropriate way. It relies on ``redis`` (so you would need to install it) for managing the sessions. Let's start by the example code:
-
-.. code-block:: python
-
-    from flask import Flask, url_for
-    from weblablib import WebLab, requires_login, current_user, poll
-
-    app = Flask(__name__)
-
-    # TODO: Change these settings
-    app.config['SECRET_KEY'] = 'something random'
-    app.config['WEBLAB_USERNAME'] = 'admin'
-    app.config['WEBLAB_PASSWORD'] = 'password'
-    app.config['WEBLAB_SESSION_ID_NAME'] = 'lab_session_id'
-    app.config['SESSION_COOKIE_NAME'] = 'advanced_lab'
-    app.config['SESSION_COOKIE_PATH'] = '/lab'
-
-    # Other variables you might want to change
-    # app.config['WEBLAB_REDIS_URL'] = 'redis://localhost:6379/0' # default value
-    # app.config['WEBLAB_TIMEOUT'] = 15 # in seconds, default value
-    # app.config['WEBLAB_SCHEME'] = 'https'
-
-    weblab = WebLab(app, url='/foo', public_url='/lab/public')
-
-    @weblab.initial_url
-    def initial_url():
-        return url_for('.lab')
-
-    @weblab.on_start
-    def on_start(client_data, server_data):
-        print("New user!")
-        print(client_data)
-        print(server_data)
-
-    @weblab.on_dispose
-    def on_stop():
-        print("User expired. Here you should clean resources")
-
-    @app.route('/lab/')
-    @requires_login()
-    def lab():
-        user = current_user()
-        return "Hello %s. You didn't poll in %.2f seconds (timeout configured to %s). Total time left: %s" % (user.username, user.time_without_polling, weblab.timeout, user.time_left)
-
-    @app.route("/")
-    def index():
-        return "Hi there!"
-
-    if __name__ == '__main__':
-        app.run(debug=True, host = '0.0.0.0', threaded=True)
-
-
-The beginning of the code just imports some functions from ``weblablib`` and initializes the app with the potential configuration. The available configuration variables are:
-
-* ``WEBLAB_USERNAME``: which corresponds to the ``http_experiment_username`` variable in the WebLab server.
-* ``WEBLAB_PASSWORD``: which corresponds to the ``http_experiment_password`` variable in the WebLab server.
-* ``WEBLAB_SESSION_ID_NAME``: which should be unique per experiment and server.
-* ``WEBLAB_REDIS_URL``: which should be unique per experiment and server.
-* ``WEBLAB_TIMEOUT``: which establishes the number of seconds that if your code didn't call ``poll()`` in that time (or the decorator ``requires_login`` was used), it will kick out the user.
-* ``WEBLAB_SCHEME``: if you want to force ``https`` instead of the default format.
-
-Additionally, you should configure the Flask configuration variables (see more in `Flask config <http://flask.pocoo.org/docs/0.11/config/>`_):
-
-* ``SECRET_KEY``: using a random secret.
-* ``SESSION_COOKIE_NAME``: to avoid conflicts among different laboratories in the same server.
-* ``SESSION_COOKIE_PATH``: so the cookies are only available in the URLs of your laboratory (e.g., ``/mylab``).
-
-With these variables, you can use the ``WebLab`` object as seen in the example. It optionally receives the app (or you can call later ``init_app(app)`` as done in other Flask extensions), a public URL (which must be inside the ``SEESSION_COOKIE_PATH``), and the base ``url`` (e.g., in the example we put ``/foo``, which means that for WebLab, the ``http_experiment_url`` will be ``http://server/foo/``):
-
-.. code-block:: python
-
-    weblab = WebLab(app, url='/foo', public_url='/lab/public')
-
-Once the ``weblab`` object is created, you should provide what is the ``initial_url`` as follows:
-
-.. code-block:: python
-
-    @weblab.initial_url
-    def initial_url():
-        # return URL pointing to your code. Example:
-        return url_for('lab')
-
-    # [...]
-
-    @app.route('/lab/')
-    def lab():
-        # (lab code)
-
-Additionally, you can optionally request WebLab to call your code when the ``start_experiment`` is called or when the ``dispose_experiment`` is called, as follows:
-
-.. code-block:: python
-
-    @weblab.on_start
-    def on_start(client_data, server_data):
-        print("New user!")
-        print(client_data)
-        print(server_data)
-
-    @weblab.on_dispose
-    def on_stop():
-        print("User expired. Here you should clean resources")
-
-
-Finally, there is a decorator called ``requires_login`` that checks if the user is logged in, and if the user is not logged in, it returns an error. If the user was logged in and the time expired, then he will automatically be returned to the ``back`` url. You can at any point call ``current_user()`` to be able to obtain data on the user:
-
-.. code-block:: python
-
-    @app.route('/lab/')
-    @requires_login()
-    def lab():
-        user = current_user()
-        return "Hello %s. You didn't poll in %.2f seconds (timeout configured to %s). Total time left: %s" % (user.username, user.time_without_polling, weblab.timeout, user.time_left)
-
-If you want to do something else when the user expires, you can avoid the redirection providing an argument to ``requires_login``. In this case, ``current_user()`` will return ``None`` and ``past_user()`` will return the past user, which includes a ``back`` parameter. For example, you could do:
-
-.. code-block:: python
-
-    @app.route('/lab/')
-    @requires_login(redirect_back=False)
-    def lab():
-        user = current_user()
-        if user is not None:
-            return "Hello %s. You didn't poll in %.2f seconds (timeout configured to %s). Total time left: %s" % (user.username, user.time_without_polling, weblab.timeout, user.time_left)
-        past_user = past_user()
-        return "Hi. I should redirect you to %s" % past_user.back
-
-However, you can use these methods without ``@requires_login()`` in any Flask function. For example:
-
-.. code-block:: python
-
-    @app.route('/lab/poll')
-    def do_polling():
-        # poll() is internally called also whenever you call current_user() or with methods with @requires_login
-        if poll() is not None:
-            return jsonify(valid=True)
-
-        return jsonify(valid=False)
-
-    @app.route('/lab/otherurl')
-    def otherpage():
-        user = current_user()
-        if user is not None:
-            # do something with user
-            return # something
-
-        user = past_user()
-        if user is not None:
-            # do soemthing with past_user
-            return # something
-        
-        return "Hi, you're not logged in neither you were in the past. This is a welcome message"
-
-With this code, if you're familiar with Flask, you might start deploying a lab and testing it. Check :ref:`remote_lab_devel_unmanaged_http_deployment`.
+Go to https://weblablib.readthedocs.io/ to see how to use and install weblablib. Then, check :ref:`remote_lab_devel_unmanaged_http_deployment`.
 
 .. _remote_lab_devel_unmanaged_http_examples_flask:
 
