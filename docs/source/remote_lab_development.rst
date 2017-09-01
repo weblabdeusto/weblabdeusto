@@ -29,7 +29,7 @@ Which are described below.
 
 .. note::
 
-    If you are familiar with Python, you could go to http://weblablib.readthedocs.io/
+    If you are familiar with Python, you could go to http://docs.labsland.com/weblablib/
     which is a Python library suitable for web developers using Python and Flask.
 
 Managed laboratories
@@ -98,7 +98,7 @@ The main **advantages** of unmanaged laboratories are:
 
 * You can use any web framework in any web framework you already know. There is no restriction on how the communications have to be managed.
 * It supports further protocols not supported by WebLab-Deusto. For example, you might use WebSockets, which is not natively supported by WebLab-Deusto. But in an unmanaged laboratory, you can use them. Or if you use Virtual Machines, you can use SSH/VNC/Remote Desktop or whatever protocol you consider necessary for your laboratory.
-* You can use libraries such as https://weblablib.readthedocs.io
+* You can use libraries such as http://docs.labsland.com/weblablib/
 
 Which one should I use?
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1680,7 +1680,7 @@ unmanaged laboratories:
 Using weblablib
 ^^^^^^^^^^^^^^^
 
-`weblablib <https://weblablib.readthedocs.io>`_ is a Python library which enables
+`weblablib <http://docs.labsland.com/weblablib/>`_ is a Python library which enables
 you to develop unmanaged laboratories easily if you have certain Python knowledge.
 
 So as to put a simple example:
@@ -2194,7 +2194,7 @@ We provide the following examples:
 Flask (with a library)
 ``````````````````````
 
-Go to https://weblablib.readthedocs.io/ to see how to use and install weblablib. Then, check :ref:`remote_lab_devel_unmanaged_http_deployment`.
+Go to http://docs.labsland.com/weblablib/ to see how to use and install weblablib. Then, check :ref:`remote_lab_devel_unmanaged_http_deployment`.
 
 .. _remote_lab_devel_unmanaged_http_examples_flask:
 
