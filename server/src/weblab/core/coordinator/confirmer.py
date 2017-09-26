@@ -136,7 +136,7 @@ class ReservationConfirmer(object):
                     traceback.print_exc()
                 log.log( ReservationConfirmer, log.level.Error, "Exception checking if the experiment should finish: %s" % e )
                 log.log_exc( ReservationConfirmer, log.level.Warning )
-                self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, 0) # Don't try again with this reservation
+                self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, 5) # Try again in 5 seconds
             else:
                 self.coordinator.confirm_should_finish(lab_coordaddress.address, lab_session_id, reservation_id, experiment_response)
         except:
