@@ -1,5 +1,5 @@
 from __future__ import print_function, unicode_literals
-from babel import Locale
+from babel import Locale, UnknownLocaleError
 from flask import request, session
 import traceback
 
@@ -60,6 +60,11 @@ def initialize_i18n(app):
                 try:
                     Locale.parse(locale)
                 except ValueError:
+                    return None
+                except UnknownLocaleError:
+                    return None
+                except Exception:
+                    traceback.print_exc()
                     return None
                 else:
                     return locale
