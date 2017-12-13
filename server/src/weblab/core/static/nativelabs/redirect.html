@@ -13,6 +13,23 @@
             };
         });
 
+        weblab.onConfigLoad(function () {
+            if (weblab.config['load.html.file'] !== undefined) {
+                $("body").append("<script src='../js/iframeResizer.min.js'><" + "/script>");
+                var $iframeElement = $('<iframe>', {
+                    src: weblab.config['load.html.file'],
+                    id:  'loadIframe',
+                    frameborder: 0,
+                    width: '100%',
+                    scrolling: 'no'
+                });
+                $("#iframeContainer").append($iframeElement);
+                $iframeElement.load(function() {
+                    $iframeElement.iFrameResize();
+                });
+            }
+        });
+
         // Everything is fine
         weblab.disableFinishOnClose();
 
@@ -68,6 +85,7 @@
     <!-- 
         This is a static, lightweight file. The only texts which are shown are when there is a configuration issue. No need for translation.
     -->
+    <div style="width: 100%" id="iframeContainer"></div>
     <div id="message_block" class="alert alert-error col-md-6 col-md-offset-3 text-center" style="display: none">
         <h3>Error</h3>
         <p id="messages"></p>
