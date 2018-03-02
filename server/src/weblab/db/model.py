@@ -77,6 +77,7 @@ t_user_is_member_of = Table('UserIsMemberOf', Base.metadata,
 
 class DbServerProperties(Base):
     __tablename__ = 'ServerProperties'
+    __table_args__ = TABLE_KWARGS
 
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(50), nullable=False, index=True, unique=True)
@@ -115,6 +116,7 @@ class DbServerProperties(Base):
 
 class DbClientProperties(Base):
     __tablename__ = 'ClientProperties'
+    __table_args__ = TABLE_KWARGS
 
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(50), nullable=False, index=True, unique=True)
@@ -148,6 +150,7 @@ class DbClientProperties(Base):
 
 class DbLocationCache(Base):
     __tablename__ = 'LocationCache'
+    __table_args__ = TABLE_KWARGS
 
     id = Column(Integer, primary_key=True)
     pack = Column(Unicode(255), index=True, nullable=False)
