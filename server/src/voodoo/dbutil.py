@@ -90,5 +90,5 @@ def get_sqlite_dbname(dbname, dirname = None):
     raise Exception("Could not find database %s. It does not exist at this moment." % dbname)
 
 def get_table_kwargs():
-    return {'mysql_engine' : 'InnoDB'}
+    return {'mysql_engine' : 'InnoDB', 'mysql_row_format': "DYNAMIC"}
 
