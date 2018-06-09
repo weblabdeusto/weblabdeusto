@@ -165,7 +165,7 @@ class ModelTestCase(unittest.TestCase):
 
     def test_timestamp_to_splitted_utc_datetime(self):
         dt, ms = Model._timestamp_to_splitted_utc_datetime(1276530300.0123451)
-        self.assertEquals(datetime.datetime(2010, 06, 14, 15, 45, 00, 12345), dt)
+        self.assertEquals(datetime.datetime(2010, 06, 14, 15, 45, 00), dt)
         self.assertEquals(12345, ms)
 
     def test_timestamp_to_splitted_utc_datetime_with_none_timestamp(self):
