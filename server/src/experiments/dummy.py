@@ -13,6 +13,11 @@
 # Author: Pablo Orduña <pablo@ordunya.com>
 #
 
+import subprocess
+import traceback
+
+from tempfile import NamedTemporaryFile
+
 import weblab.configuration_doc as configuration_doc
 import weblab.experiment.experiment as Experiment
 
@@ -23,6 +28,7 @@ class DummyExperiment(Experiment.Experiment):
         super(DummyExperiment, self).__init__(*args, **kwargs)
         self.cfg_manager = cfg_manager
         self.verbose           = cfg_manager.get_value('dummy_verbose', True)
+        self.batch_command     = cfg_manager.get_value('batch_command', None)
         self.server_identifier = cfg_manager.get_doc_value(configuration_doc.CORE_UNIVERSAL_IDENTIFIER_HUMAN)
 
     @Override(Experiment.Experiment)
@@ -48,6 +54,16 @@ class DummyExperiment(Experiment.Experiment):
     def do_send_file_to_device(self, content, file_info):
         if self.verbose:
             print "Received file with len: %s and file_info: %s" % (len(content), file_info)
+        if self.batch_command:
+            with NamedTemporaryFile() as temp:
+                temp.write(content.decode('base64'))
+                temp.flush()
+                try:
+                    subprocess.call([self.batch_command, temp.name])
+                except:
+                    traceback.print_exc()
+                    print "Error calling {} {}".format(self.batch_command, temp.name)
+                    return "Error calling {} {}".format(self.batch_command, temp.name)
         return "Received file with len: %s and file_info: %s" % (len(content), file_info)
 
     @Override(Experiment.Experiment)
