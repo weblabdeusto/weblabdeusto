@@ -74,10 +74,10 @@ class CoordinationConfigurationParserTestCase(unittest.TestCase):
         self.assertTrue('ud-pld@PLD experiments'   in configuration)
         self.assertTrue('ud-fpga@FPGA experiments' in configuration)
         self.assertTrue('ud-logic@PIC experiments' in configuration)
-        self.assertEquals(set(('pld boards','weblab_university1','weblab_university2')),  configuration['ud-pld@PLD experiments'])
-        self.assertEquals(set(('weblab_university3',)),  configuration['visir@VISIR experiments'])
-        self.assertEquals(set(('fpga boards',)), configuration['ud-fpga@FPGA experiments'])
-        self.assertEquals(set(('pld boards', 'fpga boards')), configuration['ud-logic@PIC experiments'])
+        self.assertEquals([u'weblab_university1', u'weblab_university2', u'pld boards'], configuration['ud-pld@PLD experiments'])
+        self.assertEquals([u'weblab_university3'],  configuration['visir@VISIR experiments'])
+        self.assertEquals(['fpga boards'], configuration['ud-fpga@FPGA experiments'])
+        self.assertEquals(['pld boards', 'fpga boards'], configuration['ud-logic@PIC experiments'])
 
     def test_coordination_configuration_parser_fail1(self):
         self.cfg_manager._set_value(CoordinationConfigurationParser.COORDINATOR_LABORATORY_SERVERS, {
