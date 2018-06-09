@@ -770,6 +770,7 @@ class DbUserUsedExperiment(Base):
         self.user = user
         self.experiment = experiment
         self.start_date, self.start_date_micro = _timestamp_to_splitted_utc_datetime(start_date)
+
         self.start_date_date = self.start_date.date()
         self.start_date_hour = self.start_date.hour
         self.start_date_weekday = self.start_date.weekday()
@@ -1269,6 +1270,6 @@ def _splitted_utc_datetime_to_timestamp(dt, ms):
 def _timestamp_to_splitted_utc_datetime(timestamp):
     if timestamp is not None:
         dt = datetime.datetime.utcfromtimestamp(timestamp)
-        return dt, dt.microsecond
+        return dt.replace(microsecond=0), dt.microsecond
     else:
         return None, None
