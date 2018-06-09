@@ -15,6 +15,7 @@
 from __future__ import print_function, unicode_literals
 
 import re
+from collections import OrderedDict
 
 from weblab.core.coordinator.resource import Resource
 from weblab.data.experiments import ExperimentInstanceId
@@ -39,7 +40,7 @@ class CoordinationConfigurationParser(object):
         #
         external_servers = self._cfg_manager.get_value(COORDINATOR_EXTERNAL_SERVERS, {})
         for external_server in external_servers:
-            external_servers[external_server] = set(external_servers[external_server])
+            external_servers[external_server] = list(OrderedDict.fromkeys(external_servers[external_server]))
         return external_servers
 
 
@@ -58,8 +59,10 @@ class CoordinationConfigurationParser(object):
                 resource_type_name = laboratory_config[experiment_instance_id].resource_type
                 experiment_id_str = experiment_instance_id.to_experiment_id().to_weblab_str()
                 if not experiment_id_str in configuration:
-                    configuration[experiment_id_str] = set()
-                configuration[experiment_id_str].add(resource_type_name)
+                    configuration[experiment_id_str] = list()
+
+                if resource_type_name not in configuration[experiment_id_str]:
+                    configuration[experiment_id_str].append(resource_type_name)
 
         return configuration
 

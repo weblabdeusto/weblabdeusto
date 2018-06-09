@@ -17,6 +17,7 @@ from __future__ import print_function, unicode_literals
 import time
 import datetime
 import Queue
+from collections import OrderedDict
 
 import json
 import weblab.configuration_doc as configuration_doc
@@ -181,7 +182,7 @@ class AbstractCoordinator(object):
 
             resource_type_names = resource_types_per_experiment_id[experiment_id_str]
             try:
-                aggregated_schedulers = {}
+                aggregated_schedulers = OrderedDict()
                 for resource_type_name in resource_type_names:
                     aggregated_schedulers[resource_type_name] = self.schedulers[resource_type_name]
 
