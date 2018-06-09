@@ -23,4 +23,4 @@ install:
     - cd experiments/unmanaged/http/nodejs; npm install; cd ../../../../;
 script:
     - cd server/src; python develop.py -o -v
-    - cd ../../experiments/unmanaged/http/nodejs/; mocha
+    - cd ../../experiments/unmanaged/http/nodejs/; mocha --exit
