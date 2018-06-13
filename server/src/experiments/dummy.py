@@ -52,19 +52,32 @@ class DummyExperiment(Experiment.Experiment):
 
     @Override(Experiment.Experiment)
     def do_send_file_to_device(self, content, file_info):
+        real_content = content.decode('base64')
         if self.verbose:
-            print "Received file with len: %s and file_info: %s" % (len(content), file_info)
+            print "Received file with len: %s and file_info: %s" % (len(real_content), file_info)
         if self.batch_command:
-            with NamedTemporaryFile() as temp:
-                temp.write(content.decode('base64'))
+            extension = file_info.split('.')[-1]
+            if extension > 4:
+                extension = 'txt'
+            
+            temporal_filename = None
+
+            with NamedTemporaryFile(prefix='weblab_', suffix='.{}'.format(extension)) as temp:
+                temp.write(real_content)
                 temp.flush()
+                temporal_filename = temp.name
+                print "File {} created with the contents of the file".format(temporal_filename)
                 try:
                     subprocess.call([self.batch_command, temp.name])
                 except:
                     traceback.print_exc()
-                    print "Error calling {} {}".format(self.batch_command, temp.name)
-                    return "Error calling {} {}".format(self.batch_command, temp.name)
-        return "Received file with len: %s and file_info: %s" % (len(content), file_info)
+                    print "Error calling {} {}".format(self.batch_command, temporal_filename)
+                    print "File {} deleted".format(temporal_filename)
+                    return "Error calling {} {}".format(self.batch_command, temporal_filename)
+
+            print "File {} deleted".format(temporal_filename)
+
+        return "Received file with len: %s and file_info: %s" % (len(real_content), file_info)
 
     @Override(Experiment.Experiment)
     def do_dispose(self):

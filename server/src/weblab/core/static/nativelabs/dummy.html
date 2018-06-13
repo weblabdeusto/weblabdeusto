@@ -181,7 +181,9 @@
             // <input type="file"> object (or using jQuery). It also accepts a 
             // string you might get (and will be treated by the server as if it
             // was a file, store it in disk, and so on).
-            weblab.sendFile($("#initial_file"), "file.txt")
+
+            var fileName = $("#initial_file").val().split('\\').pop();
+            weblab.sendFile($("#initial_file"), fileName || "file.txt")
                 .done(function(response) {
                     $("#fileResponse").text(response);
                 })
