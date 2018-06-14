@@ -1,7 +1,11 @@
 .. image:: https://travis-ci.org/weblabdeusto/weblabdeusto.svg?branch=master
         :target: https://travis-ci.org/weblabdeusto/weblabdeusto/
 
+WebLab-Deusto
+-------------
+
 .. image:: http://weblab.deusto.es/website/assets/img/logo.png
+        :width: 300px
 
 Introduction
 ============
@@ -58,6 +62,7 @@ Consultancy services
 ====================
 
 .. image:: https://labsland.com/images/logo_long.png
+        :width: 300px
 
 `LabsLand <http://labsland.com>`_ is a spin-off of the WebLab-Deusto project:
 
