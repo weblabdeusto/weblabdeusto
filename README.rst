@@ -1,6 +1,8 @@
 .. image:: https://travis-ci.org/weblabdeusto/weblabdeusto.svg?branch=master
         :target: https://travis-ci.org/weblabdeusto/weblabdeusto/
 
+.. image:: http://weblab.deusto.es/website/assets/img/logo.png
+
 Introduction
 ============
 
@@ -52,10 +54,18 @@ For contacting the WebLab-Deusto team, contact us at:
 
    `weblab@deusto.es <mailto:weblab@deusto.es>`_
 
-Professional services
-=====================
+Consultancy services
+====================
 
-`LabsLand <http://labsland.com>`_ is a spin-off of the WebLab-Deusto project, and it provides consultancy services as well as commercial support:
+.. image:: https://labsland.com/images/logo_long.png
+
+`LabsLand <http://labsland.com>`_ is a spin-off of the WebLab-Deusto project:
+
+#. LabsLand provides consultancy services (assisting creators of laboratories to build or maintain their labs)
+#. LabsLand sells and deploys a wide variety of remote laboratories
+#. LabsLand sells accesses to existing remote laboratories
+
+See more information and contact LabsLand at:
 
    http://labsland.com
 
