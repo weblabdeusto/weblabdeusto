@@ -57,7 +57,7 @@ class DummyExperiment(Experiment.Experiment):
             print "Received file with len: %s and file_info: %s" % (len(real_content), file_info)
         if self.batch_command:
             extension = file_info.split('.')[-1]
-            if extension > 4:
+            if len(extension) > 4:
                 extension = 'txt'
             
             temporal_filename = None
