@@ -206,7 +206,7 @@ class TemporalInformationRetriever(threading.Thread):
                                 file_hash = file_sent.file_hash
 
                             complete_file = FileSent(file_path, file_hash, file_sent.timestamp_before,
-                                                    information.payload, information.timestamp)
+                                                    information.payload, information.timestamp, file_info = file_sent.file_info)
                             file_pairs.append((reservation_id, information.entry_id, complete_file))
                         else:
                             with self.entry_id2command_id_lock:
