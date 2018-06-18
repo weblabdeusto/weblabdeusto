@@ -918,8 +918,13 @@ class UserUsedExperimentPanel(AdministratorModelView):
         file_path = os.path.join(self.files_directory, uf.file_sent)
         if os.path.exists(file_path):
             content = open(file_path).read()
+            file_info = uf.file_info
+            if file_info and '.' in file_info:
+                filename = file_info
+            else:
+                filename = "file_%s.bin" % id
             return Response(content, headers={'Content-Type': 'application/octstream',
-                                              'Content-Disposition': 'attachment; filename=file_%s.bin' % id})
+                                              'Content-Disposition': 'attachment; filename=%s' % filename })
         else:
             if os.path.exists(self.files_directory):
                 flash(gettext("Wrong configuration or file deleted"))
