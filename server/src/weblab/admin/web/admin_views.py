@@ -920,7 +920,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
             content = open(file_path).read()
             file_info = uf.file_info
             if file_info and '.' in file_info:
-                filename = file_info
+                filename = secure_filename(file_info)
             else:
                 filename = "file_%s.bin" % id
             return Response(content, headers={'Content-Type': 'application/octstream',
