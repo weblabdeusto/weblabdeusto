@@ -54,6 +54,15 @@ class CheckingHandlerError(LaboratoryError):
 class WebcamIsReturningAnImageHandlerError(CheckingHandlerError):
     pass
 
+class WebHandlerInvalidFormatHandlerError(CheckingHandlerError):
+    pass
+
+class WebHandlerInvalidResponseHandlerError(CheckingHandlerError):
+    pass
+
+class WebHandlerReturnedErrorHandlerError(CheckingHandlerError):
+    pass
+
 class ImageURLDidNotRetrieveAResponseError(WebcamIsReturningAnImageHandlerError):
     pass
 

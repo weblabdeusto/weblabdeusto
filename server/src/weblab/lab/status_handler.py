@@ -25,6 +25,7 @@ All these requests will not require a slot in the scheduling system, so they can
 be requested at any moment, even if there is a user using the experiment.
 """
 
+import json
 import urllib2
 import socket
 from abc import ABCMeta, abstractmethod
@@ -114,4 +115,35 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         return "WebcamIsUpAndRunningHandler(img_url=%r)" % self.img_url
 
 HANDLERS += (WebcamIsUpAndRunningHandler.__name__,)
+
+class WebHandler(AbstractLightweightIsUpAndRunningHandler):
+
+    _urllib2 = urllib2
+    DEFAULT_TIMES = 3
+
+    def __init__(self, url, *args, **kwargs):
+        super(WebHandler, self).__init__(*args, **kwargs)
+        self.url = url
+
+    @Override(AbstractLightweightIsUpAndRunningHandler)
+    def run(self):
+        try:
+            response = self._urllib2.urlopen(self.url, timeout = 10)
+            str_contents = response.read()
+        except urllib2.URLError as e:
+            raise labExc.WebHandlerInvalidResponseHandlerError(self.url, e)
+
+        try:
+            contents = json.loads(str_contents)
+        except Exception as e:
+            raise labExc.WebHandlerInvalidFormatHandlerError(self.url, e)
+
+        if not contents.get('success', False):
+            raise labExc.WebHandlerReturnedErrorHandlerError(self.url, contents)
+
+
+    def __repr__(self):
+        return "WebHandler(url=%r)" % self.url
+
+HANDLERS += (WebHandler.__name__,)
 
