@@ -819,12 +819,12 @@ class UserUsedExperimentPanel(AdministratorModelView):
     can_edit = False
     can_create = False
 
-    column_searchable_list = ('origin',)
+    column_searchable_list = ('origin', 'reservation_id')
     column_sortable_list = (
         'id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
         'end_date', 'origin', 'coord_address')
     column_list = ('user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
-    column_filters = ('user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address', 'experiment.category')
+    column_filters = ('user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address', 'experiment.category', 'reservation_id')
     column_labels = dict(user=lazy_gettext("User"), experiment=lazy_gettext("Experiment"),
                          start_date=lazy_gettext("Start date"), end_date=lazy_gettext("End date"),
                          origin=lazy_gettext("Origin"), coord_address=lazy_gettext("Coord address"),
