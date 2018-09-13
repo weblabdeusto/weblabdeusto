@@ -813,6 +813,18 @@ class AuthsPanel(AdministratorModelView):
         if auth.auth_type.name == 'DB':
             raise ValidationError(gettext("Can't delete this authentication system"))
 
+def user_used_experiment_who(v, c, uue, p):
+    external_user = db.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
+
+    latest_uses = []
+    login = uue.user.login
+    display_name = login
+    for prop in use.properties:
+        if prop.property_name == external_user:
+            display_name = prop.value + u'@' + login
+
+    return show_link(v, UsersPanel, {('User', 'login'): display_name}, SAME_DATA)
+
 
 class UserUsedExperimentPanel(AdministratorModelView):
     can_delete = False
@@ -831,7 +843,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
                          details=lazy_gettext("Details"))
 
     column_formatters = dict(
-        user=lambda v, c, uue, p: show_link(v, UsersPanel, {('User', 'login'): uue.user.login}, SAME_DATA),
+        user=user_used_experiment_who,
         experiment=lambda v, c, uue, p: show_link(v, ExperimentPanel, {('Experiment', 'name'): uue.experiment.name, (
         'ExperimentCategory', 'name'): uue.experiment.category.name}, uue.experiment),
         start_date=lambda v, c, uue, p: display_date(uue.start_date),
