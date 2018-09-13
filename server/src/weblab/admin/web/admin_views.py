@@ -814,13 +814,11 @@ class AuthsPanel(AdministratorModelView):
             raise ValidationError(gettext("Can't delete this authentication system"))
 
 def user_used_experiment_who(v, c, uue, p):
-    external_user = db.session.query(model.DbUserUsedExperimentProperty).filter_by(name = 'external_user').first()
-
     latest_uses = []
     login = uue.user.login
     display_name = login
-    for prop in use.properties:
-        if prop.property_name == external_user:
+    for prop in uue.properties:
+        if prop.property_name.name == "external_user":
             display_name = prop.value + u'@' + login
 
     return show_link(v, UsersPanel, {('User', 'login'): display_name}, SAME_DATA)
