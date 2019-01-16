@@ -524,9 +524,13 @@ class PriorityQueueScheduler(Scheduler):
                         # so this method might take too long. That's why we enqueue these
                         # petitions and run them in other threads.
                         #
+                        timezone = time.timezone if (time.localtime().tm_isdst == 0) else time.altzone
                         deserialized_server_initial_data = {
                                 'priority.queue.slot.length'                       : '%s' % total_time,
                                 'priority.queue.slot.start'                        : '%s' % datetime.datetime.fromtimestamp(start_time),
+                                'priority.queue.slot.start.utc'                    : '%s' % datetime.datetime.utcfromtimestamp(start_time),
+                                'priority.queue.slot.start.timestamp'              : '%s' % start_time,
+                                'priority.queue.slot.start.timezone'               : '%s' % timezone,
                                 'priority.queue.slot.initialization_in_accounting' : initialization_in_accounting,
                                 'request.experiment_id.experiment_name'            : experiment_instance_id.exp_name,
                                 'request.experiment_id.category_name'              : experiment_instance_id.cat_name,
