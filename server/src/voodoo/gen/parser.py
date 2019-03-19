@@ -1,10 +1,14 @@
 from __future__ import print_function, unicode_literals
 import os
+import traceback
+from collections import defaultdict
 
 import six
 import yaml
-import traceback
-from collections import defaultdict
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 from voodoo.configuration import ConfigurationManager
 
@@ -223,10 +227,10 @@ def load_dir(directory):
     return load(config_filename)
 
 def load(yaml_file):
-    return _load_contents(yaml.load(open(yaml_file)), os.path.dirname(yaml_file))
+    return _load_contents(yaml.load(open(yaml_file), Loader=Loader), os.path.dirname(yaml_file))
 
 def loads(yaml_contents):
-    return _load_contents(yaml.load(six.StringIO(yaml_contents)), '.')
+    return _load_contents(yaml.load(six.StringIO(yaml_contents), Loader=Loader), '.')
 
 def _load_contents(contents, directory):
     global_value = contents
