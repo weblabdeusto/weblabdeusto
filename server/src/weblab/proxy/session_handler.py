@@ -17,6 +17,8 @@ from __future__ import print_function, unicode_literals
 import hashlib
 from weblab.data.experiments import CommandSent, FileSent
 from weblab.data.command import Command
+
+from voodoo.sha0 import sha0
 import weblab.lab.exc as LaboratoryErrors
 import weblab.proxy.exc as ProxyErrors
 import time
@@ -85,9 +87,7 @@ class ProxySessionHandler(object):
         deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
         storage_path = self._cfg_manager.get_value('proxy_store_students_programs_path')
         relative_file_path = get_time_in_str() + '_' + user_login + '_' + session_id
-        sha_obj            = hashlib.new('sha')
-        sha_obj.update(deserialized_file_content)
-        file_hash          = sha_obj.hexdigest()
+        file_hash = sha0(deserialized_file_content)
         where = storage_path + '/' + relative_file_path
         f = open(where,'w')
         f.write(deserialized_file_content)

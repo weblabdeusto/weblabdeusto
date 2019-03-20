@@ -9,6 +9,7 @@ import hashlib
 import threading
 
 import six
+from six.moves.http_cookies import SimpleCookie
 import requests
 
 from flask import Flask, Response, stream_with_context, abort, send_file, redirect, request, escape
@@ -142,9 +143,24 @@ def _generate_proxy(current_path, value):
         response_kwargs['content_type'] = req.headers['content-type']
     
     response = Response(req.content, **response_kwargs)
+    
+    existing_cookies = SimpleCookie()
+    for header in response.headers:
+        if header[0].lower() == 'set-cookie':
+            try:
+                if six.PY2:
+                    cookie_header = header[1].encode('utf8')
+                else:
+                    cookie_header = header[1]
+                existing_cookies.load(cookie_header)
+            except Exception as e:
+                print("Error processing cookie header: {}".format(cookie_header))
+                import traceback
+                traceback.print_exc()
 
     for c in req.cookies:
-        response.set_cookie(c.name, c.value, path=c.path, expires=c.expires, secure=c.secure)
+        if c.name not in existing_cookies.keys():
+            response.set_cookie(c.name, c.value, path=c.path, expires=c.expires, secure=c.secure)
 
     return response
 
