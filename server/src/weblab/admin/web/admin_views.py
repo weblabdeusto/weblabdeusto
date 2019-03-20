@@ -41,14 +41,14 @@ from werkzeug import secure_filename
 
 from flask import Markup, request, redirect, abort, url_for, flash, Response
 
-from flask.ext.wtf import Form
-from flask.ext.wtf.file import FileField, FileAllowed
+from flask_wtf import Form
+from flask_wtf.file import FileField, FileAllowed
 
-from flask.ext.admin.contrib.sqla.filters import FilterEqual
-from flask.ext.admin import expose
-from flask.ext.admin.form import Select2Field
-from flask.ext.admin.actions import action
-from flask.ext.admin.model.form import InlineFormAdmin
+from flask_admin.contrib.sqla.filters import FilterEqual
+from flask_admin import expose
+from flask_admin.form import Select2Field
+from flask_admin.actions import action
+from flask_admin.model.form import InlineFormAdmin
 from weblab.admin.web.util import WebLabModelView, WebLabAdminIndexView, WebLabBaseView, WebLabFileAdmin
 
 import weblab.configuration_doc as configuration_doc
@@ -265,6 +265,9 @@ class UsersPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(UsersPanel, self).__init__(model.DbUser, session, **kwargs)
         self.local_data = threading.local()
+
+    def search_placeholder(self):
+        return gettext('Search')
 
     def scaffold_filters(self, name):
         filters = super(UsersPanel, self).scaffold_filters(name)
@@ -606,6 +609,9 @@ class GroupsPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(GroupsPanel, self).__init__(model.DbGroup, session, **kwargs)
 
+    def search_placeholder(self):
+        return gettext('Search')
+
     def scaffold_filters(self, name):
         filters = super(GroupsPanel, self).scaffold_filters(name)
 
@@ -698,6 +704,9 @@ class AuthsPanel(AdministratorModelView):
 
     def __init__(self, session, **kwargs):
         super(AuthsPanel, self).__init__(model.DbAuth, session, **kwargs)
+
+    def search_placeholder(self):
+        return gettext('Search')
 
     @expose('/create/')
     def create_view(self, *args, **kwargs):
@@ -831,7 +840,7 @@ class UserUsedExperimentPanel(AdministratorModelView):
 
     column_searchable_list = ('origin', 'reservation_id')
     column_sortable_list = (
-        'id', ('user', model.DbUser.login), ('experiment', model.DbExperiment.id), 'start_date',
+        'id', ('user', 'user.login'), ('experiment', 'experiment.id'), 'start_date',
         'end_date', 'origin', 'coord_address')
     column_list = ('user', 'experiment', 'start_date', 'end_date', 'origin', 'coord_address', 'details')
     column_filters = ('user', 'start_date', 'end_date', 'experiment', 'origin', 'coord_address', 'experiment.category', 'reservation_id')
@@ -856,6 +865,9 @@ class UserUsedExperimentPanel(AdministratorModelView):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
 
         self.files_directory = files_directory
+
+    def search_placeholder(self):
+        return gettext('Search')
 
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
@@ -964,6 +976,9 @@ class ExperimentCategoryPanel(AdministratorModelView):
     def __init__(self, session, **kwargs):
         super(ExperimentCategoryPanel, self).__init__(model.DbExperimentCategory, session, **kwargs)
 
+    def search_placeholder(self):
+        return gettext('Search')
+
 
 class ExperimentCreationForm(Form):
     category = Select2Field(lazy_gettext(u"Category"), validators=[Required()])
@@ -1027,6 +1042,9 @@ class ExperimentPanel(AdministratorModelView):
 
     def __init__(self, session, **kwargs):
         super(ExperimentPanel, self).__init__(model.DbExperiment, session, **kwargs)
+
+    def search_placeholder(self):
+        return gettext('Search')
 
     def _create_form(self, obj):
         form = ExperimentCreationForm(formdata=request.form, obj=obj)
@@ -1749,6 +1767,9 @@ class GenericPermissionPanel(AdministratorModelView):
     def __init__(self, model, session, **kwargs):
         super(GenericPermissionPanel, self).__init__(model, session, **kwargs)
 
+    def search_placeholder(self):
+        return gettext('Search')
+
     def get_list(self, page, sort_column, sort_desc, search, filters, *args, **kwargs):
         # So as to sort descending, force sorting by 'id' and reverse the sort_desc
         if sort_column is None:
@@ -1819,7 +1840,7 @@ class PermissionEditForm(InlineFormAdmin):
 
 class UserPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('user',)
-    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user', model.DbUser.login),)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('user', 'user.login'),)
     column_list = ('user',) + GenericPermissionPanel.column_list
     column_labels = GenericPermissionPanel.column_labels.copy()
     column_labels['user'] = lazy_gettext("User")
@@ -1829,10 +1850,13 @@ class UserPermissionPanel(GenericPermissionPanel):
     def __init__(self, session, **kwargs):
         super(UserPermissionPanel, self).__init__(model.DbUserPermission, session, **kwargs)
 
+    def search_placeholder(self):
+        return gettext('Search')
+
 
 class GroupPermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('group',)
-    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group', model.DbGroup.name),)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('group', 'group.name'),)
     column_list = ('group',) + GenericPermissionPanel.column_list
     column_labels = GenericPermissionPanel.column_labels.copy()
     column_labels['group'] = lazy_gettext("Group")
@@ -1842,10 +1866,13 @@ class GroupPermissionPanel(GenericPermissionPanel):
     def __init__(self, session, **kwargs):
         super(GroupPermissionPanel, self).__init__(model.DbGroupPermission, session, **kwargs)
 
+    def search_placeholder(self):
+        return gettext('Search')
+
 
 class RolePermissionPanel(GenericPermissionPanel):
     column_filters = GenericPermissionPanel.column_filters + ('role',)
-    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role', model.DbRole.name),)
+    column_sortable_list = GenericPermissionPanel.column_sortable_list + (('role', 'role.name'),)
     column_list = ('role',) + GenericPermissionPanel.column_list
     column_labels = GenericPermissionPanel.column_labels.copy()
     column_labels['role'] = lazy_gettext("Role")
@@ -1854,6 +1881,9 @@ class RolePermissionPanel(GenericPermissionPanel):
 
     def __init__(self, session, **kwargs):
         super(RolePermissionPanel, self).__init__(model.DbRolePermission, session, **kwargs)
+
+    def search_placeholder(self):
+        return gettext('Search')
 
 
 class PermissionsForm(Form):

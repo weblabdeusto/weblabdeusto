@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 from wtforms import TextField, PasswordField
 from wtforms.widgets import PasswordInput
 
-from flask.ext.admin.contrib.sqla.fields import QuerySelectField
+from flask_admin.contrib.sqla.fields import QuerySelectField
 
 import threading
 

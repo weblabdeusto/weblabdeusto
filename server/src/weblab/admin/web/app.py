@@ -9,8 +9,8 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 import flask
 from flask import Flask, request, redirect, escape, url_for
-from flask.ext.admin import Admin
-from flask.ext.admin.menu import MenuLink
+from flask_admin import Admin
+from flask_admin.menu import MenuLink
 
 if __name__ == '__main__':
     sys.path.insert(0, '.')

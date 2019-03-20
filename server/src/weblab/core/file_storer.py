@@ -16,6 +16,9 @@ from __future__ import print_function, unicode_literals
 
 import hashlib
 import time as time_module
+
+from voodoo.sha0 import sha0
+
 import weblab.experiment.util as ExperimentUtil
 
 import weblab.configuration_doc as configuration_doc
@@ -56,9 +59,7 @@ class FileStorer(object):
             deserialized_file_content = ExperimentUtil.deserialize(file_content_encoded)
             storage_path = self._cfg_manager.get_doc_value(configuration_doc.CORE_STORE_STUDENTS_PROGRAMS_PATH)
             relative_file_path = _get_time_in_str() + '_' + self._reservation_id
-            sha_obj            = hashlib.new('sha')
-            sha_obj.update(deserialized_file_content)
-            file_hash          = sha_obj.hexdigest()
+            file_hash = sha0(deserialized_file_content)
 
             where = storage_path + '/' + relative_file_path
             f = open(where,'w')

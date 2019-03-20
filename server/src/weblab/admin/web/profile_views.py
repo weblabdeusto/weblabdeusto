@@ -3,7 +3,7 @@ import sha
 import random
 
 from flask import redirect, request, flash, url_for
-from flask.ext.admin import expose
+from flask_admin import expose
 from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView
 
 import weblab.db.model as model
@@ -12,7 +12,7 @@ import weblab.admin.web.admin_views as admin_views
 
 from wtforms import TextField, PasswordField
 from wtforms.validators import NumberRange
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from weblab.admin.web.fields import DisabledTextField
 
 from weblab.core.i18n import gettext, lazy_gettext

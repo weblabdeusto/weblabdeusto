@@ -11,7 +11,7 @@ from StringIO import StringIO
 import networkx as nx
 
 from flask import redirect, request, Response, url_for
-from flask.ext.admin import expose
+from flask_admin import expose
 
 from weblab.admin.web.util import WebLabAdminIndexView, WebLabBaseView, WebLabModelView
 
@@ -230,6 +230,9 @@ class UserUsedExperimentPanel(InstructorModelView):
 
     def __init__(self, session, **kwargs):
         super(UserUsedExperimentPanel, self).__init__(model.DbUserUsedExperiment, session, **kwargs)
+
+    def search_placeholder(self):
+        return gettext("Search")
 
     def get_query(self):
         query = super(UserUsedExperimentPanel, self).get_query()

@@ -2,9 +2,9 @@ from __future__ import print_function, unicode_literals
 
 import threading
 
-from flask.ext.admin import expose, AdminIndexView, BaseView
-from flask.ext.admin.contrib.sqla import ModelView
-from flask.ext.admin.contrib.fileadmin import FileAdmin
+from flask_admin import expose, AdminIndexView, BaseView
+from flask_admin.contrib.sqla import ModelView
+from flask_admin.contrib.fileadmin import FileAdmin
 
 admin_request = threading.local()
 
