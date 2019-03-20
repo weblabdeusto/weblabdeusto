@@ -65,7 +65,7 @@ PyYAML==5.1
 # requests is used in all the HTTP communications as a client
 # (both internal communications and external to federated environments)
 # 
-requests==2.5.1
+requests==2.21.0
 
 enum34==1.1.6
 
