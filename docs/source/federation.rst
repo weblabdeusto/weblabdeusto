@@ -65,10 +65,15 @@ Examples
 
 Other WebLab-Deusto deployments:
 
-* `PUCSP <http://weblabduino.pucsp.br/weblab/>`_: http://weblabduino.pucsp.br/weblab/
 * `UNED <http://www.uned.es/>`_: http://weblab.ieec.uned.es/
-* `Slovenská technická univerzita <http://www.kirp.chtf.stuba.sk/>`_: http://kirp50.chtf.stuba.sk/
-* `Colegio Urdaneta (secondary school) <http://www.colegiourdaneta.com>`_: http://weblab.colegiourdaneta.com/
-* `Unidades Tecnologicas de Santander <http://www.uts.edu.co/>`_: http://www.weblab.deusto.es/utsantander/
+* `HBRS <http://fpga-vision-lab.h-brs.de/weblab/>`_: http://fpga-vision-lab.h-brs.de/weblab/ 
+* `Slovenská technická univerzita <http://www.kirp.chtf.stuba.sk/>`_: http://weblab.chtf.stuba.sk/
+* `UPNA <https://www.unavarra.es>`_: https://weblab.unavarra.es/
+* `TU-Dortmund <https://www.zhb.tu-dortmund.de>`_: https://weblab.zhb.tu-dortmund.de
+* `FH Aachen <https://www.fh-aachen.de>`_: https://weblab.fh-aachen.de
+* `UGA <https://www.uga.edu>`_: https://remotelab.engr.uga.edu
+* `ISEP <https://www.isep.ipp.pt>`_: https://openlabs.isep.ipp.pt/weblab/
+* `UNED (Costa Rica) <https://www.uned.ac.cr/>`_:  https://labremoto.uned.ac.cr/weblab/
+* `UNAD <https://www.unad.edu.co/>`_:  https://lab-remoto-etr.unad.edu.co/weblab/ 
 
 If you wish us to host a new deployment, contact us at weblab@deusto.es.
