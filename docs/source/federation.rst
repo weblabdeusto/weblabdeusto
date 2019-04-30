@@ -65,8 +65,8 @@ Examples
 
 Other WebLab-Deusto deployments:
 
-* `UNED <http://www.uned.es/>`_: http://weblab.ieec.uned.es/
-* `HBRS <http://fpga-vision-lab.h-brs.de/weblab/>`_: http://fpga-vision-lab.h-brs.de/weblab/ 
+* `UNED <http://www.uned.es/>`_: https://weblab.ieec.uned.es/
+* `HBRS <http://fpga-vision-lab.h-brs.de/weblab/>`_: https://fpga-vision-lab.h-brs.de/weblab/ 
 * `Slovenská technická univerzita <http://www.kirp.chtf.stuba.sk/>`_: http://weblab.chtf.stuba.sk/
 * `UPNA <https://www.unavarra.es>`_: https://weblab.unavarra.es/
 * `TU-Dortmund <https://www.zhb.tu-dortmund.de>`_: https://weblab.zhb.tu-dortmund.de
@@ -75,5 +75,6 @@ Other WebLab-Deusto deployments:
 * `ISEP <https://www.isep.ipp.pt>`_: https://openlabs.isep.ipp.pt/weblab/
 * `UNED (Costa Rica) <https://www.uned.ac.cr/>`_:  https://labremoto.uned.ac.cr/weblab/
 * `UNAD <https://www.unad.edu.co/>`_:  https://lab-remoto-etr.unad.edu.co/weblab/ 
+* `UNIFESP <http://www.unifesp.br>`_: https://weblab.unifesp.br/weblab/
 
 If you wish us to host a new deployment, contact us at weblab@deusto.es.
