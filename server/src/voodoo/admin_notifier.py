@@ -158,7 +158,7 @@ class AdminNotifier(object):
 
     def _create_mailer(self, mail_server, ssl=False):
         if ssl:
-            return smptlib.SMTP_SSL(mail_server)
+            return smtplib.SMTP_SSL(mail_server)
         return smtplib.SMTP(mail_server)
 
     def _parse_recipients(self, server_admin):
