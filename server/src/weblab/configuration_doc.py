@@ -54,6 +54,7 @@ DESCRIPTIONS[ADMIN_NOTIFIER] = """The Admin notifier is mainly used by the core 
 MAIL_NOTIFICATION_ENABLED  = 'mail_notification_enabled'
 MAIL_SERVER_HOST           = 'mail_server_host'
 MAIL_SERVER_HELO           = 'mail_server_helo'
+MAIL_SERVER_EHLO           = 'mail_server_ehlo'
 MAIL_SERVER_USE_TLS        = 'mail_server_use_tls'
 MAIL_SERVER_USE_SSL        = 'mail_server_use_ssl'
 MAIL_NOTIFICATION_SENDER   = 'mail_notification_sender'
@@ -66,6 +67,7 @@ _sorted_variables.extend([
     (MAIL_NOTIFICATION_ENABLED,  _Argument(ADMIN_NOTIFIER, bool, NO_DEFAULT, "Enables or Disables mail notifications")),
     (MAIL_SERVER_HOST,           _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Host to use for sending mail")),
     (MAIL_SERVER_HELO,           _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Address to be used on the mail's HELO")),
+    (MAIL_SERVER_EHLO,           _Argument(ADMIN_NOTIFIER, basestring,  'no', "Use an EHLO message")),
     (MAIL_SERVER_USE_TLS,        _Argument(ADMIN_NOTIFIER, basestring,  'no',       "Use TLS or not. Values: 'yes' or 'no'")),
     (MAIL_SERVER_USE_SSL,        _Argument(ADMIN_NOTIFIER, basestring,  'no',       "Use SSL or not. Values: 'yes' or 'no'")),
     (MAIL_NOTIFICATION_SENDER,   _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Address of the mail's sender")), 

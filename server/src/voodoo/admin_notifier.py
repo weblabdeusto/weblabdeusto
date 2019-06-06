@@ -83,6 +83,7 @@ class AdminNotifier(object):
                 mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
                 mail_server_use_ssl = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_SSL)
                 mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
+                mail_server_ehlo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_EHLO)
                 mail_notif_sender   = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SENDER)
                 username            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_USERNAME)
                 password            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_PASSWORD)
@@ -116,7 +117,12 @@ class AdminNotifier(object):
                 try:
                     if mail_server_use_tls == 'yes':
                         server.starttls()
-                    server.helo(mail_server_helo)
+
+                    if mail_server_helo:
+                        server.helo(mail_server_helo)
+
+                    if mail_server_ehlo == 'yes':
+                        server.ehlo()
 
                     if username and password:
                         server.login(username, password)
