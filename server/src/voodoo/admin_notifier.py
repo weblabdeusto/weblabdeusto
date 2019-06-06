@@ -83,6 +83,9 @@ class AdminNotifier(object):
                 mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
                 mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
                 mail_notif_sender   = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SENDER)
+                username            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_USERNAME)
+                password            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_PASSWORD)
+                mail_prefix         = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_PREFIX)
             except ConfigurationManager.KeyNotFoundError as knfe:
                 log.log(
                     AdminNotifier,
@@ -96,6 +99,9 @@ class AdminNotifier(object):
             else:
                 mail_notification_subject = subject
 
+            if mail_prefix:
+                mail_notification_subject = mail_prefix + mail_notification_subject
+
             try:
                 if recipients is None:
                     mail_recipients = self._parse_recipients(server_admin)
@@ -107,6 +113,9 @@ class AdminNotifier(object):
                     if mail_server_use_tls == 'yes':
                         server.starttls()
                     server.helo(mail_server_helo)
+
+                    if username and password:
+                        server.login(username, password)
 
                     if body is None:
                         email_body = EMAIL_BODY % {
