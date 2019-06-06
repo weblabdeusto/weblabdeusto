@@ -68,7 +68,7 @@ _sorted_variables.extend([
     (MAIL_SERVER_USE_TLS,        _Argument(ADMIN_NOTIFIER, basestring,  'no',       "Use TLS or not. Values: 'yes' or 'no'")),
     (MAIL_NOTIFICATION_SENDER,   _Argument(ADMIN_NOTIFIER, basestring,  NO_DEFAULT, "Address of the mail's sender")), 
     (MAIL_NOTIFICATION_SUBJECT,  _Argument(ADMIN_NOTIFIER, basestring,  "[WebLab] CRITICAL ERROR!", "(Optional) Subject of the notification mail")),
-    (MAIL_NOTIFICATION_PREFIX,   _Argument(ADMIN_NOTIFIER, basestring,  "[WebLab] ", "(Optional) Prefix to put before each notification")),
+    (MAIL_NOTIFICATION_PREFIX,   _Argument(ADMIN_NOTIFIER, basestring,  "[WebLab]", "(Optional) Prefix to put before each notification")),
     (MAIL_NOTIFICATION_USERNAME, _Argument(ADMIN_NOTIFIER, basestring,  None, "(Optional) SMTP Username")),
     (MAIL_NOTIFICATION_PASSWORD, _Argument(ADMIN_NOTIFIER, basestring,  None, "(Optional) SMTP Password")),
 ])

@@ -100,7 +100,7 @@ class AdminNotifier(object):
                 mail_notification_subject = subject
 
             if mail_prefix:
-                mail_notification_subject = mail_prefix + mail_notification_subject
+                mail_notification_subject = mail_prefix + " " + mail_notification_subject
 
             try:
                 if recipients is None:
