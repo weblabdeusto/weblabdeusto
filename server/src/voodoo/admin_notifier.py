@@ -81,6 +81,7 @@ class AdminNotifier(object):
                 server_admin        = self._configuration.get_doc_value(configuration_doc.SERVER_ADMIN)
                 mail_server_host    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HOST)
                 mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
+                mail_server_use_ssl = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_SSL)
                 mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
                 mail_notif_sender   = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SENDER)
                 username            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_USERNAME)
@@ -108,7 +109,10 @@ class AdminNotifier(object):
                 else:
                     mail_recipients = recipients
 
-                server = self._create_mailer(mail_server_host)
+                if mail_server_use_ssl == 'yes':
+                    mail_server_use_tls = 'no'
+
+                server = self._create_mailer(mail_server_host, mail_server_use_ssl == 'yes')
                 try:
                     if mail_server_use_tls == 'yes':
                         server.starttls()
@@ -152,7 +156,9 @@ class AdminNotifier(object):
                 return -2
         return 0
 
-    def _create_mailer(self, mail_server):
+    def _create_mailer(self, mail_server, ssl=False):
+        if ssl:
+            return smptlib.SMTP_SSL(mail_server)
         return smtplib.SMTP(mail_server)
 
     def _parse_recipients(self, server_admin):
