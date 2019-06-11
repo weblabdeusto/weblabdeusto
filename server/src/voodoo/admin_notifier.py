@@ -81,8 +81,13 @@ class AdminNotifier(object):
                 server_admin        = self._configuration.get_doc_value(configuration_doc.SERVER_ADMIN)
                 mail_server_host    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HOST)
                 mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
+                mail_server_use_ssl = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_SSL)
                 mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
+                mail_server_ehlo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_EHLO)
                 mail_notif_sender   = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_SENDER)
+                username            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_USERNAME)
+                password            = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_PASSWORD)
+                mail_prefix         = self._configuration.get_doc_value(configuration_doc.MAIL_NOTIFICATION_PREFIX)
             except ConfigurationManager.KeyNotFoundError as knfe:
                 log.log(
                     AdminNotifier,
@@ -96,17 +101,31 @@ class AdminNotifier(object):
             else:
                 mail_notification_subject = subject
 
+            if mail_prefix:
+                mail_notification_subject = mail_prefix + " " + mail_notification_subject
+
             try:
                 if recipients is None:
                     mail_recipients = self._parse_recipients(server_admin)
                 else:
                     mail_recipients = recipients
 
-                server = self._create_mailer(mail_server_host)
+                if mail_server_use_ssl == 'yes':
+                    mail_server_use_tls = 'no'
+
+                server = self._create_mailer(mail_server_host, mail_server_use_ssl == 'yes')
                 try:
                     if mail_server_use_tls == 'yes':
                         server.starttls()
-                    server.helo(mail_server_helo)
+
+                    if mail_server_helo:
+                        server.helo(mail_server_helo)
+
+                    if mail_server_ehlo == 'yes':
+                        server.ehlo()
+
+                    if username and password:
+                        server.login(username, password)
 
                     if body is None:
                         email_body = EMAIL_BODY % {
@@ -143,7 +162,9 @@ class AdminNotifier(object):
                 return -2
         return 0
 
-    def _create_mailer(self, mail_server):
+    def _create_mailer(self, mail_server, ssl=False):
+        if ssl:
+            return smtplib.SMTP_SSL(mail_server)
         return smtplib.SMTP(mail_server)
 
     def _parse_recipients(self, server_admin):

@@ -338,7 +338,7 @@ class AbstractCoordinator(object):
             resources = map(lambda (body, resource_instance) : resource_instance, current_notifications)
             bodies    = map(lambda (body, resource_instance) : body, current_notifications)
 
-            subject = "[WebLab] %s Status changes. " % len(resources)
+            subject = "%s Status changes. " % len(resources)
             shown = 2
             resource_types = list(set(map(lambda resource : unicode(resource.resource_type), resources)))
             subject += ', '.join(resource_types[:shown])
