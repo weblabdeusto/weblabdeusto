@@ -35,13 +35,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for instance_id, instance_status in experiment_instances.items() %}
-                <tr class="{% if instance_status['working'] %}success{% else %}danger{% endif %}">
-                    <td>{{ instance_id }}</td>
-                    <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
-                    <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
-                    <td>{{ instance_status['laboratory_server'] }}</td>
-                </tr>
+                {% for instance_id, instance_status in experiment_instances|dictsort %}
+                    <tr class="{% if instance_status['working'] %}success{% else %}danger{% endif %}">
+                        <td>{{ instance_id }}</td>
+                        <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
+                        <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
+                        <td>{{ instance_status['laboratory_server'] }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
