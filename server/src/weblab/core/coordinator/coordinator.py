@@ -324,7 +324,7 @@ class AbstractCoordinator(object):
                 status_url = status_url[1:]
             status_url = '{}{}'.format(self.core_server_url, status_url)
             if self.cfg_manager.get('quickadmin_token'):
-                status_url = '{}?token=%s'.format(status_url, self.cfg_manager.get('quickadmin_token'))
+                status_url = '{}?token={}'.format(status_url, self.cfg_manager.get('quickadmin_token'))
             body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, status_url)
         recipients = self._retrieve_recipients(experiment_instance_ids)
 
