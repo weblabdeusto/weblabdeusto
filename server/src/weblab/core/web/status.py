@@ -89,7 +89,7 @@ def get_experiments():
     }
 
     resources_manager = weblab_api.server_instance._coordinator.resources_manager
-    available_resources = resources_manager.list_resource_instances()
+    available_resources = resources_manager.list_working_resource_instances()
 
     for laboratory_server_coord_address_str in configuration:
         experiment_instance_config = configuration[laboratory_server_coord_address_str]
