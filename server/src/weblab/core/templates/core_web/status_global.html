@@ -31,6 +31,7 @@
                     <th>Instance</th>
                     <th>Status</th>
                     <th>Resource</th>
+                    <th>Laboratory</th>
                 </tr>
             </thead>
             <tbody>
@@ -39,6 +40,7 @@
                     <td>{{ instance_id }}</td>
                     <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
                     <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
+                    <td>{{ instance_status['laboratory_server'] }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

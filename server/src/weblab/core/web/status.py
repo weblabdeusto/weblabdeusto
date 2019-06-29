@@ -107,6 +107,7 @@ def get_experiments():
 
             experiments[experiment_id][experiment_instance_id.inst_name] = {
                 'working': resource_found,
+                'laboratory_server': laboratory_server_coord_address_str,
                 'resource': {
                     'resource_type': resource.resource_type,
                     'resource_instance': resource.resource_instance,
