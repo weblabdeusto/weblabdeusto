@@ -14,6 +14,7 @@
 #
 from __future__ import print_function, unicode_literals
 
+import email.utils
 import smtplib
 
 import weblab.configuration_doc as configuration_doc
@@ -23,6 +24,7 @@ import voodoo.configuration as ConfigurationManager
 
 EMAIL_HEADER = """From: WebLab Notifier <%(mail_notif_sender)s>
 To: %(recipients)s
+Date: %(date)s
 Subject: %(subject)s
 
 """
@@ -143,6 +145,7 @@ class AdminNotifier(object):
                                     'mail_notif_sender' : mail_notif_sender,
                                     'recipients' : ', '.join(mail_recipients),
                                     'subject' : mail_notification_subject,
+                                    'date': email.utils.formatdate(),
                                 }),
                             email_body
                         )
