@@ -74,3 +74,5 @@ assert pub is not None # avoid warnings
 import compiserv
 assert compiserv is not None # avoid warnings
 
+import status
+assert status is not None # avoid warnings

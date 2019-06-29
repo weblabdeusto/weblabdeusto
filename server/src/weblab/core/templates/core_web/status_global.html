@@ -1,0 +1,42 @@
+{% extends "core_web/_base.html" %}
+
+{% block header %}
+    <meta name="robots" content="noindex">
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1>Experiments status</h1>
+
+    <ul>
+        {% for experiment_id in experiments %}
+            <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a></li>
+        {% endfor %}
+    </ul>
+
+    {% for experiment_id, experiment_instances in experiments.items() %}
+        <h2 id='{{ experiment_id }}'>{{ experiment_id }}</h2>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Instance</th>
+                    <th>Status</th>
+                    <th>Resource</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for instance_id, instance_status in experiment_instances.items() %}
+                <tr class="{% if instance_status['working'] %}success{% else %}danger{% endif %}">
+                    <td>{{ instance_id }}</td>
+                    <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
+                    <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endfor %}
+</div>
+
+{% endblock %}
