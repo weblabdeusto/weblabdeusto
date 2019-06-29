@@ -10,8 +10,15 @@
     <h1>Experiments status</h1>
 
     <ul>
+
+        {% if request.args.get('token') %}
+            {% set kwargs = {'token': request.args.get('token') } %}
+        {% else %}
+            {% set kwargs = {} %}
+        {% endif %}
+
         {% for experiment_id in experiments %}
-            <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a></li>
+        <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a> (<a href="{{ url_for('core_web.experiment_status_html', experiment_name=experiment_id.split('@')[0], category_name=experiment_id.split('@')[1], **kwargs) }}">single page</a>)</li>
         {% endfor %}
     </ul>
 
