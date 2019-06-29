@@ -319,7 +319,13 @@ class AbstractCoordinator(object):
             body += ("\t%s\n" % experiment_instance_id.to_weblab_str())
 
         if len(messages) > 0:
-            body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, self.core_server_url)
+            status_url = '/web/status/global.html'
+            if self.core_server_url.endswith('/'):
+                status_url = status_url[1:]
+            status_url = '%s%s'.format(self.core_server_url, status_url)
+            if self.cfg_manager.get('quickadmin_token'):
+                status_url = '%s?token=%s'.format(status_url, self.cfg_manager.get('quickadmin_token'))
+            body += "\nReasons: %r\n\nThe WebLab-Deusto system\n<%s>" % (messages, status_url)
         recipients = self._retrieve_recipients(experiment_instance_ids)
 
         if len(recipients):
