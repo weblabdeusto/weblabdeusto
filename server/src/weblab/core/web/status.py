@@ -39,8 +39,12 @@ def experiment_status(category_name, experiment_name):
     if weblab_api.config.get(COORDINATOR_IMPL) != 'redis':
         return "This method is only available on Redis", 404
 
+    experiment_id = '{}@{}'.format(experiment_name, category_name)
     experiments = get_experiments()
-    experiment = experiments.get('{}@{}'.format(experiment_name, category_name))
+    if category_name not in experiments:
+        return "experiment not found", 404
+
+    experiment = experiments[category_name].get(experiment_id)
     if experiment is None:
         return "experiment not found", 404
 
@@ -65,11 +69,14 @@ def experiment_status_html(category_name, experiment_name):
 
     experiment_id = '{}@{}'.format(experiment_name, category_name)
     experiments = get_experiments()
-    experiment = experiments.get(experiment_id)
+    if category_name not in experiments:
+        return "experiment not found", 404
+
+    experiment = experiments[category_name].get(experiment_id)
     if experiment is None:
         return "experiment not found", 404
 
-    return render_template('core_web/status_global.html', experiments={experiment_id: experiment})
+    return render_template('core_web/status_global.html', experiments={category_name: {experiment_id: experiment}})
 
 
 def get_experiments():
@@ -77,14 +84,16 @@ def get_experiments():
     configuration = coordination_configuration_parser.parse_configuration()
 
     experiments = {
-        # experiment_id: {
-        #     instance_id: {
-        #         'working': True/False
-        #         'resource': {
-        #             'resource_instance': 'foo',
-        #             'resource_type': 'bar'
-        #         }
-        #     }
+        # cat_id:
+        #    experiment_id: {
+        #        instance_id: {
+        #            'working': True/False
+        #            'resource': {
+        #                'resource_instance': 'foo',
+        #                'resource_type': 'bar'
+        #            }
+        #        }
+        #    }
         # }
     }
 
@@ -95,9 +104,13 @@ def get_experiments():
         experiment_instance_config = configuration[laboratory_server_coord_address_str]
         for experiment_instance_id in experiment_instance_config:
             resource = experiment_instance_config[experiment_instance_id]
+            cat_name = experiment_instance_id.cat_name
+            if cat_name not in experiments:
+                experiments[cat_name] = {}
+
             experiment_id = experiment_instance_id.to_experiment_id().to_weblab_str()
-            if experiment_id not in experiments:
-                experiments[experiment_id] = {}
+            if experiment_id not in experiments[cat_name]:
+                experiments[cat_name][experiment_id] = {}
             
             resource_found = False
             for available_resource in available_resources:
@@ -105,7 +118,7 @@ def get_experiments():
                     resource_found = True
                     break
 
-            experiments[experiment_id][experiment_instance_id.inst_name] = {
+            experiments[cat_name][experiment_id][experiment_instance_id.inst_name] = {
                 'working': resource_found,
                 'laboratory_server': laboratory_server_coord_address_str,
                 'resource': {

@@ -17,34 +17,43 @@
             {% set kwargs = {} %}
         {% endif %}
 
-        {% for experiment_id, experiment_instances in experiments|dictsort %}
-        <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a> (<a href="{{ url_for('core_web.experiment_status_html', experiment_name=experiment_id.split('@')[0], category_name=experiment_id.split('@')[1], **kwargs) }}">single page</a>)</li>
+        {% for category_name, category_experiments in experiments|dictsort %}
+            <li>{{ category_name }}
+            <ul>
+                {% for experiment_id, experiment_instances in category_experiments|dictsort %}
+                    <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a> (<a href="{{ url_for('core_web.experiment_status_html', experiment_name=experiment_id.split('@')[0], category_name=experiment_id.split('@')[1], **kwargs) }}">single page</a>)</li>
+                {% endfor %}
+            </ul>
+            </li>
         {% endfor %}
     </ul>
 
-    {% for experiment_id, experiment_instances in experiments|dictsort %}
-        <h3 id='{{ experiment_id }}'>{{ experiment_id }}</h3>
+    {% for category_name, category_experiments in experiments|dictsort %}
+        <h3>{{ category_name }}</h3>
+        {% for experiment_id, experiment_instances in category_experiments|dictsort %}
+            <h4 id='{{ experiment_id }}'>{{ experiment_id }}</h4>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Instance</th>
-                    <th>Status</th>
-                    <th>Resource</th>
-                    <th>Laboratory</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for instance_id, instance_status in experiment_instances|dictsort %}
-                    <tr class="{% if instance_status['working'] %}success{% else %}danger{% endif %}">
-                        <td>{{ instance_id }}</td>
-                        <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
-                        <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
-                        <td>{{ instance_status['laboratory_server'] }}</td>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Instance</th>
+                        <th>Status</th>
+                        <th>Resource</th>
+                        <th>Laboratory</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for instance_id, instance_status in experiment_instances|dictsort %}
+                        <tr class="{% if instance_status['working'] %}success{% else %}danger{% endif %}">
+                            <td>{{ instance_id }}</td>
+                            <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
+                            <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
+                            <td>{{ instance_status['laboratory_server'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endfor %}
     {% endfor %}
 </div>
 
