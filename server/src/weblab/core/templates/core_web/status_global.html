@@ -17,12 +17,12 @@
             {% set kwargs = {} %}
         {% endif %}
 
-        {% for experiment_id in experiments %}
+        {% for experiment_id, experiment_instances in experiments|dictsort %}
         <li><a href="#{{ experiment_id }}">{{ experiment_id }}</a> (<a href="{{ url_for('core_web.experiment_status_html', experiment_name=experiment_id.split('@')[0], category_name=experiment_id.split('@')[1], **kwargs) }}">single page</a>)</li>
         {% endfor %}
     </ul>
 
-    {% for experiment_id, experiment_instances in experiments.items() %}
+    {% for experiment_id, experiment_instances in experiments|dictsort %}
         <h3 id='{{ experiment_id }}'>{{ experiment_id }}</h3>
 
         <table class="table table-bordered">
