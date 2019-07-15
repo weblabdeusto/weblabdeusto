@@ -40,6 +40,7 @@
                         <th>Status</th>
                         <th>Resource</th>
                         <th>Laboratory</th>
+                        <th>Error</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +50,7 @@
                             <td>{% if instance_status['working'] %}Working{% else %}Broken{% endif %}</td>
                             <td>{{ instance_status['resource']['resource_instance'] }} of {{ instance_status['resource']['resource_type'] }}</td>
                             <td>{{ instance_status['laboratory_server'] }}</td>
+                            <td>{% if instance_status['working'] %}None{% else %}{{ instance_status['error_messages'] }}{% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
