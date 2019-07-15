@@ -82,7 +82,7 @@ class HostIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
         s = self._socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             s.connect((self.hostname, self.port))
-        except socket.error as e:
+        except Exception as e:
             raise labExc.UnableToConnectHostnameInPortError(self.hostname, self.port, e)
         finally:
             s.close()
@@ -101,13 +101,15 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     def __init__(self, img_url, *args, **kwargs):
         super(WebcamIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.img_url = img_url
+        self.timeout = kwargs.get('timeout', 10)
 
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:
-            response = self._urllib2.urlopen(self.img_url, timeout = 10)
-        except urllib2.URLError as e:
+            response = self._urllib2.urlopen(self.img_url, timeout = self.timeout)
+        except Exception as e:
             raise labExc.ImageURLDidNotRetrieveAResponseError(self.img_url, e)
+
         if response.headers['content-type'] not in VALID_IMAGE_FORMATS:
             raise labExc.InvalidContentTypeRetrievedFromImageURLError(self.img_url)
 
@@ -124,13 +126,14 @@ class WebHandler(AbstractLightweightIsUpAndRunningHandler):
     def __init__(self, url, *args, **kwargs):
         super(WebHandler, self).__init__(*args, **kwargs)
         self.url = url
+        self.timeout = kwargs.get('timeout', 10)
 
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
         try:
-            response = self._urllib2.urlopen(self.url, timeout = 10)
+            response = self._urllib2.urlopen(self.url, timeout = self.timeout)
             str_contents = response.read()
-        except urllib2.URLError as e:
+        except Exception as e:
             raise labExc.WebHandlerInvalidResponseHandlerError(self.url, e)
 
         try:
