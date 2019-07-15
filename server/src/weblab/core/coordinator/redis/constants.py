@@ -27,6 +27,7 @@ WEBLAB_RESOURCE_SLOTS                = 'weblab:resources:%s:slots'
 WEBLAB_RESOURCE_WORKING              = 'weblab:resources:%s:working'
 WEBLAB_RESOURCE_INSTANCE             = 'weblab:resources:%s:%s'
 WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS = 'weblab:resources:%s:%s:experiment_instances'
+WEBLAB_RESOURCE_INSTANCE_ERROR       = 'weblab:resources:%s:%s:error'
 
 # PQUEUE
 WEBLAB_RESOURCE_PQUEUE_RESERVATIONS          = 'weblab:resources:%s:reservations:pqueue'

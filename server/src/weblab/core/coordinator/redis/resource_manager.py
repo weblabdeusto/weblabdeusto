@@ -35,6 +35,7 @@ from weblab.core.coordinator.redis.constants import (
     WEBLAB_RESOURCE_EXPERIMENTS,
     WEBLAB_RESOURCE_RESERVATIONS,
     WEBLAB_RESOURCE_INSTANCE_EXPERIMENTS,
+    WEBLAB_RESOURCE_INSTANCE_ERROR,
     WEBLAB_RESERVATIONS_ACTIVE_SCHEDULERS,
 
     LAB_COORD,
@@ -147,9 +148,19 @@ class ResourcesManager(object):
         client = self._redis_maker()
         return client.hget(weblab_experiment_instance, LAB_COORD)
 
-    @typecheck(Resource)
-    def mark_resource_as_broken(self, resource):
+    def get_resource_error(self, resource):
         client = self._redis_maker()
+
+        resource_error = WEBLAB_RESOURCE_INSTANCE_ERROR % (resource.resource_type, resource.resource_instance)
+        messages = json.loads(client.get(resource_error) or '[]') or []
+        return messages
+
+    def mark_resource_as_broken(self, resource, messages = []):
+        client = self._redis_maker()
+
+        resource_error = WEBLAB_RESOURCE_INSTANCE_ERROR % (resource.resource_type, resource.resource_instance)
+        client.set(resource_error, json.dumps(messages))
+
         weblab_resource_working = WEBLAB_RESOURCE_WORKING % resource.resource_type
         return client.srem(weblab_resource_working, resource.resource_instance) != 0
 

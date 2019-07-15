@@ -102,7 +102,7 @@ class Coordinator(AbstractCoordinator):
         changed = scheduler.removing_current_resource_slot(client, resource_instance)
         anything_changed = anything_changed or changed
 
-        changed = self.resources_manager.mark_resource_as_broken(resource_instance)
+        changed = self.resources_manager.mark_resource_as_broken(resource_instance, messages)
         anything_changed = anything_changed or changed
 
         if anything_changed:

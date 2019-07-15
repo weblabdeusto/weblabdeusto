@@ -118,8 +118,14 @@ def get_experiments():
                     resource_found = True
                     break
 
+            if not resource_found:
+                error_messages = resources_manager.get_resource_error(resource)
+            else:
+                error_messages = []
+
             experiments[cat_name][experiment_id][experiment_instance_id.inst_name] = {
                 'working': resource_found,
+                'error_messages': error_messages,
                 'laboratory_server': laboratory_server_coord_address_str,
                 'resource': {
                     'resource_type': resource.resource_type,
