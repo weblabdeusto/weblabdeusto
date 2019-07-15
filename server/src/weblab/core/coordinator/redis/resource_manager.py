@@ -159,7 +159,15 @@ class ResourcesManager(object):
         client = self._redis_maker()
 
         resource_error = WEBLAB_RESOURCE_INSTANCE_ERROR % (resource.resource_type, resource.resource_instance)
-        client.set(resource_error, json.dumps(messages))
+        try:
+            serialized_messages = json.dumps(messages)
+        except:
+            try:
+                serialized_messages = json.dumps(str(messages))
+            except:
+                serialized_messages = json.dumps(repr(messages))
+
+        client.set(resource_error, serialized_messages)
 
         weblab_resource_working = WEBLAB_RESOURCE_WORKING % resource.resource_type
         return client.srem(weblab_resource_working, resource.resource_instance) != 0
