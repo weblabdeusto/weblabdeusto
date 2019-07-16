@@ -99,6 +99,7 @@ class Creation(object):
     # General information
 
     ADD_TEST_DATA     = 'add_test_data'
+    ADD_FEDERATED     = 'add_fed_user'
     CORES             = 'cores'
     START_PORTS       = 'start_ports'
     SYSTEM_IDENTIFIER = 'system_identifier'
@@ -451,6 +452,9 @@ def _build_parser():
 
     parser.add_option("--add-test-data",          dest = Creation.ADD_TEST_DATA, action="store_true", default=False,
                                                   help = "Populate the database with sample data")
+
+    parser.add_option("--add-fed-user",           dest = Creation.ADD_FEDERATED, action="store_true", default=False,
+                                                  help = "Add federated user (who can access the labs).")
 
     parser.add_option("--cores",                  dest = Creation.CORES,           type="int",    default=1,
                                                   help = "Number of core servers.")
@@ -923,6 +927,10 @@ def weblab_create(directory, options_dict = None, stdout = sys.stdout, stderr = 
     deploy.grant_admin_panel_on_group(Session, group_name)
     deploy.add_user(Session, options[Creation.ADMIN_USER], options[Creation.ADMIN_PASSWORD], options[Creation.ADMIN_NAME], options[Creation.ADMIN_MAIL], role = 'administrator')
     deploy.add_users_to_group(Session, group_name, options[Creation.ADMIN_USER])
+
+    if options[Creation.ADD_FEDERATED]:
+        deploy.add_user(Session, 'federated', 'password', 'federated', 'federated@labsland.com', role = 'federated')
+        deploy.add_users_to_group(Session, group_name, 'federated')
 
     if not options[Creation.NO_LAB]:
         # dummy@Dummy experiments (local)
