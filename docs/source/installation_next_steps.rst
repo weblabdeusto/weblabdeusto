@@ -61,6 +61,7 @@ you only need to install the following::
 
 If you are not using PHP, it is highly recommended to install the ``worker`` MPM
 by running::
+
    sudo apt-get install apache2-mpm-worker
    
 .. note::
@@ -238,6 +239,22 @@ Additionally, you may customize the deployment with the following arguments:
      --db-name=MyWebLab     --db-host=localhost    \
      --db-port=3306         --db-user=weblab       \
      --db-passwd=mypassword
+
+.. note::
+
+    It may happen that you get an error of authentication when doing this, because
+    in modern Linux servers MySQL does not have by default a username and password for
+    root. If this is the case, run the following:
+
+    .. code-block:: bash
+
+        $ sudo mysql -uroot
+        mysql> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
+        mysql> exit
+        $ 
+
+    Then, you will be able to follow the installation if when prompted for a root administrator
+    you provide root and for the password you put whatever you put as 'password'.
 
 You may also change the related variables explained at
 :ref:`configuration_variables`, which are located at a file called
