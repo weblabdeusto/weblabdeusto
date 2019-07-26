@@ -76,5 +76,6 @@ Other WebLab-Deusto deployments:
 * `UNED (Costa Rica) <https://www.uned.ac.cr/>`_:  https://labremoto.uned.ac.cr/weblab/
 * `UNAD <https://www.unad.edu.co/>`_:  https://lab-remoto-etr.unad.edu.co/weblab/ 
 * `UNIFESP <http://www.unifesp.br>`_: https://weblab.unifesp.br/weblab/
+* `Université Abdelhamid Ibn Badis Mostaganem <http://www.univ-mosta.dz>`_: https://weblabdeusto.leog.univ-mosta.dz/weblab/
 
 If you wish us to host a new deployment, contact us at weblab@deusto.es.
