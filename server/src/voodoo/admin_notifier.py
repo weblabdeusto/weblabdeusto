@@ -82,6 +82,7 @@ class AdminNotifier(object):
                 server_hostaddress  = self._configuration.get_doc_value(configuration_doc.SERVER_HOSTADDRESS)
                 server_admin        = self._configuration.get_doc_value(configuration_doc.SERVER_ADMIN)
                 mail_server_host    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HOST)
+                mail_server_port    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_PORT)
                 mail_server_use_tls = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_TLS)
                 mail_server_use_ssl = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_USE_SSL)
                 mail_server_helo    = self._configuration.get_doc_value(configuration_doc.MAIL_SERVER_HELO)
@@ -115,7 +116,7 @@ class AdminNotifier(object):
                 if mail_server_use_ssl == 'yes':
                     mail_server_use_tls = 'no'
 
-                server = self._create_mailer(mail_server_host, mail_server_use_ssl == 'yes')
+                server = self._create_mailer(mail_server_host, mail_server_port, mail_server_use_ssl == 'yes')
                 try:
                     if mail_server_use_tls == 'yes':
                         server.starttls()
@@ -165,10 +166,15 @@ class AdminNotifier(object):
                 return -2
         return 0
 
-    def _create_mailer(self, mail_server, ssl=False):
+    def _create_mailer(self, mail_server, mail_port=-1, ssl=False):
+        if mail_port is None or mail_port < 0:
+            if ssl:
+                return smtplib.SMTP_SSL(mail_server)
+            return smtplib.SMTP(mail_server)
+
         if ssl:
-            return smtplib.SMTP_SSL(mail_server)
-        return smtplib.SMTP(mail_server)
+            return smtplib.SMTP_SSL(mail_server, mail_port)
+        return smtplib.SMTP(mail_server, mail_port)
 
     def _parse_recipients(self, server_admin):
         server_admin = server_admin.replace(' ','')
