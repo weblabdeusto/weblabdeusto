@@ -112,6 +112,33 @@
             teacherMode = true;
         }
 
+        var dcPower25;
+        if (weblab.config['dcPower25'] !== undefined) {
+            dcPower25 = weblab.config['dcPower25'];
+        } else if (configObj.dcPower25 !== undefined) {
+            dcPower25 = configObj.dcPower25;
+        } else {
+            dcPower25 = true;
+        }
+
+        var dcPowerM25;
+        if (weblab.config['dcPowerM25'] !== undefined) {
+            dcPowerM25 = weblab.config['dcPowerM25'];
+        } else if (configObj.dcPowerM25 !== undefined) {
+            dcPowerM25 = configObj.dcPowerM25;
+        } else {
+            dcPowerM25 = true;
+        }
+
+        var dcPower6;
+        if (weblab.config['dcPower6'] !== undefined) {
+            dcPower6 = weblab.config['dcPower6'];
+        } else if (configObj.dcPower6 !== undefined) {
+            dcPower6 = configObj.dcPower6;
+        } else {
+            dcPower6 = true;
+        }
+
         var config = {
             teacherMode: teacherMode,
             instrReg: null,
@@ -119,7 +146,10 @@
             readOnly: false,
             oscRunnable: oscRunnable,
             maxOscMeasureCount: maxOscMeasureCount,
-            libraryXml: libraryXml
+            libraryXml: libraryXml,
+            dcPower25: dcPower25,
+            dcPowerM25: dcPowerM25,
+            dcPower6: dcPower6
         };
 
         if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {

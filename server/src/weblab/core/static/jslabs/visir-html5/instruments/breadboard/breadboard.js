@@ -738,7 +738,6 @@ visir.Breadboard = function(id, $elem)
 	});
 
 	var libraryxml = "instruments/breadboard/library.xml";
-    if (visir.Config.Get("libraryXml")) libraryxml = visir.Config.Get("libraryXml");
 	if (visir.BaseLocation) libraryxml = visir.BaseLocation + libraryxml;
 	me._ReadLibrary(libraryxml);
 	me._AddInstrumentConnections();
@@ -1538,26 +1537,82 @@ visir.Breadboard.prototype._AddGND = function(x, y)
 visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 {
 	if (num <= 0) return;
-	var $dcpower = $(
-	'<div class="instrument dcpower">\
+
+    var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
+    var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
+    var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
+
+	var dcPowerHtml = '<div class="instrument dcpower">\
 		<div class="title">'+visir.Lang.GetMessage('dc_power')+'</div>\
 			<div class="texts">\
-				<div class="connectiontext"></div>\
-				<div class="connectiontext">+20V</div>\
-				<div class="connectiontext">COM</div>\
-				<div class="connectiontext">-20V</div>\
-				<div class="connectiontext"></div>\
-				<div class="connectiontext">+6V</div>\
-				<div class="connectiontext">GND</div>\
-			</div>\
+				<div class="connectiontext"></div>\n';
+
+    if (dcPower25)
+        dcPowerHtml += '<div class="connectiontext">+20V</div>\n';
+    else
+        dcPowerHtml += '<div class="connectiontext"></div>\n';
+
+    if (dcPower25 || dcPowerM25)
+        dcPowerHtml += '<div class="connectiontext">COM</div>\n';
+    else
+        dcPowerHtml += '<div class="connectiontext"></div>\n';
+
+    if (dcPowerM25) 
+		dcPowerHtml += '<div class="connectiontext">-20V</div>\n';
+    else
+		dcPowerHtml += '<div class="connectiontext"></div>\n';
+
+    dcPowerHtml += '<div class="connectiontext"></div>\n'
+ 
+    if (dcPower6) {
+		dcPowerHtml += '<div class="connectiontext">+6V</div>\n';
+		dcPowerHtml += '<div class="connectiontext">GND</div>\n';
+    } else {
+		dcPowerHtml += '<div class="connectiontext"></div>\n';
+		dcPowerHtml += '<div class="connectiontext"></div>\n';
+    }
+
+    var upperHeight = 0;
+    var upperImage = null;
+    var lowerHeight = 0;
+    var lowerImage = null;
+
+    if (dcPower25) {
+        upperHeight = 13;
+        if (dcPowerM25) {
+            lowerHeight = 10;
+            upperImage = this.IMAGE_URL + 'connections_3.png';
+        } else {
+            lowerHeight = 10 + 13;
+            upperImage = this.IMAGE_URL + 'connections_2.png';
+        }
+    } else {
+        if (dcPowerM25) {
+            upperHeight = 13 + 13;
+            lowerHeight = 10;
+            upperImage = this.IMAGE_URL + 'connections_2.png';
+        } else {
+            // No upperImage: 13 upper + 42 image + 10 lower
+            lowerHeight = 13 + 42 + 10;
+        }
+    }
+    if (dcPower6) {
+        lowerImage = this.IMAGE_URL + 'connections_2.png';
+    }
+
+    dcPowerHtml += '</div>\
 			<div class="connectionimages">\
-				<div style="height: 13px"></div>\
-				<img src="' + 	this.IMAGE_URL + 'connections_3.png" draggable="false" />\
-				<div style="height: 10px"></div>\
-				<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
-			</div>\
-	</div>'
-	);
+				<div style="height: ' + upperHeight + 'px"></div>\n';
+    if (upperImage != null)
+        dcPowerHtml += '<img src="' + upperImage + '" draggable="false" />\n';
+
+    dcPowerHtml += '<div style="height: ' + lowerHeight + 'px"></div>\n';
+    if (lowerImage != null) 
+		dcPowerHtml += '<img src="' + lowerImage + '" draggable="false" />\n';
+
+    dcPowerHtml += '</div>\n';
+    dcPowerHtml += '</div>\n';
+	var $dcpower = $(dcPowerHtml);
 
 	$dcpower.css("right", x + "px").css("top", y + "px");
 	this._$elem.find(".instruments .left").append($dcpower);

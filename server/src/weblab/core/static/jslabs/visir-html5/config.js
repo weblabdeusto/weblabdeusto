@@ -6,6 +6,10 @@ visir.ConfigClass = function()
 	this._instrReg = null;
 	this._manualInstConfig = null;
     this._libraryXml = null;
+    this._readOnly = false;
+    this._dcPower25 = true;
+    this._dcPowerM25 = true;
+    this._dcPower6 = true;
 
 	var base = "";
 	if (visir.BaseLocation) base = visir.BaseLocation;
@@ -45,6 +49,21 @@ visir.ConfigClass.prototype.ReadConfig = function(config)
 	this._oscRunnable = config.oscRunnable;
     this._maxOscMeasureCount = config.maxOscMeasureCount || 10;
     this._libraryXml = config.libraryXml;
+    if (config.dcPower25 !== undefined) {
+        this._dcPower25 = config.dcPower25;
+    } else {
+        this._dcPower25 = true;
+    }
+    if (config.dcPowerM25 !== undefined) {
+        this._dcPowerM25 = config.dcPowerM25;
+    } else {
+        this._dcPowerM25 = true;
+    }
+    if (config.dcPower6 !== undefined) {
+        this._dcPower6 = config.dcPower6;
+    } else {
+        this._dcPower6 = true;
+    }
 }
 
 visir.ConfigClass.prototype.Get = function(name)
@@ -58,6 +77,9 @@ visir.ConfigClass.prototype.Get = function(name)
 		case "oscRunnable": return this._oscRunnable;
 		case "maxOscMeasureCount": return this._maxOscMeasureCount;
         case "libraryXml": return this._libraryXml;
+		case "dcPower25": return this._dcPower25;
+		case "dcPowerM25": return this._dcPowerM25;
+		case "dcPower6": return this._dcPower6;
 	}
 
 	return undefined;
@@ -74,6 +96,9 @@ visir.ConfigClass.prototype.Set = function(name, value)
 		case "oscRunnable": this._oscRunnable = value;
 		case "maxOscMeasureCount": this._maxOscMeasureCount= value;
         case "libraryXml": this._libraryXml = value;
+		case "dcPower25": this._dcPower25 = value;
+		case "dcPowerM25": this._dcPowerM25 = value;
+		case "dcPower6": this._dcPower6 = value;
 	}
 }
 
