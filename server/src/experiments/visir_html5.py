@@ -345,7 +345,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         else:
             savedata = None
 
-        setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys(), savedata)
+        setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys(), savedata, initial_data)
 
         self._session_manager.create_session(lab_session_id.id)
         self._session_manager.modify_session(lab_session_id, {'cookie' : "", 'electro_lab_cookie' : ""})
@@ -466,7 +466,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if n.nodeName != "#text":
                 return n.nodeName
 
-    def build_setup_data(self, cookie, url, circuits_list, client_savedata):
+    def build_setup_data(self, cookie, url, circuits_list, client_savedata, initial_data):
         """
         Helper function that will return a structure with the initialization data,
         json-encoded in a string.
@@ -483,6 +483,10 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 "experiments" : self.teacher,
                 "circuits" : circuits_list,
             }
+        for key in ['dcPower25', 'dcPowerM25', 'dcPower6']:
+            if key in initial_data:
+                data[key] = initial_data[key]
+
         # if self.library_xml and self.library_xml != 'failed' and self.library_xml != 'fail':
         #     data['libraryXml'] = self.library_xml
 
