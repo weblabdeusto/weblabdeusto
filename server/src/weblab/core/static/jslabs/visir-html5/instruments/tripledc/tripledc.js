@@ -7,7 +7,21 @@ visir.TripleDC = function(id, elem)
 	visir.TripleDC.parent.constructor.apply(this, arguments)
 
 	var me = this;
-	this._activeChannel = "6V+";
+
+    var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
+    var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
+    var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
+
+    if (dcPower6) {
+    	this._activeChannel = "6V+";
+    } else if (dcPower25) {
+    	this._activeChannel = "25V+";
+    } else if (dcPowerM25) {
+    	this._activeChannel = "25V-";
+    } else {
+        // No dcPower?
+        return;
+    }
 	this._elem = elem;
 
 	// all the values are represented times 1000 to avoid floating point trouble
@@ -25,25 +39,49 @@ visir.TripleDC = function(id, elem)
 	<img src="%img%/3dc.png" width="720" height="449" draggable="false" />\
 	<div class="bigtext voltage"><span class="green">0</span>.000V</div>\
 	<div class="bigtext current">0.500A</div>\
-	<div class="channelselect">\
-	<div class="smalltext p6v">+6V</div>\
-	<div class="smalltext p25v hide">+25V</div>\
-	<div class="smalltext m25v hide">-25V</div>\
-	</div>\
-	<div class="button button_p6v"><img class="up active" src="%img%/6v_up.png" alt="+6v button" /><img class="down" src="%img%/6v_down.png" alt="+6v button" /></div>\
-	<div class="button button_p25v"><img class="up active" src="%img%/25plusv_up.png" alt="+25v button" /><img class="down" src="%img%/25plusv_down.png" alt="+25v button" /></div>\
-	<div class="button button_m25v"><img class="up active" src="%img%/25minusv_up.png" alt="-25v button" /><img class="down" src="%img%/25minusv_down.png" alt="-25v button" /></div>\
-	<div class="button button_left"><img class="up active" src="%img%/arrowleft_up.png" alt="left button" /><img class="down" src="%img%/arrowleft_down.png" alt="left button" /></div>\
+	<div class="channelselect">\n'
+
+    if (dcPower6) {
+    	tpl += '<div class="smalltext p6v">+6V</div>';
+    }
+
+    if (dcPower25) {
+        if (this._activeChannel == "25V+") {
+            tpl += '<div class="smalltext p25v">+25V</div>';
+        } else {
+            tpl += '<div class="smalltext p25v hide">+25V</div>';
+        }
+    }
+
+    if (dcPowerM25) {
+        if (this._activeChannel == "25V-") {
+            tpl += '<div class="smalltext m25v">-25V</div>';
+        } else {
+            tpl += '<div class="smalltext m25v hide">-25V</div>';
+        }
+    }
+	tpl += '</div>\n';
+    if (dcPower6) {
+	    tpl += '<div class="button button_p6v"><img class="up active" src="%img%/6v_up.png" alt="+6v button" /><img class="down" src="%img%/6v_down.png" alt="+6v button" /></div>\n';
+    }
+    if (dcPower25) {
+	    tpl += '<div class="button button_p25v"><img class="up active" src="%img%/25plusv_up.png" alt="+25v button" /><img class="down" src="%img%/25plusv_down.png" alt="+25v button" /></div>\n';
+    }
+    if (dcPowerM25) {
+	    tpl += '<div class="button button_m25v"><img class="up active" src="%img%/25minusv_up.png" alt="-25v button" /><img class="down" src="%img%/25minusv_down.png" alt="-25v button" /></div>\n';
+    }
+	tpl += '<div class="button button_left"><img class="up active" src="%img%/arrowleft_up.png" alt="left button" /><img class="down" src="%img%/arrowleft_down.png" alt="left button" /></div>\
 	<div class="button button_right"><img class="up active" src="%img%/arrowright_up.png" alt="right button" /><img class="down" src="%img%/arrowright_down.png" alt="right button" /></div>\
 	<div class="knob">\
 		<div class="top">\
 			<img src="%img%/3dc_wheel.png" alt="handle" />\
 		</div>\
 	</div>\
-	<div class="manual_link"><a href="http://cp.literature.agilent.com/litweb/pdf/E3631-90002.pdf" target="_blank">Download Manual</a></div>\
+	<div class="manual_link"><a href="http://cp.literature.agilent.com/litweb/pdf/E3631-90002.pdf" target="_blank">%downloadManual%</a></div>\
 	</div>';
 
 	tpl = tpl.replace(/%img%/g, imgbase);
+	tpl = tpl.replace(/%downloadManual%/g, visir.Lang.GetMessage("down_man"));
 
 	elem.append(tpl);
 
