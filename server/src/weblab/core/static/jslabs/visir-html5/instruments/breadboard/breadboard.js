@@ -739,6 +739,7 @@ visir.Breadboard = function(id, $elem)
 
 	var libraryxml = "instruments/breadboard/library.xml";
 	if (visir.BaseLocation) libraryxml = visir.BaseLocation + libraryxml;
+    if (visir.Config.Get("libraryXml")) libraryxml = visir.Config.Get("libraryXml");
 	me._ReadLibrary(libraryxml);
 	me._AddInstrumentConnections();
 
