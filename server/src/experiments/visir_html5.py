@@ -66,7 +66,7 @@ DEFAULT_LOGIN_PASSWORD = "guest"
 DEFAULT_SAVEDATA = ""
 DEFAULT_TEACHER  = True
 DEFAULT_CLIENT_URL = "../web/visir/loader.swf"
-DEFAULT_HEARTBEAT_PERIOD = 30
+DEFAULT_HEARTBEAT_PERIOD = 45
 DEFAULT_CIRCUITS = {}
 DEFAULT_DEBUG_PRINTS = False
 
@@ -164,67 +164,77 @@ class Heartbeater(threading.Thread):
 
         if DEBUG: dbg("[DBG] HB INIT")
 
+        last_check_users = time.time()
+
         while(True):
             if self.stopped():
                 return
             try:
+                elapsed_users = time.time() - last_check_users
+                
+                if elapsed_users > 3600:
+                    print "[{}] Heartbeat users: {}".format(time.asctime(), elapsed_users)
+                    last_check_users = time.time()
+
                 # Sleep at most HEARTBEAT_MAX_SLEEP. We will most likely overwrite this
                 # with a lower value, depending on the pending requests.
-                time_to_sleep = HEARTBEAT_MAX_SLEEP
-
                 # Loop through every user that is using the experiment concurrently, and consider
                 # whether we should update it or not.
                 if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB Listing sessions..."
 
                 for session_id in self.session_manager.list_sessions():
-                    if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB checking session_id=%s" % (session_id)
                     try:
-                        sessiondata = self.session_manager.get_session_locking(session_id)
-                    except SessionNotFoundError:
-                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no session found for session_id=%s" % (session_id)
-                        continue
+                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB checking session_id=%s" % (session_id)
+                        try:
+                            # Important: not locking
+                            sessiondata = self.session_manager.get_session(session_id)
+                        except SessionNotFoundError:
+                            if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no session found for session_id=%s" % (session_id)
+                            continue
 
 
-                    if 'sessionkey' not in sessiondata:
-                        self.session_manager.modify_session_unlocking(session_id, sessiondata)
-                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no sessionkey found in sessiondata for session_id=%s" % (session_id)
-                        continue
+                        if 'sessionkey' not in sessiondata:
+                            if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no sessionkey found in sessiondata for session_id=%s" % (session_id)
+                            continue
 
-                    try:
+                        if 'started' not in sessiondata:
+                            if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB no 'started'"
+                            continue
+
+                        elapsed = sessiondata['started'] - time.time()
+                        if elapsed > 7200: # More than two hours
+                            print "[{}] Warning: old visir session {} still listed in heartbeater: {} seconds".format(time.asctime(), session_id, elapsed)
+                            continue
 
                         # Evaluate the time left for the next potential heartbeat.
                         if 'last_heartbeat_sent' not in sessiondata:
                             # If we actually don't have a last_heartbeat_sent yet,
                             # initialize it.
                             sessiondata['last_heartbeat_sent'] = time.time()
+                            # Not unlocking or locking
+                            self.session_manager.modify_session(session_id, sessiondata)
+
                         last_sent = sessiondata['last_heartbeat_sent']
                         session_key = sessiondata['sessionkey']
-                    finally:
-                        self.session_manager.modify_session_unlocking(session_id, sessiondata)
 
-                    time_left = (last_sent + self.heartbeat_period) - time.time()
+                        time_left = (last_sent + self.heartbeat_period) - time.time()
 
-                    # If time_left is zero or negative, a heartbeat IS due.
-                    if(time_left <= 0):
-                        if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] HB FORWARDING")
-                        ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
-                        if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] Heartbeat response: %s" % ret)
-
-                    else:
-                        # Otherwise, we will just sleep.
-                        if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] HB SLEEPING FOR %d" % (time_left)
-
-                        # We wish to sleep the maximum only if there are no pending
-                        # requests (and if it doesn't go over the MAX).
-                        time_to_sleep = min(time_left, time_to_sleep)
+                        # If time_left is zero or negative, a heartbeat IS due.
+                        if(time_left <= 0):
+                            if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] HB FORWARDING")
+                            ret = self.experiment.forward_request(session_id, HEARTBEAT_REQUEST % (session_key))
+                            if DEBUG_HEARTBEAT_MESSAGES: dbg("[DBG] Heartbeat response: %s" % ret)
+                    except:
+                        print "[{}] Unexpected within session in heartbeater for session {}; not blocking the other sessions".format(time.asctime(), session_id)
+                        print traceback.format_exc()
+                        continue
 
                 if DEBUG_HEARTBEAT_MESSAGES: print "[DBG] Listing sessions finished"
                 sys.stdout.flush()
 
-                # We will actually not sleep the whole time_to_sleep at once, so that
+                time_to_sleep = 10 # Every 10 seconds so as to not stress the system
+                # We will actually not sleep the whole at once, so that
                 # we can check whether the thread has finished more often.
-                # TODO: Consider doing this through semaphores so that we do not need
-                # this work-around.
                 step_time = 0.1
                 steps = time_to_sleep / step_time
                 while not self.stopped() and steps > 0:
@@ -235,7 +245,8 @@ class Heartbeater(threading.Thread):
 
             except:
                 # TODO: use log
-                traceback.print_exc()
+                print "[{}] Error in heartbeater".format(time.asctime())
+                print traceback.format_exc()
                 time.sleep(5)
 
 DEBUG_MESSAGES = DEBUG
@@ -253,14 +264,17 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         self.read_config()
         self._requesting_lock = threading.Lock()
 
-        # We will initialize and start it later
-        self.heartbeater = None
-        self.heartbeater_lock = threading.Lock()
         self._users_counter_lock = threading.Lock()
         self.users_counter = 0
 
         # XXX It must be SessionType.Memory, since we are storing an HTTPConnection object
         self._session_manager = SessionManager.SessionManager( cfg_manager, SessionType.Memory, "visir" )
+
+        # We initialize the heartbeater here
+        self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
+        self.heartbeater.setDaemon(True)
+        self.heartbeater.setName('Heartbeater')
+        self.heartbeater.start()
 
     @Override(ConcurrentExperiment.ConcurrentExperiment)
     def do_get_api(self):
@@ -321,15 +335,6 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         Callback run when the experiment is started
         """
 
-        # Consider whether we should initialize the heartbeater now. If we are the first
-        # user, the heartbeater will not have started yet.
-        with self.heartbeater_lock:
-            if self.heartbeater is None:
-                self.heartbeater = Heartbeater(self, self.heartbeat_period, self._session_manager)
-                self.heartbeater.setDaemon(True)
-                self.heartbeater.setName('Heartbeater')
-                self.heartbeater.start()
-
         if DEBUG: dbg("[DBG] Current number of users: %s" % len(self._session_manager.list_sessions()))
         if DEBUG: dbg("[DBG] Lab Session Id: %s" % lab_session_id)
         if DEBUG: dbg("[DBG] Measure server address: %s" % self.measure_server_addr)
@@ -348,7 +353,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         setup_data = self.build_setup_data("", self.client_url, self.get_circuits().keys(), savedata, initial_data)
 
         self._session_manager.create_session(lab_session_id.id)
-        self._session_manager.modify_session(lab_session_id, {'cookie' : "", 'electro_lab_cookie' : ""})
+        self._session_manager.modify_session(lab_session_id, {'cookie' : "", 'electro_lab_cookie' : "", 'started': time.time() })
 
         # Increment the user's counter, which indicates how many users are using the experiment.
         with self._users_counter_lock:
@@ -512,7 +517,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             if 'connection' in session_obj:
                 conn = session_obj['connection']
             else:
-                conn = httplib.HTTPConnection(self.measure_server_addr)
+                # Provide a timeout just in case for 7 minutes to avoid locking forever
+                conn = httplib.HTTPConnection(self.measure_server_addr, timeout=7 * 60)
                 session_obj['connection'] = conn
 
             conn.request("POST", self.measure_server_target, request)
@@ -633,24 +639,6 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
             except:
                 traceback.print_exc()
         self._session_manager.delete_session(lab_session_id)
-        with self.heartbeater_lock:
-            users_left = len(self._session_manager.list_sessions()) != 0
-
-            if not users_left:
-                if DEBUG: print "[DBG] No users left. Stopping heartbeater thread."
-
-                heartbeater = self.heartbeater
-                self.heartbeater = None
-
-        if not users_left:
-            if heartbeater is not None: # Not removed in other thread
-                heartbeater.stop()
-                heartbeater.join(60)
-
-                if heartbeater.is_alive():
-                    raise Exception("[ERROR/Visir] The heartbeater thread could not be stopped in time")
-
-            if DEBUG: print "[DBG] Heartbeater thread successfully stopped."
 
         if DEBUG: print "[DBG] Finished successfully: ", lab_session_id
 
