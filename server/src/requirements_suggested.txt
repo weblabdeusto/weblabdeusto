@@ -54,7 +54,7 @@ python-ldap<2.5
 # fails and the rest of packages are not installed.
 # 
 # It will require several libs:
-#     sudo apt-get install libfreetype6-dev libpng12-dev
+#     sudo apt-get install libfreetype6-dev libpng-dev
 # 
 # matplotlib<1.2
 
