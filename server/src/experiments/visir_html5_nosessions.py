@@ -277,7 +277,8 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
         if rsession is None:
             rsession = requests.Session()
 
-        result = rsession.post(self.measure_server_target, data=request)
+        url = 'http://{}{}'.format(self.measure_server_addr, self.measure_server_target)
+        result = rsession.post(url, data=request, timeout=(300, 300))
         data = result.data
 
         if DEBUG_MESSAGES:
