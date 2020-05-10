@@ -279,7 +279,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
         url = 'http://{}{}'.format(self.measure_server_addr, self.measure_server_target)
         result = rsession.post(url, data=request, timeout=(300, 300))
-        data = result.data
+        data = result.content
 
         if DEBUG_MESSAGES:
             dbg("[VisirTestExperiment] Received response: %s" % data)
