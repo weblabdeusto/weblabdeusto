@@ -474,6 +474,39 @@ def get_reservation_status():
     weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
     return reservation_processor.get_status()
 
+@weblab_api.route_api('/reservation/multiple-status/', max_log_size = 1000)
+def get_multiple_reservation_status(reservation_ids):
+    server = weblab_api.ctx.server_instance
+    status = {
+    }
+    t0 = time.time()
+    for reservation_id in reservation_ids:
+        current_reservation_id = SessionId(reservation_id.split(';')[0])
+        try:
+            session = server._reservations_session_manager.get_session_locking(current_reservation_id)
+        except SessionNotFoundError:
+            status[reservation_id] = {
+                    'success': False,
+                    'reason': "session-not-found",
+                    'reason-human': "reservation id not found",
+                }
+            continue
+
+        try:
+            weblab_api.ctx.reservation_session = session
+            reservation_processor = server._load_reservation(session)
+            try:
+                weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
+                status[reservation_id] = reservation_processor.get_status()
+            finally:
+                reservation_processor.update_latest_timestamp()
+        finally:
+            server._reservations_session_manager.modify_session_unlocking(current_reservation_id, session)
+    tf = time.time()
+    print("get_multiple_reservation_status", len(reservation_ids), tf - t0)
+
+    return dict(status=status)
+
 class ForceHostFix(object):
     def __init__(self, app, core_server_url):
         self.app = app
