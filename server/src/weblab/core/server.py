@@ -491,6 +491,14 @@ def get_multiple_reservation_status(reservation_ids):
                     'reason-human': "reservation id not found",
                 }
             continue
+        except Exception as err:
+            status[reservation_id] = {
+                'success': False,
+                'reason': "error-checking-reservation-1",
+                'reason-human': str(err),
+            }
+            traceback.print_exc()
+            continue
 
         try:
             weblab_api.ctx.reservation_session = session
@@ -498,12 +506,36 @@ def get_multiple_reservation_status(reservation_ids):
             try:
                 weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
                 status[reservation_id] = reservation_processor.get_status()
+            except Exception as err:
+                status[reservation_id] = {
+                    'success': False,
+                    'reason': "error-checking-reservation-2",
+                    'reason-human': str(err),
+                }
+                traceback.print_exc()
+                continue
             finally:
                 reservation_processor.update_latest_timestamp()
+        except Exception as err2:
+            status[reservation_id] = {
+                'success': False,
+                'reason': "error-checking-reservation-3",
+                'reason-human': str(err2),
+            }
+            traceback.print_exc()
+            continue
         finally:
-            server._reservations_session_manager.modify_session_unlocking(current_reservation_id, session)
+            try:
+                server._reservations_session_manager.modify_session_unlocking(current_reservation_id, session)
+            except Exception as err:
+                status[reservation_id] = {
+                    'success': False,
+                    'reason': "error-checking-reservation-3",
+                    'reason-human': str(err),
+                }
+                traceback.print_exc()
+
     tf = time.time()
-    print("get_multiple_reservation_status", len(reservation_ids), tf - t0)
 
     return dict(status=status)
 
