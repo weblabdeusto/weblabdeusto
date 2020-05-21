@@ -19,6 +19,7 @@ import os
 import sys
 import uuid
 import time
+import random
 import threading
 import urlparse
 
@@ -475,12 +476,19 @@ def get_reservation_status():
     return reservation_processor.get_status()
 
 @weblab_api.route_api('/reservation/multiple-status/', max_log_size = 1000)
-def get_multiple_reservation_status(reservation_ids):
+def get_multiple_reservation_status(reservation_ids, timeout):
     server = weblab_api.ctx.server_instance
     status = {
     }
     t0 = time.time()
+
+    if timeout > 0:
+        random.shuffle(reservation_ids)
+
     for reservation_id in reservation_ids:
+        if timeout > 0 and time.time() > (t0 + timeout):
+            break
+
         current_reservation_id = SessionId(reservation_id.split(';')[0])
         try:
             session = server._reservations_session_manager.get_session_locking(current_reservation_id)
