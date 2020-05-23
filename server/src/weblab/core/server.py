@@ -491,7 +491,7 @@ def get_multiple_reservation_status(reservation_ids, timeout):
 
         current_reservation_id = SessionId(reservation_id.split(';')[0])
         try:
-            session = server._reservations_session_manager.get_session_locking(current_reservation_id)
+            session = server._reservations_session_manager.get_session(current_reservation_id)
         except SessionNotFoundError:
             status[reservation_id] = {
                     'success': False,
@@ -512,7 +512,6 @@ def get_multiple_reservation_status(reservation_ids, timeout):
             weblab_api.ctx.reservation_session = session
             reservation_processor = server._load_reservation(session)
             try:
-                weblab_api.ctx.server_instance._check_reservation_not_expired_and_poll( reservation_processor, False )
                 status[reservation_id] = reservation_processor.get_status()
             except Exception as err:
                 status[reservation_id] = {
@@ -522,8 +521,6 @@ def get_multiple_reservation_status(reservation_ids, timeout):
                 }
                 traceback.print_exc()
                 continue
-            finally:
-                reservation_processor.update_latest_timestamp()
         except Exception as err2:
             status[reservation_id] = {
                 'success': False,
@@ -532,20 +529,10 @@ def get_multiple_reservation_status(reservation_ids, timeout):
             }
             traceback.print_exc()
             continue
-        finally:
-            try:
-                server._reservations_session_manager.modify_session_unlocking(current_reservation_id, session)
-            except Exception as err:
-                status[reservation_id] = {
-                    'success': False,
-                    'reason': "error-checking-reservation-3",
-                    'reason-human': str(err),
-                }
-                traceback.print_exc()
 
     tf = time.time()
 
-    return dict(status=status)
+    return dict(status=status, time=tf-t0)
 
 class ForceHostFix(object):
     def __init__(self, app, core_server_url):
