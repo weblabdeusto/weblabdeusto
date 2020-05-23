@@ -21,6 +21,7 @@ import uuid
 import time
 import random
 import threading
+import traceback
 import urlparse
 
 import logging
@@ -492,7 +493,7 @@ def get_multiple_reservation_status(reservation_ids, timeout):
         current_reservation_id = SessionId(reservation_id.split(';')[0])
         try:
             session = server._reservations_session_manager.get_session(current_reservation_id)
-        except SessionNotFoundError:
+        except (SessionNotFoundError, coreExc.NoCurrentReservationError):
             status[reservation_id] = {
                     'success': False,
                     'reason': "session-not-found",
@@ -521,6 +522,13 @@ def get_multiple_reservation_status(reservation_ids, timeout):
                 }
                 traceback.print_exc()
                 continue
+        except (SessionNotFoundError, coreExc.NoCurrentReservationError):
+            status[reservation_id] = {
+                    'success': False,
+                    'reason': "session-not-found",
+                    'reason-human': "reservation id not found",
+                }
+            continue
         except Exception as err2:
             status[reservation_id] = {
                 'success': False,
