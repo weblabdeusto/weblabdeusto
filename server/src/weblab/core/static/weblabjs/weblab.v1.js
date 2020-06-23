@@ -1485,5 +1485,5 @@ if (window.weblab === undefined) {
     // Each time it is instanced, a reference to the last created instance will be saved in the prototype.
     WeblabExp.lastInstance = undefined;
 
-    weblab = new WeblabExp();
+    window.weblab = new WeblabExp();
 }
