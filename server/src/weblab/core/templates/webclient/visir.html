@@ -1,6 +1,9 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+
+    <base href="{{ url_for('.static', filename='jslabs/visir-html5/') }}">
+
 	<title>VISIR HTML5</title>
     {% assets filters="cssmin", output="gen/visir.%(version)s.min.css",
                 "jslabs/visir-html5/instrumentframe/instrumentframe.css",
@@ -14,9 +17,16 @@
         <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 
-    {% assets output="gen/visir.%(version)s.min.js",
+    {% assets filters="rjsmin", output="gen/visir.%(version)s.min.js",
                 "jslabs/visir-html5/jquery-2.1.3.min.js",
                 "weblabjs/weblab.v1.js",
+                "jslabs/visir-html5/widgets.js",
+                "jslabs/visir-html5/visir_weblab_load.js" %}
+        <script src="{{ ASSET_URL }}"></script>
+    {% endassets %}
+
+    {# Do not use filters, as it fails due to the "use strict" #}
+    {% assets output="gen/visir-code.%(version)s.min.js",
                 "jslabs/visir-html5/utils.js",
                 "jslabs/visir-html5/services.js",
                 "jslabs/visir-html5/jquery-turnable.js",
@@ -25,7 +35,6 @@
                 "jslabs/visir-html5/config.js",
                 "jslabs/visir-html5/FileSaver.min.js",
                 "jslabs/visir-html5/language.js",
-                "jslabs/visir-html5/widgets.js",
                 "jslabs/visir-html5/instrumentregistry.js",
                 "jslabs/visir-html5/instruments/multimeter.js",
                 "jslabs/visir-html5/instruments/oscilloscope.js",
@@ -85,6 +94,8 @@
 		transport.onerror = function(err) { alert("Error: " + err); }
 
 		transport.Connect();
+
+        console.log("About to call ext services");
 
 		var extservice = new visir.ExtServices({ MakeMeasurement: MakeMeasurement });
 		var reg = new visir.InstrumentRegistry(extservice);
