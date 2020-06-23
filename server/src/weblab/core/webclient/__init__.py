@@ -35,5 +35,6 @@ import view_i18n
 import view_gwt
 import view_federated
 import view_invitations
+import view_visir
 
-assert view_login is not None and view_labs is not None and view_lab is not None and view_i18n is not None and view_gwt is not None and view_federated is not None
+assert view_login is not None and view_labs is not None and view_lab is not None and view_i18n is not None and view_gwt is not None and view_federated is not None and view_visir is not None
