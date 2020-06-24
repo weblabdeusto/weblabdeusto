@@ -5,7 +5,7 @@
     <base href="{{ url_for('.static', filename='jslabs/visir-html5/') }}">
 
 	<title>VISIR HTML5</title>
-    {% assets filters="cssmin", output="gen/visir.%(version)s.min.css",
+    {% assets filters="cssmin", output="gen/visir-css.%(version)s.min.css",
                 "jslabs/visir-html5/instrumentframe/instrumentframe.css",
                 "jslabs/visir-html5/instruments/breadboard/breadboard.css",
                 "jslabs/visir-html5/instruments/flukemultimeter/flukemultimeter.css",
@@ -15,6 +15,10 @@
                 "jslabs/visir-html5/instruments/ni_oscilloscope/ni_oscilloscope.css",
                 "jslabs/visir-html5/instrumentframe/instrumentframe.css" %}
         <link rel="stylesheet" href="{{ ASSET_URL }}" />
+	<script>
+		{# from foo/bar/gen/visir-code.VERSION-NUMBER.min.js, extract VERSION-NUMBER #}
+		window.visirCacheBuster = {{ ASSET_URL.split('.')[-3] |tojson }};
+	</script>
     {% endassets %}
 
     {% assets filters="rjsmin", output="gen/visir.%(version)s.min.js",
@@ -51,7 +55,8 @@
         %}
         <script src="{{ ASSET_URL }}"></script>
 	<script>
-		window.visirCodeVersion = {{ ASSET_URL|tojson }};
+		{# from foo/bar/gen/visir-code.VERSION-NUMBER.min.js, extract VERSION-NUMBER #}
+		window.visirCacheBuster = window.visirCacheBuster + {{ ASSET_URL.split('.')[-3] |tojson }};
 	</script>
     {% endassets %}
 
@@ -201,7 +206,7 @@
             dcPower25: dcPower25,
             dcPowerM25: dcPowerM25,
             dcPower6: dcPower6,
-	    cacheBuster: window.visirCodeVersion
+	    cacheBuster: window.visirCacheBuster
         };
 
         if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {
