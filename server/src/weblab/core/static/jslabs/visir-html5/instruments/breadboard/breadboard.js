@@ -405,7 +405,7 @@ visir.Component.prototype._AddCircle = function()
 	// Rotation button
 	// Public domain
 	// http://openclipart.org/detail/33685/tango-view-refresh-by-warszawianka
-	var $rotateImg = $('<img src="' + me._breadboard.IMAGE_URL + 'rotate.png"/>');
+	var $rotateImg = $('<img src="' + me._breadboard._BuildImageUrl('rotate.png') + '"/>');
 	$rotateImg.width(ICON_SIZE);
 	$rotateImg.height(ICON_SIZE);
 	$rotateImg.css({
@@ -489,7 +489,7 @@ visir.Breadboard = function(id, $elem)
 	if (visir.BaseLocation) this.IMAGE_URL = visir.BaseLocation + this.IMAGE_URL;
 
 	var tpl = '<div class="breadboard">\
-	<img class="background" src="' + this.IMAGE_URL + 'breadboard.png" alt="breadboard"/>\
+	<img class="background" src="' + this._BuildImageUrl('breadboard.png') + '" alt="breadboard"/>\
 	<div class="clickarea"></div>\
 	<div class="bin">\
 		<div class="reset">'+visir.Lang.GetMessage('reset')+'</div>\
@@ -574,7 +574,7 @@ visir.Breadboard = function(id, $elem)
 				var value = $(this).attr("value");
 				var img_html = '<tr class="component-list-row">\
 				<td>\
-				<img src="' + me.IMAGE_URL + img + '"/>\
+				<img src="' + me._BuildImageUrl(img) + '"/>\
 				</td>\
 				<td>' + type + '</td>\
 				<td>' + value + '</td>\
@@ -908,7 +908,7 @@ visir.Breadboard.prototype.CreateComponent = function(type, value)
 	var idx = 0;
 
 	$libcomp.find("rotation").each(function() {
-		var imgtpl = '<img src="' + me.IMAGE_URL + $(this).attr("image") + '" alt="'+ type + value + '"/>';
+		var imgtpl = '<img src="' + me._BuildImageUrl($(this).attr("image")) + '" alt="'+ type + value + '"/>';
 		var $img = $(imgtpl);
 		var rot = $(this).attr("rot");
 		var ox = $(this).attr("ox");
@@ -1454,9 +1454,9 @@ visir.Breadboard.prototype._AddMultimeters = function(x, y, num)
 		$dmm.append(
 		'<div class="connectionimages">\
 			<div class="number">' + numstr + '</div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
+			<img src="' + 	this._BuildImageUrl("connections_2.png") + '" draggable="false" />\
 			<div style="height: 11px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
+			<img src="' + 	this._BuildImageUrl("connections_2.png") + '" draggable="false" />\
 		</div>'
 		);
 	}
@@ -1495,9 +1495,9 @@ visir.Breadboard.prototype._AddOSC = function(x, y, num)
 	'<div class="instrument osc">\
 		<div class="connectionimages">\
 			<div style="height: 13px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_1.png" draggable="false" />\
+			<img src="' + 	this._BuildImageUrl('connections_1.png') + '" draggable="false" />\
 			<div style="height: 9px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_1.png" draggable="false" />\
+			<img src="' + 	this._BuildImageUrl('connections_1.png') + '" draggable="false" />\
 		</div>\
 		<div class="texts">\
 			<div class="connectiontext"></div>\
@@ -1522,7 +1522,7 @@ visir.Breadboard.prototype._AddGND = function(x, y)
 	var $gnd = $(
 	'<div class="instrument gnd">\
 			<div class="connectionimages">\
-				<img src="' + 	this.IMAGE_URL + 'connections_1.png" />\
+				<img src="' + 	this._BuildImageUrl('connections_1.png') + '" />\
 			</div>\
 			<div class="texts">\
 				<div class="connectiontext">GND</div>\
@@ -1582,23 +1582,23 @@ visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 		upperHeight = 13;
 		if (dcPowerM25) {
 			lowerHeight = 10;
-			upperImage = this.IMAGE_URL + 'connections_3.png';
+			upperImage = this._BuildImageUrl('connections_3.png');
 		} else {
 			lowerHeight = 10 + 13;
-			upperImage = this.IMAGE_URL + 'connections_2.png';
+			upperImage = this._BuildImageUrl('connections_2.png');
 		}
 	} else {
 		if (dcPowerM25) {
 			upperHeight = 13 + 13;
 			lowerHeight = 10;
-			upperImage = this.IMAGE_URL + 'connections_2.png';
+			upperImage = this._BuildImageUrl('connections_2.png');
 		} else {
 			// No upperImage: 13 upper + 42 image + 10 lower
 			lowerHeight = 13 + 42 + 10;
 		}
 	}
 	if (dcPower6) {
-		lowerImage = this.IMAGE_URL + 'connections_2.png';
+		lowerImage = this._BuildImageUrl('connections_2.png');
 	}
 
 	dcPowerHtml += '</div>\
@@ -1629,6 +1629,17 @@ visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 	this.CreateInstr("0").AddConnection(new visir.Point(p.x + off_x, p.y + off_y + 7), "0");
 }
 
+visir.Breadboard.prototype._BuildImageUrl = function(img)
+{
+	var imageUrl = this.IMAGE_URL + img;
+
+        if (visir.Config.Get("cacheBuster") != null) {
+                imageUrl = imageUrl + "?cacheBuster=" + visir.Config.Get("cacheBuster");
+        }
+	return imageUrl;
+}
+
+
 visir.Breadboard.prototype._AddFGEN = function(x, y, num)
 {
 	if (num <= 0) return;
@@ -1641,7 +1652,7 @@ visir.Breadboard.prototype._AddFGEN = function(x, y, num)
 		</div>\
 		<div class="connectionimages">\
 			<div style="height: 13px"></div>\
-			<img src="' + 	this.IMAGE_URL + 'connections_2.png" draggable="false" />\
+			<img src="' + 	this._BuildImageUrl('connections_2.png') + '" draggable="false" />\
 		</div>\
 	</div>'
 	);
@@ -1654,4 +1665,4 @@ visir.Breadboard.prototype._AddFGEN = function(x, y, num)
 	var off_y = 9;
 	this.CreateInstr("VFGENA", 1).AddConnection( new visir.Point(p.x + off_x, p.y + off_y + 2)).AddConnection(new visir.Point(1000,1000),"0");
 	this.CreateInstr("0").AddConnection(new visir.Point(p.x + off_x, p.y + off_y + 3), "0");
-}
+};

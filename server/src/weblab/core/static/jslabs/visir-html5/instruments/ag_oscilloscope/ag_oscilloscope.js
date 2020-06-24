@@ -121,6 +121,10 @@ visir.AgilentOscilloscope = function(id, elem, props)
 	var tplLocation = "instruments/ag_oscilloscope/ag_oscilloscope.tpl";
 	if (visir.BaseLocation) tplLocation = visir.BaseLocation + tplLocation;
 
+	if (visir.Config.Get("cacheBuster") != null) {
+		tplLocation = tplLocation + "?cacheBuster=" + visir.Config.Get("cacheBuster");
+	}
+
 	// the placeholder is only used while loading, so that size computations are done right
 	var $placeholder = $('<div class="ag_osc" />');
 	elem.append($placeholder);

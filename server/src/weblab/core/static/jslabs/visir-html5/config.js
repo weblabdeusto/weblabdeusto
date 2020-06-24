@@ -13,6 +13,7 @@ visir.ConfigClass = function()
 	this._libraryXml = null;
 	this._maxOscMeasureCount = 10;
 	this._displayManuals = true;
+	this._cacheBuster = null;
 
 	var base = "";
 	if (visir.BaseLocation) base = visir.BaseLocation;
@@ -59,6 +60,7 @@ visir.ConfigClass.prototype.ReadConfig = function(config)
 	this._dcPowerM25 = (config.dcPowerM25 !== undefined)?config.dcPowerM25:true;
 	this._dcPower6 = (config.dcPower6 !== undefined)?config.dcPower6:true;
 	this._displayManuals = (config.displayManuals !== undefined)?config.displayManuals:true;
+	this._cacheBuster = (config.cacheBuster !== undefined)?config.cacheBuster:null;
 	this._unrFormat = (config.unrFormat !== undefined)?config.unrFormat:false;
 }
 
@@ -77,6 +79,7 @@ visir.ConfigClass.prototype.Get = function(name)
 		case "dcPowerM25": return this._dcPowerM25;
 		case "dcPower6": return this._dcPower6;
 		case "displayManuals": return this._displayManuals;
+		case "cacheBuster": return this._cacheBuster;
 		case "unrFormat": return this._unrFormat;
 	}
 
@@ -121,6 +124,9 @@ visir.ConfigClass.prototype.Set = function(name, value)
 			break;
 		case "displayManuals": 
 			this._displayManuals = value;
+			break;
+		case "cacheBuster": 
+			this._cacheBuster = value;
 			break;
 		case "unrFormat": 
 			this._unrFormat = value;
