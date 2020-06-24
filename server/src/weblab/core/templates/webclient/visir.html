@@ -50,6 +50,9 @@
                 "jslabs/visir-html5/instrumentframe/instrumentframe.js"
         %}
         <script src="{{ ASSET_URL }}"></script>
+	<script>
+		window.visirCodeVersion = {{ ASSET_URL|tojson }};
+	</script>
     {% endassets %}
 
     <style>
@@ -197,7 +200,8 @@
             libraryXml: libraryXml,
             dcPower25: dcPower25,
             dcPowerM25: dcPowerM25,
-            dcPower6: dcPower6
+            dcPower6: dcPower6,
+	    cacheBuster: window.visirCodeVersion
         };
 
         if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {
