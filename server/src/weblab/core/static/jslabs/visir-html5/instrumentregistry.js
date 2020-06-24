@@ -96,18 +96,43 @@ visir.InstrumentRegistry.prototype.ReadSave = function(response)
 			this._instruments[i].instrument.ReadSave(response);
 		}
 	}
+
+	if (visir.Config.Get("displayManuals") == false) {
+		$(".manual_link").remove();
+	}
 }
 
 visir.InstrumentRegistry.prototype.WriteSave = function()
 {
 	$xml = $('<save version="2" />');
 	var instrumentlist = "";
-	for(var i=0;i<this._instruments.length; i++) {
-		if (i>0) instrumentlist += "|";
+	var instrumentlistvalues = "";
+	var firstTime = true;
+
+	for(var i = 0; i < this._instruments.length; i++) {
+		if (i>0) {
+			instrumentlist += "|";
+		}
 		instrumentlist += this._instruments[i].name;
+
+		if (visir.Config.Get("unrFormat")) {
+			if (this._instruments[i].name == "HPFunctionGenerator" || this._instruments[i].name == "TripleDC") {
+				instrumentlistvalues += this._instruments[i].name + "#" + this._instruments[i].instrument._ReadCurrentValues().toString();
+				if (firstTime) {
+					instrumentlistvalues += "|";
+					firstTime = false;
+				}
+			}
+		}
 	}
 	var $instruments = $('<instruments />').attr("htmlinstruments", instrumentlist);
 	$xml.append($instruments);
+
+	if (visir.Config.Get("unrFormat")) {
+		var $instruments_values = $('<instrumentsvalues />').attr("htmlinstrumentsvalues", instrumentlistvalues);
+		$xml.append($instruments_values);
+	}
+
 	for(var i=0;i<this._instruments.length; i++) {
 		if (typeof (this._instruments[i].instrument.WriteSave) == "function") {
 			$xml.append(this._instruments[i].instrument.WriteSave());
@@ -190,7 +215,7 @@ visir.InstrumentRegistry.prototype.LoadExperiment = function(xmldata, $loc)
 
 	var htmlinstr = $instr.attr("htmlinstruments");
 	var htmlarr = htmlinstr ? htmlinstr.split("|") : [];
-	for(var i=0;i<htmlarr.length; i++) {
+	for(var i=0; i<htmlarr.length; i++) {
 		this.CreateInstrFromJSClass(htmlarr[i], $loc);
 	}
 

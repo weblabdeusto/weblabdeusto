@@ -8,6 +8,13 @@
 	vertical-align: baseline;
 }
 
+.ag_osc img {
+	user-select: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+}
+
 .ag_osc .button, .ag_osc .button img, .ag_osc .stepwheel, .ag_osc .stepwheel img {
 	position:absolute;
 }

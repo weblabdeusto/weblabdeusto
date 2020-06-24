@@ -6,23 +6,37 @@ visir.TripleDC = function(id, elem)
 {
 	visir.TripleDC.parent.constructor.apply(this, arguments)
 
-	var me = this;
-
-    var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
-    var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
-    var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
-
-    if (dcPower6) {
-    	this._activeChannel = "6V+";
-    } else if (dcPower25) {
-    	this._activeChannel = "25V+";
-    } else if (dcPowerM25) {
-    	this._activeChannel = "25V-";
-    } else {
-        // No dcPower?
-        return;
-    }
 	this._elem = elem;
+	this._id = id;
+
+	this._Redraw([0, 0, 0]);
+};
+
+extend(visir.TripleDC, visir.DCPower)
+
+visir.TripleDC.prototype._Redraw = function (initialValue) 
+{
+	var me = this;
+	var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
+	var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
+	var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
+
+	this.dcPower6 = dcPower6;
+	this.dcPower25 = dcPower25;
+	this.dcPowerM25 = dcPowerM25;
+
+	this._elem.empty();
+
+	if (dcPower6) {
+		this._activeChannel = "6V+";
+	} else if (dcPower25) {
+		this._activeChannel = "25V+";
+	} else if (dcPowerM25) {
+		this._activeChannel = "25V-";
+	} else {
+		// No dcPower?
+		return;
+	}
 
 	// all the values are represented times 1000 to avoid floating point trouble
 	// XXX: need to change this later, both voltage and current has an active digit
@@ -41,35 +55,35 @@ visir.TripleDC = function(id, elem)
 	<div class="bigtext current">0.500A</div>\
 	<div class="channelselect">\n'
 
-    if (dcPower6) {
-    	tpl += '<div class="smalltext p6v">+6V</div>';
-    }
+	if (dcPower6) {
+		tpl += '<div class="smalltext p6v">+6V</div>';
+	}
 
-    if (dcPower25) {
-        if (this._activeChannel == "25V+") {
-            tpl += '<div class="smalltext p25v">+25V</div>';
-        } else {
-            tpl += '<div class="smalltext p25v hide">+25V</div>';
-        }
-    }
+	if (dcPower25) {
+		if (this._activeChannel == "25V+") {
+			tpl += '<div class="smalltext p25v">+25V</div>';
+		} else {
+			tpl += '<div class="smalltext p25v hide">+25V</div>';
+		}
+	}
 
-    if (dcPowerM25) {
-        if (this._activeChannel == "25V-") {
-            tpl += '<div class="smalltext m25v">-25V</div>';
-        } else {
-            tpl += '<div class="smalltext m25v hide">-25V</div>';
-        }
-    }
+	if (dcPowerM25) {
+		if (this._activeChannel == "25V-") {
+			tpl += '<div class="smalltext m25v">-25V</div>';
+		} else {
+			tpl += '<div class="smalltext m25v hide">-25V</div>';
+		}
+	}
 	tpl += '</div>\n';
-    if (dcPower6) {
-	    tpl += '<div class="button button_p6v"><img class="up active" src="%img%/6v_up.png" alt="+6v button" /><img class="down" src="%img%/6v_down.png" alt="+6v button" /></div>\n';
-    }
-    if (dcPower25) {
-	    tpl += '<div class="button button_p25v"><img class="up active" src="%img%/25plusv_up.png" alt="+25v button" /><img class="down" src="%img%/25plusv_down.png" alt="+25v button" /></div>\n';
-    }
-    if (dcPowerM25) {
-	    tpl += '<div class="button button_m25v"><img class="up active" src="%img%/25minusv_up.png" alt="-25v button" /><img class="down" src="%img%/25minusv_down.png" alt="-25v button" /></div>\n';
-    }
+	if (dcPower6) {
+		tpl += '<div class="button button_p6v"><img class="up active" src="%img%/6v_up.png" alt="+6v button" /><img class="down" src="%img%/6v_down.png" alt="+6v button" /></div>\n';
+	}
+	if (dcPower25) {
+		tpl += '<div class="button button_p25v"><img class="up active" src="%img%/25plusv_up.png" alt="+25v button" /><img class="down" src="%img%/25plusv_down.png" alt="+25v button" /></div>\n';
+	}
+	if (dcPowerM25) {
+		tpl += '<div class="button button_m25v"><img class="up active" src="%img%/25minusv_up.png" alt="-25v button" /><img class="down" src="%img%/25minusv_down.png" alt="-25v button" /></div>\n';
+	}
 	tpl += '<div class="button button_left"><img class="up active" src="%img%/arrowleft_up.png" alt="left button" /><img class="down" src="%img%/arrowleft_down.png" alt="left button" /></div>\
 	<div class="button button_right"><img class="up active" src="%img%/arrowright_up.png" alt="right button" /><img class="down" src="%img%/arrowright_down.png" alt="right button" /></div>\
 	<div class="knob">\
@@ -83,7 +97,27 @@ visir.TripleDC = function(id, elem)
 	tpl = tpl.replace(/%img%/g, imgbase);
 	tpl = tpl.replace(/%downloadManual%/g, visir.Lang.GetMessage("down_man"));
 
-	elem.append(tpl);
+	this._elem.append(tpl);
+
+	if (dcPower6) {
+		this._SetInitialValue("6V+", Number(initialValue[0]), 2);
+	}
+	if (dcPower25) {
+		this._SetInitialValue("25V+", Number(initialValue[1]), 2);
+	}
+	if (dcPowerM25) {
+		this._SetInitialValue("25V-", Number(initialValue[2]), 2);
+	}
+	if (dcPower6) {
+		this._SetActiveChannel("6V+");
+		this._activeChannel = "6V+";
+	} else if (dcPower25) {
+		this._SetActiveChannel("25V+");
+		this._activeChannel = "25V+";
+	} else if (dcPowerM25) {
+		this._SetActiveChannel("25V-");
+		this._activeChannel = "25V-";
+	}
 
 	var $doc = $(document);
 
@@ -107,26 +141,26 @@ visir.TripleDC = function(id, elem)
 
 	if(!visir.Config.Get("readOnly"))
 	{
-		elem.find(".knob").turnable({offset: 90, turn: handleTurn });
+		this._elem.find(".knob").turnable({offset: 90, turn: handleTurn });
 
 		// make all buttons updownButtons
-		elem.find(".button").updownButton();
+		this._elem.find(".button").updownButton();
 
-		elem.find("div.button_p6v").click( function() {
+		this._elem.find("div.button_p6v").click( function() {
 			me._SetActiveChannel("6V+");
 		});
-		elem.find("div.button_p25v").click( function() {
+		this._elem.find("div.button_p25v").click( function() {
 			me._SetActiveChannel("25V+");
 		});
-		elem.find("div.button_m25v").click( function() {
+		this._elem.find("div.button_m25v").click( function() {
 			me._SetActiveChannel("25V-");
 		});
-		elem.find("div.button_left").click( function() {
+		this._elem.find("div.button_left").click( function() {
 				var aCh = me._GetActiveChannel();
 				trace("digit: " + (aCh.digit + 1));
 				me._SetActiveValue(aCh.voltage, aCh.digit + 1);
 		});
-		elem.find("div.button_right").click( function() {
+		this._elem.find("div.button_right").click( function() {
 				var aCh = me._GetActiveChannel();
 				trace("digit: " + (aCh.digit -1));
 				me._SetActiveValue(aCh.voltage, aCh.digit - 1);
@@ -134,15 +168,13 @@ visir.TripleDC = function(id, elem)
 	}
 
 	// XXX: need to fix this when making it possible to change current limits
-	var blink = elem.find(".tripledc .voltage");
+	var blink = this._elem.find(".tripledc .voltage");
 	setInterval(function() {
 		blink.toggleClass("on");
 	},500);
 
 	me._UpdateDisplay();
-}
-
-extend(visir.TripleDC, visir.DCPower)
+};
 
 visir.TripleDC.prototype._UpdateDisplay = function(showMeasured) {
 	showMeasured = showMeasured || false;
@@ -220,3 +252,76 @@ visir.TripleDC.prototype.ReadResponse = function(response) {
 
 	this._UpdateDisplay(true);
 }
+
+visir.TripleDC.prototype._ReadCurrentValues = function() {
+	/* Only used if unrFormat = true */
+	var volts = "";
+	volts = this._channels["6V+"].voltage * 1000 + ":" + this._channels["25V+"].voltage  * 1000 + ":" + this._channels["25V-"].voltage  * 1000;
+	return volts;
+}
+
+visir.TripleDC.prototype._SetInitialValue = function(ch, val, digit) {
+	this._activeChannel = ch;
+	this._SetActiveValue(val,digit);
+}
+
+visir.TripleDC.prototype.ReadSave = function($xml)
+{
+	var initialValue = [0, 0, 0];
+
+	// Only for backwards compatibility
+	var $instrumentsvalues = $xml.find("instrumentsvalues");
+	if ($instrumentsvalues.length == 1) {
+		var htmlinstrumentsvalues = $instrumentsvalues.attr("htmlinstrumentsvalues");
+		if (htmlinstrumentsvalues) {
+			$.each(htmlinstrumentsvalues.split("|"), function (pos, instrumentData) {
+				var instrumentName = instrumentData.split("#")[0];
+				if (instrumentName == "TripleDC") {
+					var numbers = instrumentData.split("#")[1].split(":");
+					initialValue = [ parseInt(numbers[0]), parseInt(numbers[1]), parseInt(numbers[2]) ];
+				}
+			});
+		}
+	}
+
+	if (this.dcPower6) {
+		var $dcPower6voltage = $xml.find("dc_output[channel='6V+']");
+		if ($dcPower6voltage.length == 1) {
+			initialValue[0] = Number($dcPower6voltage.attr("value"));
+		}
+	}
+
+	if (this.dcPower25) {
+		var $dcPower25voltage = $xml.find("dc_output[channel='25V+']");
+		if ($dcPower25voltage.length == 1) {
+			initialValue[1] = Number($dcPower25voltage.attr("value"));
+		}
+	}
+
+	if (this.dcPowerM25) {
+		var $dcPowerM25voltage = $xml.find("dc_output[channel='25V-']");
+		if ($dcPowerM25voltage.length == 1) {
+			initialValue[2] = Number($dcPowerM25voltage.attr("value"));
+		}
+	}
+
+	this._Redraw(initialValue);
+}
+
+visir.TripleDC.prototype.WriteSave = function()
+{
+	var $xml = $("<dcpower></dcpower>");
+	if (this.dcPower6) {
+		var channel = $("<dc_output channel=\"6V+\" value=\"" + (this._channels["6V+"].voltage * 1000) + "\"/>");
+		$xml.append(channel);
+	}
+	if (this.dcPower25) {
+		var channel = $("<dc_output channel=\"25V+\" value=\"" + (this._channels["25V+"].voltage * 1000) + "\"/>");
+		$xml.append(channel);
+	}
+	if (this.dcPowerM25) {
+		var channel = $("<dc_output channel=\"25V-\" value=\"" + (this._channels["25V-"].voltage * 1000) + "\"/>");
+		$xml.append(channel);
+	}
+	return $xml;
+};

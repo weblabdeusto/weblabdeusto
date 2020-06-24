@@ -179,7 +179,7 @@ visir.JSTransport.prototype._SendXML = function(data, callback)
 	} else {
 		var req = this._request; //new XMLHttpRequest();
 		req.open('POST', this._url, true);
-		req.timeout = 5000;
+		req.timeout = 25000;
 		req.onerror = function(e) {
 			trace("XMLHttpRequest error: " + e);
 			var errtext = "XMLHttpRequest error, webservice is not responding to requests.";

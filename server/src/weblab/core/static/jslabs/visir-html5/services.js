@@ -15,6 +15,5 @@ visir.ExtServices = function(props)
 visir.ExtServices.prototype.MakeMeasurement = function()
 {
 	trace("ExtServices::MakeMeasurement");
-//	this._options.MakeMeasurement();
-    //	TODO
-};
+	this._options.MakeMeasurement();
+}; /* Important ";" to avoid issues when creating a bundle */

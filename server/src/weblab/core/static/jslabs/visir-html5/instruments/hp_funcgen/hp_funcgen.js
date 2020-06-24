@@ -60,13 +60,19 @@ visir.HPFunctionGenerator = function(id, elem)
 			<img src="%img%/wheel.png" alt="handle" />\
 		</div>\
 	</div>\
-	<div class="manual_link"><a href="http://www.home.agilent.com/upload/cmc_upload/All/6C0633120A_USERSGUIDE_ENGLISH.pdf" target="_blank">Download Manual</a></div>\
+	<div class="manual_link"><a href="http://www.home.agilent.com/upload/cmc_upload/All/6C0633120A_USERSGUIDE_ENGLISH.pdf" target="_blank">%downloadManual%</a></div>\
 	</div>';
 
 	tpl = tpl.replace(/%img%/g, imgbase);
+	tpl = tpl.replace(/%downloadManual%/g, visir.Lang.GetMessage("down_man"));
 	//console.log(tpl);
 
 	elem.append(tpl);
+
+	this._SetInitialValue("freq", 0, 8);
+	this._SetInitialValue("ampl", 0, 4);
+	this._SetInitialWaveform("sine");
+	this.SetActiveValue("freq");
 
 	var $doc = $(document);
 
@@ -176,7 +182,7 @@ visir.HPFunctionGenerator.prototype._NumSign = function()
 
 visir.HPFunctionGenerator.prototype._SetEnteredNumber = function(scale)
 {
-	var num = parseInt(this._enterNumStr, 10);
+	var num = Number(this._enterNumStr, 10);
 	var val = this._values[this._currentValue];
 
 	this._SetActiveValue(num * val.multiplier * scale, val.digit);
@@ -225,6 +231,14 @@ visir.HPFunctionGenerator.prototype._NormalButtonPressed = function(buttonName)
 
 visir.HPFunctionGenerator.prototype._EnterNumButtonPressed = function(buttonName)
 {
+	var mega = 1;
+	var kilo = 1;
+	var uni = 1;
+	switch(this._currentValue) {
+		case "freq": mega = 1000000; kilo = 1000; uni = 1; break;
+		case "ampl": mega = 1; kilo = 2.829; uni = 0.7096; break;
+		case "offset": mega = 1; kilo = 1; uni = 1; break;
+	}
 	switch(buttonName) {
 		case "sine":	this._AddNum("1"); break;
 		case "square":	this._AddNum("2"); break;
@@ -243,9 +257,10 @@ visir.HPFunctionGenerator.prototype._EnterNumButtonPressed = function(buttonName
 		case "arb": 	this._NumSign();		break;
 
 		case "enter":	this._SetEnteredNumber(1);	break;
-		case "up":		this._SetEnteredNumber(1000000);	break;
-		case "down":	this._SetEnteredNumber(1000); break;
-		case "right":	this._SetEnteredNumber(1); break;
+
+		case "up":		this._SetEnteredNumber(mega);	break;
+		case "down":	this._SetEnteredNumber(kilo); break;
+		case "right":	this._SetEnteredNumber(uni); break;
 		default:
 			trace("unknown button in enter number mode: " + buttonName);
 			break;		
@@ -338,10 +353,11 @@ visir.HPFunctionGenerator.prototype._GetUnit = function(val)
 visir.HPFunctionGenerator.prototype._SetActiveValue = function(value, digit) {
 	trace("SetActiveValue: " + value + " " + digit);
 	var val = this._values[this._currentValue];
+
 	var ok = true;
 	if (value > val.max || value < val.min)	ok = false;
 
-	trace("XXX: " + Math.pow(10, digit) + " " +  value + " " + (value / val.multiplier));
+	trace("XXX: " + Math.pow(10, digit) + " " + value + " " + (value / val.multiplier));
 
 	// test if active digit is outside display range (upper bound)
 	if ((Math.abs(value / val.multiplier) >= 1.0) && (Math.pow(10, digit) > Math.abs(value))) ok = false;
@@ -379,3 +395,70 @@ visir.HPFunctionGenerator.prototype._IncDigit = function() {
 	var tmp = val.value + Math.pow(10, val.digit);
 	this._SetActiveValue(tmp, val.digit);
 }
+
+visir.HPFunctionGenerator.prototype._ReadCurrentValues = function() {
+	/* if unrFormat is true */
+	var volts = "";
+	volts = this._values["freq"].value + ":" + this._values["ampl"].value + ":" + this.GetWaveform();
+	return volts;
+}
+
+visir.HPFunctionGenerator.prototype._SetInitialValue = function(ch, val, digit) {
+	this._currentValue = ch;
+	this._SetActiveValue(val, digit);
+}
+
+visir.HPFunctionGenerator.prototype._SetInitialWaveform = function(wave) {
+	this.SetWaveform(wave);
+	this._UpdateDisplay();
+}
+
+visir.HPFunctionGenerator.prototype.ReadSave = function ($xml) {
+	var me = this;
+
+	// Only for backwards compatibility
+	var $instrumentsvalues = $xml.find("instrumentsvalues");
+	if ($instrumentsvalues.length == 1) {
+		var htmlinstrumentsvalues = $instrumentsvalues.attr("htmlinstrumentsvalues");
+		if (htmlinstrumentsvalues) {
+			$.each(htmlinstrumentsvalues.split("|"), function (pos, instrumentData) {
+				var instrumentName = instrumentData.split("#")[0];
+				if (instrumentName == "HPFunctionGenerator") {
+					var numbers = instrumentData.split("#")[1].split(":");
+					
+					var freq = Number(numbers[0]);
+					var ampl = Number(numbers[1]);
+					var wave = numbers[2];
+
+					me.SetWaveform(wave);
+					me._SetInitialValue("ampl", ampl, 4);
+					me._SetInitialValue("freq", freq, 8);
+
+					me._UpdateDisplay();
+				}
+			});
+		}
+	}
+
+	// Overwritten with the new format if available
+	var $currentFunctionGenerator = $xml.find("functiongenerator[id='" + this._id + "']");
+	if ($currentFunctionGenerator.length == 1) {
+		var wave = $currentFunctionGenerator.attr("wave");
+		var ampl = Number($currentFunctionGenerator.attr("ampl"));
+		var freq = Number($currentFunctionGenerator.attr("freq"));
+
+		this.SetWaveform(wave);
+		this._SetInitialValue("ampl", ampl, 4);
+		this._SetInitialValue("freq", freq, 8);
+
+		this._UpdateDisplay();
+	}
+};
+
+visir.HPFunctionGenerator.prototype.WriteSave = function () {
+	var $functiongenerator = $("<functiongenerator></functiongenerator>").attr("id", this._id);
+	$functiongenerator.attr("freq", this._values["freq"].value);
+	$functiongenerator.attr("ampl", this._values["ampl"].value);
+	$functiongenerator.attr("wave", this.GetWaveform());
+	return $functiongenerator;
+};

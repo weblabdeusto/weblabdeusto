@@ -4,7 +4,7 @@ visir.Language = function()
 {
 	var locale = visir.Config.Get('locale');
 
-	if ($.inArray(locale, ["en_UK", "es_ES"]) === -1)
+	if ($.inArray(locale, ["en_UK", "es_ES", "pt_BR"]) === -1)
 	{
 		locale = "en_UK";
 	}

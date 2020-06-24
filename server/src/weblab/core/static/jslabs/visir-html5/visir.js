@@ -1,6 +1,6 @@
 var visir = visir || {};
 
-visir.Load = function( onSuccess, onFailure, baseurl, configUrlOrObject )
+visir.Load = function( onSuccess, onFailure, baseurl, configUrlOrObject)
 {
 	baseurl = baseurl || "";
 	visir.BaseLocation = baseurl;
@@ -36,7 +36,7 @@ visir.Load = function( onSuccess, onFailure, baseurl, configUrlOrObject )
 		, "instruments/oscilloscope.js"
 		, "instruments/functiongenerator.js"
 		, "instruments/dcpower.js"
-		, "instruments/wltransport.js"
+		, "instruments/transport.js"
 	];
 
 	var stage4_scripts = [
@@ -108,9 +108,10 @@ visir.Load = function( onSuccess, onFailure, baseurl, configUrlOrObject )
 			defs.push( InjectScript(stage2_scripts[i]) );
 		}
 
+		if (!configUrlOrObject)
+			configUrlOrObject = baseurl + "config.json";
+
 		// workaround for chrome timeline bug on async requests
-        if (!configUrlOrObject) 
-            configUrlOrObject = baseurl + "config.json";
 		defs.push(visir.Config.GetDeferredConfigLoader(configUrlOrObject));
 
 		return defs;

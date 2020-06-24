@@ -65,6 +65,28 @@
 		</rotations>
 	</component>
 	
+	<component type="R" value="200" pins="2" free="1">
+		<rotations>
+			<rotation ox="-26" oy ="-9" image="r_200.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-8" oy ="-26" image="r_200.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+
+	<component type="R" value="220" pins="2">
+		<rotations>
+			<rotation ox="-26" oy ="-9" image="r_220.png" rot="0">
+				<pins><pin x="-26" y="0" /><pin x="26"  y="0" /></pins>
+			</rotation>
+			<rotation ox="-8" oy ="-26" image="r_220.png" rot="90">
+				<pins><pin x="0" y="-26" /><pin x="0" y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+	
 	<component type="R" value="1k" pins="2">
 		<rotations>
 			<rotation ox="-26" oy ="-6" image="r_1k.png" rot="0">
@@ -382,7 +404,7 @@
 			</rotation>
 		</rotations>
 	</component>
-	
+		
 	<component type="C" value="0.1u" pins="2">
 		<rotations>
 			<rotation ox="-19" oy ="-24" image="c_0.1u.png" rot="0">
@@ -414,6 +436,15 @@
 			</rotation>
 		</rotations>
 	</component>
+	
+	<component type="L" value="820m" pins="2">
+		<rotations>
+			<rotation ox="-20" oy ="-35" image="l_820m.png" rot="0">
+				<pins><pin x="-13" y="26" /><pin x="13"  y="26" /></pins>
+			</rotation>
+		</rotations>
+	</component>
+
 	
 	<component type="OP" value="UA741" pins="8">
 		<rotations>

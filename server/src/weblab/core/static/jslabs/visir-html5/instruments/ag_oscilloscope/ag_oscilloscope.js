@@ -8,7 +8,6 @@ visir.AgilentOscilloscope = function(id, elem, props)
 {
 	var me = this;
 	visir.AgilentOscilloscope.parent.constructor.apply(this, arguments);
-
 	this._measureCount = 0;
 
 	var options = $.extend({
@@ -18,11 +17,13 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		}
 		,CheckToContinueCalling: function() {
 			//if (me._extService) return me._extService.CanContinueMeasuring();
-            var maxMeasureCount = visir.Config.Get("maxOscMeasureCount");
-            if (maxMeasureCount == undefined || maxMeasureCount == null) {
-                maxMeasureCount = 10;
-            }
-			if (me._measureCount >= maxMeasureCount) return false;
+			var maxMeasureCount = visir.Config.Get("maxOscMeasureCount");
+			if (maxMeasureCount == undefined || maxMeasureCount == null) {
+				maxMeasureCount = 10;
+			}
+ 			if (me._measureCount >= maxMeasureCount)
+				return false;
+
 			return visir.Config.Get("oscRunnable") && me._canContinueMeasuring;
 		}
 	}, props || {});
@@ -50,6 +51,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 	this._channels[1].visible = true;
 	this._channels[1].display_offset = 0.0;
 	this._channels[1].inverted = false;
+	this._channels[1].xyg = false;
 
 	this._math = { visible: false, display_offset: 0.0, method: "sub", sourceCh: 0 };
 
@@ -126,6 +128,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 	$.get(tplLocation, function(tpl) {
 		$placeholder.remove();
 		tpl = tpl.replace(/%img%/g, imgbase);
+		tpl = tpl.replace(/%downloadManual%/g, visir.Lang.GetMessage("down_man"));
 		elem.append(tpl);
 
 		if (typeof G_vmlCanvasManager !== "undefined")
@@ -254,6 +257,9 @@ visir.AgilentOscilloscope = function(id, elem, props)
 
 		me._ShowCursors(false);
 
+		if (visir.Config.Get("displayManuals") == false) {
+			elem.find(".manual_link").remove();
+		}
 	});
 };
 
@@ -347,6 +353,33 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 		}
 	}
 
+	function DrawXY(chnr1, chnr2) {
+		if (!me._channels[chnr2].xyg) { return; }
+		var maxrange = Math.max(me._channels[0].range, me._channels[1].range);
+		var graph1 = me._channels[0].graph;
+		var graph2 = me._channels[1].graph;
+		var len = Math.min(graph1.length, graph2.length);
+		var sum = 0.0;
+		for(var i=0;i<len;i++) {
+			var sample = 0.0;
+			var sample1 = graph1[i] * (me._channels[0].inverted ? -1 : 1);
+			var sample2 = graph2[i] * (me._channels[1].inverted ? -1 : 1);
+			if (me._math.visible){
+				sample = sample1 - sample2;
+			} else {
+				sample = sample1;
+			}
+			var x = ((sample2 / me._channels[1].range) + me._math.display_offset) * (w / 8.0) + w/2;
+			var y = -((sample / me._channels[0].range) + me._math.display_offset) * (h / 8.0) + h/2;
+			y += 0.5;
+			if (i===0) {
+				context.moveTo(x,y);
+			} else {
+				context.lineTo(x,y);
+			}
+		}
+	}
+
 	function DrawMath() {
 		if (!me._math.visible) return;
 		var maxrange = Math.max(me._channels[0].range, me._channels[1].range);
@@ -423,17 +456,22 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 		DrawCursor(0, transformY(ch, me._cursors.p1.y), w, transformY(ch, me._cursors.p1.y), me._cursors.selected & 4 ? selcolor : unselcolor, [6]);
 		DrawCursor(0, transformY(ch, me._cursors.p2.y), w, transformY(ch, me._cursors.p2.y), me._cursors.selected & 8 ? selcolor : unselcolor, [7]);
 	}
+	if (!me._channels[1].xyg) {
+		DrawChannel(0);
+		DrawChannel(1);
+		context.stroke();
+		DrawCursors();
 
-	DrawChannel(0);
-	DrawChannel(1);
-	context.stroke();
-	DrawCursors();
-
-	context.strokeStyle = "#ff0000";
-	context.beginPath();
-	DrawMath();
-
-	context.stroke();
+		context.strokeStyle = "#ff0000";
+		context.beginPath();
+		DrawMath();
+		context.stroke();
+	} else {
+		context.strokeStyle = "#ffff00";
+		context.beginPath();
+		DrawXY(0,1);
+		context.stroke();
+	}
 };
 
 visir.AgilentOscilloscope.prototype._SetVoltIdx = function(ch, idx)
@@ -1060,6 +1098,13 @@ function CreateChannelMenu(osc, ch, $menu)
 					osc._channels[ch].inverted = !osc._channels[ch].inverted;
 					this.Redraw();
 					osc._UpdateDisplay();
+					break;
+				case 3:
+					if (ch == 1) {
+						osc._channels[ch].xyg = !osc._channels[ch].xyg;
+						this.Redraw();
+						osc._UpdateDisplay();
+					}
 				default:
 				break;
 			}
@@ -1071,8 +1116,12 @@ function CreateChannelMenu(osc, ch, $menu)
 			$menu.find(".selection").removeClass("selected");
 			$menu.find(".selection.sel_" + coupling).addClass("selected");
 			$menu.find(".checkbox.invert").removeClass("selected");
+			$menu.find(".checkbox.xyg").removeClass("selected");
 			if(osc._channels[ch].inverted) {
 				$menu.find(".checkbox.invert").addClass("selected");
+			}
+			if(osc._channels[ch].xyg) {
+				$menu.find(".checkbox.xyg").addClass("selected");
 			}
 		},
 		ShowMenu: function() {
@@ -1250,7 +1299,7 @@ function CreateCursorsMenu(osc, $menu)
 					// xy2
 				break;
 				case 6:
-					// xy both 
+					// xy both
 				break;
 			}
 			this.Redraw();

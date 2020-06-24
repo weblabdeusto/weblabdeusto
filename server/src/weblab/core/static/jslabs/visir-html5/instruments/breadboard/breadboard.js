@@ -348,77 +348,77 @@ visir.Component.prototype.Rotate = function(step)
 
 visir.Component.prototype._AddCircle = function()
 {
-    var me = this;
+	var me = this;
 
-    // Placed here for math operations
-    // var CIRCLE_SIZE    =  140;
-    var CIRCLE_SIZE    =  this.width() + 100;
-    var ICON_SIZE      =  40;
+	// Placed here for math operations
+	// var CIRCLE_SIZE    =  140;
+	var CIRCLE_SIZE    =  this.width() + 100;
+	var ICON_SIZE      =  40;
 
-    // If the circle may be slightly bigger than the four
-    // corner icons, since circles don't have corners. This
-    // constant establishes the level of overlap between the
-    // square that surrounds a circle and the square that
-    // surrounds the icons. Example: establishing it to 0
-    // the circle will not overlap at all; establishing it to
-    // 1 will overlap completely.
-    var CIRCLE_OVERLAP =  0.4;
+	// If the circle may be slightly bigger than the four
+	// corner icons, since circles don't have corners. This
+	// constant establishes the level of overlap between the
+	// square that surrounds a circle and the square that
+	// surrounds the icons. Example: establishing it to 0
+	// the circle will not overlap at all; establishing it to
+	// 1 will overlap completely.
+	var CIRCLE_OVERLAP =  0.4;
 
-    // Where is the component?
-    var originalTop  = parseInt(this._$elem.css('top'),  10);
-    var originalLeft = parseInt(this._$elem.css('left'), 10);
+	// Where is the component?
+	var originalTop  = parseInt(this._$elem.css('top'),  10);
+	var originalLeft = parseInt(this._$elem.css('left'), 10);
 
-    // Where should be located inside the circle?
-    var relativeTop  = this._$elem.height() / 2;
-    var relativeLeft = this._$elem.width()  / 2;
+	// Where should be located inside the circle?
+	var relativeTop  = this._$elem.height() / 2;
+	var relativeLeft = this._$elem.width()  / 2;
 
-    // Where should the whole circle be located?
-    var newTop       = originalTop  - relativeTop;
-    var newLeft      = originalLeft - relativeLeft;
+	// Where should the whole circle be located?
+	var newTop       = originalTop  - relativeTop;
+	var newLeft      = originalLeft - relativeLeft;
 
-    // Overall block
-    this._$circle = $('<span class="componentcircle"></span>');
-    this._$circle.width(CIRCLE_SIZE);
+	// Overall block
+	this._$circle = $('<span class="componentcircle"></span>');
+	this._$circle.width(CIRCLE_SIZE);
 		this._$circle.height(CIRCLE_SIZE);
-    var transform = 'translate(-' + (CIRCLE_SIZE / 2) + 'px,-' + (CIRCLE_SIZE / 2) + 'px)';
-    this._$circle.css({
-        'position'  : 'absolute',
-        'top'       : newTop + 'px',
-        'left'      : newLeft + 'px',
-        'transform' : transform,
-        '-moz-transform' : transform,
-        '-webkit-transform' : transform
-    });
+	var transform = 'translate(-' + (CIRCLE_SIZE / 2) + 'px,-' + (CIRCLE_SIZE / 2) + 'px)';
+	this._$circle.css({
+		'position'  : 'absolute',
+		'top'       : newTop + 'px',
+		'left'      : newLeft + 'px',
+		'transform' : transform,
+		'-moz-transform' : transform,
+		'-webkit-transform' : transform
+	});
 
-    // Circle
-    //var $circleImg = $('<img src="instruments/breadboard/images/empty_circle.png"/>');
+	// Circle
+	//var $circleImg = $('<img src="instruments/breadboard/images/empty_circle.png"/>');
 		var $circleImg = $('<div class="circle" />');
-    $circleImg.width(CIRCLE_SIZE - 2 * (1 - CIRCLE_OVERLAP) * ICON_SIZE);
-    $circleImg.height(CIRCLE_SIZE - 2 * (1 - CIRCLE_OVERLAP) * ICON_SIZE);
-    $circleImg.css({
-        'position' : 'absolute',
-        'left'     : (1 - CIRCLE_OVERLAP) * ICON_SIZE,
-        'top'      : (1 - CIRCLE_OVERLAP) * ICON_SIZE
-    });
-    this._$circle.append($circleImg);
+	$circleImg.width(CIRCLE_SIZE - 2 * (1 - CIRCLE_OVERLAP) * ICON_SIZE);
+	$circleImg.height(CIRCLE_SIZE - 2 * (1 - CIRCLE_OVERLAP) * ICON_SIZE);
+	$circleImg.css({
+		'position' : 'absolute',
+		'left'     : (1 - CIRCLE_OVERLAP) * ICON_SIZE,
+		'top'      : (1 - CIRCLE_OVERLAP) * ICON_SIZE
+	});
+	this._$circle.append($circleImg);
 
-    // Rotation button
-    // Public domain
-    // http://openclipart.org/detail/33685/tango-view-refresh-by-warszawianka
-    var $rotateImg = $('<img src="' + me._breadboard.IMAGE_URL + 'rotate.png"/>');
-    $rotateImg.width(ICON_SIZE);
-    $rotateImg.height(ICON_SIZE);
-    $rotateImg.css({
-        'position' : 'absolute',
-        'left'     : CIRCLE_SIZE - ICON_SIZE,
-        'top'      : CIRCLE_SIZE - ICON_SIZE
-    });
-    $rotateImg.click(function() {
-        me.Rotate();
-    });
-    this._$circle.append($rotateImg);
+	// Rotation button
+	// Public domain
+	// http://openclipart.org/detail/33685/tango-view-refresh-by-warszawianka
+	var $rotateImg = $('<img src="' + me._breadboard.IMAGE_URL + 'rotate.png"/>');
+	$rotateImg.width(ICON_SIZE);
+	$rotateImg.height(ICON_SIZE);
+	$rotateImg.css({
+		'position' : 'absolute',
+		'left'     : CIRCLE_SIZE - ICON_SIZE,
+		'top'      : CIRCLE_SIZE - ICON_SIZE
+	});
+	$rotateImg.click(function() {
+		me.Rotate();
+	});
+	this._$circle.append($rotateImg);
 
-    // Drag and drop button
+	// Drag and drop button
 	this._breadboard._$elem.find("#comp_circle").append(this._$circle);
 
 //	if ($.browser.msie)
@@ -429,14 +429,14 @@ visir.Component.prototype._AddCircle = function()
 //	}
 
 
-    var handler = this.generateHandler(this._$circle, function() {
+	var handler = this.generateHandler(this._$circle, function() {
 		// On clicked
 		me._breadboard.SelectComponent(null);
-    }, this._$elem, function() {
-    }, function () {
-    });
+	}, this._$elem, function() {
+	}, function () {
+	});
 
-    $circleImg.on("mousedown touchstart", handler);
+	$circleImg.on("mousedown touchstart", handler);
 }
 
 visir.Component.prototype.GenCircuitIfUsed = function()
@@ -520,14 +520,14 @@ visir.Breadboard = function(id, $elem)
 	<div id="wire_end" class="wirepoint end" />\
 	<div id="comp_circle" class="comp_circle" />\
 	<div class="componentbox">\
-        <div class="componentlist">\
-            <table class="componentlist-table">\
-            </table>\
-        </div>\
-        <div class="componentbutton">\
-            <button>'+visir.Lang.GetMessage('close')+'</button>\
-        </div>\
-    </div>\
+	    <div class="componentlist">\
+	        <table class="componentlist-table">\
+	        </table>\
+	    </div>\
+	    <div class="componentbutton">\
+	        <button>'+visir.Lang.GetMessage('close')+'</button>\
+	    </div>\
+	</div>\
 	</div>';
 
 	//tpl += '<div id="debug"></div>'
@@ -563,8 +563,8 @@ visir.Breadboard = function(id, $elem)
 	var teacher_mode = (visir.Config) ? visir.Config.Get("teacher") : true;
 	if(!teacher_mode) $elem.find(".teacher").hide();
 
-    $elem.find(".teacher").click(function(e) {
-    	if (!visir.Config.Get("readOnly"))
+	$elem.find(".teacher").click(function(e) {
+		if (!visir.Config.Get("readOnly"))
 		{
 			$elem.find(".componentbox").show();
 			$elem.find(".componentlist-table").empty();
@@ -587,7 +587,7 @@ visir.Breadboard = function(id, $elem)
 				});
 			});
 		}
-    });
+	});
 
 		$elem.find(".reset").click( function(e) {
 			if (!visir.Config.Get("readOnly"))
@@ -607,9 +607,9 @@ visir.Breadboard = function(id, $elem)
 			}
 		});
 
-    $elem.find(".componentbutton button").click(function(e) {
-        $elem.find(".componentbox").hide();
-    });
+	$elem.find(".componentbutton button").click(function(e) {
+		$elem.find(".componentbox").hide();
+	});
 
 	$click.on("mousedown touchstart", function(e) {
 		if (!visir.Config.Get("readOnly"))
@@ -739,7 +739,7 @@ visir.Breadboard = function(id, $elem)
 
 	var libraryxml = "instruments/breadboard/library.xml";
 	if (visir.BaseLocation) libraryxml = visir.BaseLocation + libraryxml;
-    if (visir.Config.Get("libraryXml")) libraryxml = visir.Config.Get("libraryXml");
+	if (visir.Config.Get("libraryXml")) libraryxml = visir.Config.Get("libraryXml");
 	me._ReadLibrary(libraryxml);
 	me._AddInstrumentConnections();
 
@@ -1105,12 +1105,12 @@ visir.Breadboard.prototype._RemoveComponent = function(comp_obj)
 
 visir.Breadboard.prototype._BuildOccupationGrid = function()
 {
-    return new visir.Grid(this._components, this._GetBin());
+	return new visir.Grid(this._components, this._GetBin());
 }
 
 visir.Breadboard.prototype._GetBin = function()
 {
-    return this._$elem.find(".bin");
+	return this._$elem.find(".bin");
 }
 
 visir.Breadboard.prototype._DrawHelpOverlay = function(ctx)
@@ -1539,80 +1539,80 @@ visir.Breadboard.prototype._AddDCPower = function(x, y, num)
 {
 	if (num <= 0) return;
 
-    var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
-    var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
-    var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
+	var dcPower25 = (visir.Config) ? visir.Config.Get("dcPower25") : true;
+	var dcPowerM25 = (visir.Config) ? visir.Config.Get("dcPowerM25") : true;
+	var dcPower6 = (visir.Config) ? visir.Config.Get("dcPower6") : true;
 
 	var dcPowerHtml = '<div class="instrument dcpower">\
 		<div class="title">'+visir.Lang.GetMessage('dc_power')+'</div>\
 			<div class="texts">\
 				<div class="connectiontext"></div>\n';
 
-    if (dcPower25)
-        dcPowerHtml += '<div class="connectiontext">+20V</div>\n';
-    else
-        dcPowerHtml += '<div class="connectiontext"></div>\n';
-
-    if (dcPower25 || dcPowerM25)
-        dcPowerHtml += '<div class="connectiontext">COM</div>\n';
-    else
-        dcPowerHtml += '<div class="connectiontext"></div>\n';
-
-    if (dcPowerM25) 
-		dcPowerHtml += '<div class="connectiontext">-20V</div>\n';
-    else
+	if (dcPower25)
+		dcPowerHtml += '<div class="connectiontext">+20V</div>\n';
+	else
 		dcPowerHtml += '<div class="connectiontext"></div>\n';
 
-    dcPowerHtml += '<div class="connectiontext"></div>\n'
+	if (dcPower25 || dcPowerM25)
+		dcPowerHtml += '<div class="connectiontext">COM</div>\n';
+	else
+		dcPowerHtml += '<div class="connectiontext"></div>\n';
+
+	if (dcPowerM25) 
+		dcPowerHtml += '<div class="connectiontext">-20V</div>\n';
+	else
+		dcPowerHtml += '<div class="connectiontext"></div>\n';
+
+	dcPowerHtml += '<div class="connectiontext"></div>\n'
  
-    if (dcPower6) {
+	if (dcPower6) {
 		dcPowerHtml += '<div class="connectiontext">+6V</div>\n';
 		dcPowerHtml += '<div class="connectiontext">GND</div>\n';
-    } else {
+	} else {
 		dcPowerHtml += '<div class="connectiontext"></div>\n';
 		dcPowerHtml += '<div class="connectiontext"></div>\n';
-    }
+	}
 
-    var upperHeight = 0;
-    var upperImage = null;
-    var lowerHeight = 0;
-    var lowerImage = null;
+	var upperHeight = 0;
+	var upperImage = null;
+	var lowerHeight = 0;
+	var lowerImage = null;
 
-    if (dcPower25) {
-        upperHeight = 13;
-        if (dcPowerM25) {
-            lowerHeight = 10;
-            upperImage = this.IMAGE_URL + 'connections_3.png';
-        } else {
-            lowerHeight = 10 + 13;
-            upperImage = this.IMAGE_URL + 'connections_2.png';
-        }
-    } else {
-        if (dcPowerM25) {
-            upperHeight = 13 + 13;
-            lowerHeight = 10;
-            upperImage = this.IMAGE_URL + 'connections_2.png';
-        } else {
-            // No upperImage: 13 upper + 42 image + 10 lower
-            lowerHeight = 13 + 42 + 10;
-        }
-    }
-    if (dcPower6) {
-        lowerImage = this.IMAGE_URL + 'connections_2.png';
-    }
+	if (dcPower25) {
+		upperHeight = 13;
+		if (dcPowerM25) {
+			lowerHeight = 10;
+			upperImage = this.IMAGE_URL + 'connections_3.png';
+		} else {
+			lowerHeight = 10 + 13;
+			upperImage = this.IMAGE_URL + 'connections_2.png';
+		}
+	} else {
+		if (dcPowerM25) {
+			upperHeight = 13 + 13;
+			lowerHeight = 10;
+			upperImage = this.IMAGE_URL + 'connections_2.png';
+		} else {
+			// No upperImage: 13 upper + 42 image + 10 lower
+			lowerHeight = 13 + 42 + 10;
+		}
+	}
+	if (dcPower6) {
+		lowerImage = this.IMAGE_URL + 'connections_2.png';
+	}
 
-    dcPowerHtml += '</div>\
+	dcPowerHtml += '</div>\
 			<div class="connectionimages">\
 				<div style="height: ' + upperHeight + 'px"></div>\n';
-    if (upperImage != null)
-        dcPowerHtml += '<img src="' + upperImage + '" draggable="false" />\n';
+	if (upperImage != null)
+		dcPowerHtml += '<img src="' + upperImage + '" draggable="false" />\n';
 
-    dcPowerHtml += '<div style="height: ' + lowerHeight + 'px"></div>\n';
-    if (lowerImage != null) 
+	dcPowerHtml += '<div style="height: ' + lowerHeight + 'px"></div>\n';
+	if (lowerImage != null) 
 		dcPowerHtml += '<img src="' + lowerImage + '" draggable="false" />\n';
 
-    dcPowerHtml += '</div>\n';
-    dcPowerHtml += '</div>\n';
+	dcPowerHtml += '</div>\n';
+	dcPowerHtml += '</div>\n';
 	var $dcpower = $(dcPowerHtml);
 
 	$dcpower.css("right", x + "px").css("top", y + "px");
