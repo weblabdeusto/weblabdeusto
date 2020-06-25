@@ -80,7 +80,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 
 	this._measurementInfo = [
 		NewMeasInfo("Amplitude", "Ampl", "V", "voltageamplitude")
-		, NewMeasInfo("Avgerage", "Avg", "V", "voltageaverage")
+		, NewMeasInfo("Average", "Avg", "V", "voltageaverage")
 		, NewMeasInfo("Base", "Base", "V", "voltagebase")
 		, NewMeasInfo("Duty Cycle", "Duty", "%", "negativedutycycle")
 		, NewMeasInfo("Fall Time", "Fall", "s", "falltime")
