@@ -80,7 +80,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 
 	this._measurementInfo = [
 		NewMeasInfo("Amplitude", "Ampl", "V", "voltageamplitude")
-		, NewMeasInfo("Avgerage", "Avg", "V", "voltageaverage")
+		, NewMeasInfo("Average", "Avg", "V", "voltageaverage")
 		, NewMeasInfo("Base", "Base", "V", "voltagebase")
 		, NewMeasInfo("Duty Cycle", "Duty", "%", "negativedutycycle")
 		, NewMeasInfo("Fall Time", "Fall", "s", "falltime")
@@ -359,15 +359,15 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 
 	function DrawXY(chnr1, chnr2) {
 		if (!me._channels[chnr2].xyg) { return; }
-		var maxrange = Math.max(me._channels[0].range, me._channels[1].range);
-		var graph1 = me._channels[0].graph;
-		var graph2 = me._channels[1].graph;
+		var maxrange = Math.max(me._channels[1].range, me._channels[0].range);
+		var graph1 = me._channels[1].graph;
+		var graph2 = me._channels[0].graph;
 		var len = Math.min(graph1.length, graph2.length);
 		var sum = 0.0;
 		for(var i=0;i<len;i++) {
 			var sample = 0.0;
-			var sample1 = graph1[i] * (me._channels[0].inverted ? -1 : 1);
-			var sample2 = graph2[i] * (me._channels[1].inverted ? -1 : 1);
+			var sample1 = graph1[i] * (me._channels[1].inverted ? -1 : 1);
+			var sample2 = graph2[i] * (me._channels[0].inverted ? -1 : 1);
 			if (me._math.visible){
 				sample = sample1 - sample2;
 			} else {
