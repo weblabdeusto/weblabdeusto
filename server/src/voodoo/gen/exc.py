@@ -24,7 +24,7 @@ class InternalServerCommunicationError(InternalCommunicationError):
 
 class InternalCapturedServerCommunicationError(InternalServerCommunicationError):
     def __init__(self, remote_exc_type, remote_exc_args, *args):
-        super(InternalCapturedServerCommunicationError, self).__init__(*args)
+        super(InternalCapturedServerCommunicationError, self).__init__(remote_exc_type, remote_exc_args, *args)
         self.remote_exc_type = remote_exc_type
         self.remote_exc_args = remote_exc_args
 
