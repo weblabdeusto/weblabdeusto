@@ -205,6 +205,16 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 dbg("[DBG] REQUEST TYPE: " + self.parse_request_type(command))
                 dbg("[DBG] SESSION ID: %s" % lab_session_id)
 
+            try:
+                dom = xml.parseString(command)
+                weblab_nodes = dom.getElementsByTagName('weblab')
+                if weblab_nodes:
+                    protocols = weblab_nodes.getElementsByTagName('protocol')
+                    if protocols:
+                        command = protocols[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
+            except:
+                pass
+
             data = self.forward_request(lab_session_id, command)
 
             dom = xml.parseString(data)
