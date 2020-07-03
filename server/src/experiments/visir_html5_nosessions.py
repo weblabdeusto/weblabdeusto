@@ -214,7 +214,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                         for save_node in save_nodes:
                             save_node.parentNode.removeChild(save_node)
 
-                        command = protocols_nodes[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
+                        command = protocol_nodes[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
             except:
                 pass
 
