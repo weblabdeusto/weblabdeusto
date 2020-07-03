@@ -31,7 +31,7 @@ visir.WLTransport.prototype.Request = function(request, callback)
 	var $request = $('<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>');
 	var $save = $(window.visirRegistry.WriteSave());
 	$request.append($save);
-	var request = $("<root />").append($xml).html()
+	var request = $("<root />").append($request).html()
 
 	weblab.sendCommand(request).done(function(response) {
 			this.SetWorking(false);
