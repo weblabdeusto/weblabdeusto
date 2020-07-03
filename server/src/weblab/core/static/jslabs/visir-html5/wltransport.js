@@ -28,17 +28,14 @@ visir.WLTransport.prototype.Request = function(request, callback)
 	if (this._isWorking) return;
 	this.SetWorking(true);
 
-	var $weblabProtocol = $('<weblab></weblab>');
 	var $protocol = $('<protocol version="1.3"></protocol>');
 	var $request = $('<request sessionkey="'+this._session+'"></request>');
+	var $save = $(window.visirRegistry.WriteSave());
 	$request.append($(request));
+	$request.append($save);
 	$protocol.append($request);
 
-	var $save = $(window.visirRegistry.WriteSave());
-	$weblabProtocol.append($protocol);
-	$weblabProtocol.append($save);
-
-	var serializedRequest = $("<root />").append($weblabProtocol).html()
+	var serializedRequest = $("<root />").append($protocol).html()
 
 	weblab.sendCommand(serializedRequest).done(function(response) {
 			this.SetWorking(false);

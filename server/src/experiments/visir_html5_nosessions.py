@@ -207,11 +207,14 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
 
             try:
                 dom = xml.parseString(command)
-                weblab_nodes = dom.getElementsByTagName('weblab')
-                if weblab_nodes:
-                    protocols = weblab_nodes[0].getElementsByTagName('protocol')
-                    if protocols:
-                        command = protocols[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
+                protocol_nodes = dom.getElementsByTagName('protocol')
+                if protocol_nodes:
+                    save_nodes = protocol_nodes[0].getElementsByTagName('save')
+                    if save_nodes:
+                        for save_node in save_nodes:
+                            save_node.parentNode.removeChild(save_node)
+
+                        command = protocols_nodes[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
             except:
                 pass
 
