@@ -209,7 +209,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 dom = xml.parseString(command)
                 weblab_nodes = dom.getElementsByTagName('weblab')
                 if weblab_nodes:
-                    protocols = weblab_nodes.getElementsByTagName('protocol')
+                    protocols = weblab_nodes[0].getElementsByTagName('protocol')
                     if protocols:
                         command = protocols[0].toxml().replace("<?xml version=\"1.0\" ?>", "")
             except:
