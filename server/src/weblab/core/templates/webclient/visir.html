@@ -103,7 +103,7 @@
 
 		transport.Connect();
 
-        console.log("About to call ext services");
+        	console.log("About to call ext services");
 
 		var extservice = new visir.ExtServices({ MakeMeasurement: MakeMeasurement });
 		var reg = new visir.InstrumentRegistry(extservice);
@@ -114,14 +114,16 @@
 		$(".measure").click( function() {
 			MakeMeasurement();
 		});
+
+		window.visirRegistry = reg;
         
-        weblab.showFrame();
-        weblab.setWidth("810px");
+	        weblab.showFrame();
+        	weblab.setWidth("810px");
 	}
 
-    function onFailure ()
-    {
-    }
+	function onFailure ()
+	{
+	}
 
 
 

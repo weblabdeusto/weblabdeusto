@@ -28,10 +28,12 @@ visir.WLTransport.prototype.Request = function(request, callback)
 	if (this._isWorking) return;
 	this.SetWorking(true);
 
-	request = '<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>';
+	var $request = $('<protocol version="1.3"><request sessionkey="'+this._session+'">'+request+'</request></protocol>');
+	var $save = $(window.visirRegistry.WriteSave());
+	$request.append($save);
+	var request = $("<root />").append($xml).html()
 
-	weblab.sendCommand(request)
-        .done(function(response) {
+	weblab.sendCommand(request).done(function(response) {
 			this.SetWorking(false);
 			if (typeof callback == "function")
 			{

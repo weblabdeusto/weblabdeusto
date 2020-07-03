@@ -18,8 +18,8 @@ visir.Oscilloscope = function(id)
 		return out;
 	}
 
-	var channel1 = { enabled: 1, coupling: "dc", range: 1, offset: 0, attenuation: 1.0, graph: NewGraph(500) };
-	var channel2 = { enabled: 1, coupling: "dc", range: 1, offset: 0, attenuation: 1.0, graph: NewGraph(500) };
+	var channel1 = { enabled: 1, visible: true, coupling: "dc", range: 1, offset: 0, attenuation: 1.0, graph: NewGraph(500) };
+	var channel2 = { enabled: 1, visible: true, coupling: "dc", range: 1, offset: 0, attenuation: 1.0, graph: NewGraph(500) };
 	this._channels = [ channel1, channel2 ];
 
 	this._trigger = {

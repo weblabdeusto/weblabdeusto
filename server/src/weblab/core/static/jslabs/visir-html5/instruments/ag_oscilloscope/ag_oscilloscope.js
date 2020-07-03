@@ -326,6 +326,9 @@ visir.AgilentOscilloscope.prototype._DrawGrid = function($elem)
 
 visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 {
+	if ($elem.length == 0) {
+		return;
+	}
 	var context = $elem[0].getContext('2d');
 	context.strokeStyle = "#00ff00";
 	context.lineWidth		= 1.2;
@@ -1379,4 +1382,79 @@ function CreateMathMenu(osc, $menu)
 	};
 }
 
+visir.AgilentOscilloscope.prototype.ReadSave = function($xml) {
+	var $oscilloscope = $xml.find("oscilloscope[id='" + this._id + "']");
+	if ($oscilloscope.length == 0)
+		return;
+	
+	var timediv = $oscilloscope.attr("timeDiv");
+	for (var i = 0; i < this._timedivs.length; ++i) {
+		var currentTimeDiv = "" + this._timedivs[i];
+		if (currentTimeDiv === timediv) {
+			this._SetTimedivIdx(i);
+			break;
+		}
+	}
 
+	for (var i = 0; i < 2; ++i) {
+		var $channel = $oscilloscope.find("channel[number='" + (i+1) + "']");
+		if ($channel.length == 0)
+			continue;
+		
+		var source = parseInt($channel.attr("number"));
+		source = source - 1;
+
+		var currentChannel = this._channels[source];
+		currentChannel.xyg = $channel.attr('xyg') === 'true';
+
+		var displayOffset = $channel.attr('display_offset');
+		if (displayOffset !== undefined && displayOffset !== null) {
+			var displayOffsetValue = Number(displayOffset);
+			this._SetDisplayOffset(source, displayOffsetValue);
+		}
+
+		var range = $channel.attr('range');
+
+		for (var voltageIndex = 0; voltageIndex < this._voltages.length; voltageIndex++) {
+			var currentVoltage = "" + this._voltages[voltageIndex];
+			if (currentVoltage === range) {
+				this._SetVoltIdx(source, voltageIndex);
+				break
+			}
+		}
+	}
+
+	this._UpdateDisplay();
+};
+
+visir.AgilentOscilloscope.prototype.WriteSave = function() {
+	var $xml = $("<oscilloscope id='" + this._id + "'></oscilloscope>");
+	$xml.attr("timeDiv", this._timedivs[this._timeIdx]);
+
+	var $trigger = $("<trigger></trigger>");
+	$trigger.attr("source", this._trigger.source);
+	$trigger.attr("slope", this._trigger.slope);
+	$trigger.attr("coupling", this._trigger.coupling);
+	$trigger.attr("level", this._trigger.level);
+	$trigger.attr("mode", this._trigger.mode);
+	$trigger.attr("timeout", this._trigger.timeout);
+	$trigger.attr("delay", this._trigger.delay);
+	$xml.append($trigger);
+
+	for (var i = 0; i < 2; i++) {
+		var ch = this._channels[i];
+
+		var $channel = $("<channel></channel>");
+		$channel.attr("number", i+1);
+		$channel.attr("visible", ch.visible);
+		$channel.attr("coupling", ch.coupling);
+		$channel.attr("display_offset", ch.display_offset);
+		$channel.attr("attenuation", ch.attenuation);
+		$channel.attr("xyg", ch.xyg);
+		$channel.attr("range", ch.range);
+
+		$xml.append($channel);
+	}
+
+	return $xml;
+};
