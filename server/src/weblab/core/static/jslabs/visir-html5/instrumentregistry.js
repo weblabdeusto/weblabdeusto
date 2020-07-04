@@ -102,7 +102,7 @@ visir.InstrumentRegistry.prototype.ReadSave = function(response)
 	}
 }
 
-visir.InstrumentRegistry.prototype.WriteSave = function()
+visir.InstrumentRegistry.prototype.WriteSave = function(includeRequest)
 {
 	$xml = $('<save version="2" />');
 	var instrumentlist = "";
@@ -138,6 +138,15 @@ visir.InstrumentRegistry.prototype.WriteSave = function()
 			$xml.append(this._instruments[i].instrument.WriteSave());
 		}
 	}
+
+	if (includeRequest === true) {
+		var requestContents = this.WriteRequest();
+		var $protocol = $("<protocol version=\"1.3\"><request></request></protocol>");
+		$protocol.find("request").append($(requestContents));
+		$xml.append($protocol);
+	}
+
+
 	return $("<root />").append($xml).html();
 }
 

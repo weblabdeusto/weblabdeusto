@@ -129,7 +129,7 @@ visir.InstrumentFrame = function(instreg, transport, $container)
 
 visir.InstrumentFrame.prototype._SaveToFileSystem = function()
 {
-	this._transport.SaveCircuit(this._registry.WriteSave());
+	this._transport.SaveCircuit(this._registry.WriteSave(true));
 }
 
 visir.InstrumentFrame.prototype._LoadFromFileSystem = function()
