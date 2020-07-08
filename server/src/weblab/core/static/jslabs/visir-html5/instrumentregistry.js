@@ -91,9 +91,12 @@ visir.InstrumentRegistry.prototype.ReadResponse = function(response)
 
 visir.InstrumentRegistry.prototype.ReadSave = function(response)
 {
+	var $response = $(response);
+	$response.remove('protocol');
+
 	for(var i=0;i<this._instruments.length; i++) {
 		if (typeof (this._instruments[i].instrument.ReadSave) == "function") {
-			this._instruments[i].instrument.ReadSave(response);
+			this._instruments[i].instrument.ReadSave($response);
 		}
 	}
 
