@@ -262,7 +262,7 @@ class VisirExperiment(ConcurrentExperiment.ConcurrentExperiment):
                 "experiments" : self.teacher,
                 "circuits" : circuits_list,
             }
-        for key in ['dcPower25', 'dcPowerM25', 'dcPower6']:
+        for key in ['dcPower25', 'dcPowerM25', 'dcPower6', 'vppInFuncgen']:
             if key in initial_data:
                 data[key] = initial_data[key]
 
