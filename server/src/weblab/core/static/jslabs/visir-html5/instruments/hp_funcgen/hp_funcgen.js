@@ -308,7 +308,11 @@ visir.HPFunctionGenerator.prototype._UpdateDisplay = function(ch)
 	if (this._enterMode == this.NORMAL) {
 		var info = this._GetDisplayDigitInfo(val.value / val.multiplier, val.numDigits, val.digit, val.unit);
 		this._$elem.find(".num_display").html(visir.LightNum(info.display, info.digit));
-		this._$elem.find(".num_unit").html(info.unit);
+		if (info.unit === "Vpp" && !visir.Config.Get("vppInFuncgen")) {
+			this._$elem.find(".num_unit").html("Vp ");
+		} else {
+			this._$elem.find(".num_unit").html(info.unit);
+		}
 	} else {
 		this._$elem.find(".num_display").html(this._enterNumStr);
 		this._$elem.find(".num_unit").html("");

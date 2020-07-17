@@ -1,4 +1,4 @@
-/*global trace, extend */
+﻿/*global trace, extend */
 /*jshint laxcomma:true, multistr:true */
 
 "use strict";
@@ -51,8 +51,10 @@ visir.AgilentOscilloscope = function(id, elem, props)
 	this._channels[1].visible = true;
 	this._channels[1].display_offset = 0.0;
 	this._channels[1].inverted = false;
-	this._channels[1].xyg = false;
-
+	this._maindelayed = false;
+	this._maindelayed_x = 0;
+	this._maindelayed_y = 1;
+	
 	this._math = { visible: false, display_offset: 0.0, method: "sub", sourceCh: 0 };
 
 	this._cursors = { visible: false, sourceCh: 0, p1: { x: 0.004, y: 0.002 }, p2: { x: -0.004, y: -0.002 }, selected: 0 };
@@ -193,6 +195,10 @@ visir.AgilentOscilloscope = function(id, elem, props)
 				me._ToggleChEnabled(1);
 			});
 
+			elem.find(".button.maindelayed").click( function() {
+				me._ShowMenu("menu_main_delayed");
+			});
+			
 			elem.find(".button.edge").click( function() {
 				// light up the edge button
 				me._$elem.find(".multibutton.edge .state").removeClass("visible");
@@ -250,6 +256,7 @@ visir.AgilentOscilloscope = function(id, elem, props)
 		me._menuHandlers = {
 			'menu_channel_1': CreateChannelMenu(me, 0, me._$elem.find(".menu_channel_1"))
 			, 'menu_channel_2': CreateChannelMenu(me, 1, me._$elem.find(".menu_channel_2"))
+			, 'menu_main_delayed': CreateMainDelayedMenu(me, me._$elem.find(".menu_main_delayed"))
 			, 'menu_edge': CreateEdgeMenu(me, me._$elem.find(".menu_edge"))
 			, 'menu_modecoupling': CreateTriggerModeCouplingMenu(me, me._$elem.find(".menu_modecoupling"))
 			, 'menu_measure': CreateMeasurementMenu(me, me._$elem.find(".menu_measure"))
@@ -361,23 +368,68 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 	}
 
 	function DrawXY(chnr1, chnr2) {
-		if (!me._channels[chnr2].xyg) { return; }
-		var maxrange = Math.max(me._channels[1].range, me._channels[0].range);
-		var graph1 = me._channels[1].graph;
-		var graph2 = me._channels[0].graph;
+		if (!me._maindelayed) { return; }
+		var maxrange = Math.max(me._channels[0].range, me._channels[1].range);
+		var ch1 = me._channels[0];
+		var ch2 = me._channels[1];
+		var graph1 = ch1.graph;
+		var graph2 = ch2.graph;
 		var len = Math.min(graph1.length, graph2.length);
 		var sum = 0.0;
 		for(var i=0;i<len;i++) {
+			var samplex;
+			var sampley;
+			var rangex;
+			var rangey;
+			var offsetx;
+			var offsety;
+			var range1 = ch1.range;
+			var range2 = ch2.range;
+			var offset1 = ch1.display_offset;
+			var offset2 = ch2.display_offset;
 			var sample = 0.0;
-			var sample1 = graph1[i] * (me._channels[1].inverted ? -1 : 1);
-			var sample2 = graph2[i] * (me._channels[0].inverted ? -1 : 1);
-			if (me._math.visible){
-				sample = sample1 - sample2;
-			} else {
-				sample = sample1;
+			var sample1 = graph1[i] * (ch1.inverted ? -1 : 1);
+			var sample2 = graph2[i] * (ch2.inverted ? -1 : 1);
+			var	samplem = graph1[i] * (ch1.inverted ? -1 : 1) - graph2[i] * (ch2.inverted ? -1 : 1);
+			var	rangem = maxrange;
+			var	offsetm = me._math.display_offset;
+			switch(chnr1) {
+				case 0:
+					samplex = sample1;
+					offsetx = offset1;
+					rangex = range1;
+					break;
+				case 1:
+					samplex = sample2;
+					offsetx = offset2;
+					rangex = range2;
+					break;
+				case 2:
+					samplex = samplem;
+					offsetx = offsetm;
+					rangex = rangem;
+					break;
 			}
-			var x = ((sample2 / me._channels[1].range) + me._math.display_offset) * (w / 8.0) + w/2;
-			var y = -((sample / me._channels[0].range) + me._math.display_offset) * (h / 8.0) + h/2;
+			switch(chnr2) {
+				case 0:
+					sampley = sample1;
+					offsety = offset1;
+					rangey = range1;
+					break;
+				case 1:
+					sampley = sample2;
+					offsety = offset2;
+					rangey = range2;
+					break;
+				case 2:
+					sampley = samplem;
+					offsety = offsetm;
+					rangey = rangem;
+					break;
+			}
+						
+			var x = ((samplex / rangex) + offsetx) * (w / 8.0) + w/2;
+			var y = -((sampley / rangey) + offsety) * (h / 8.0) + h/2;
 			y += 0.5;
 			if (i===0) {
 				context.moveTo(x,y);
@@ -463,7 +515,7 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 		DrawCursor(0, transformY(ch, me._cursors.p1.y), w, transformY(ch, me._cursors.p1.y), me._cursors.selected & 4 ? selcolor : unselcolor, [6]);
 		DrawCursor(0, transformY(ch, me._cursors.p2.y), w, transformY(ch, me._cursors.p2.y), me._cursors.selected & 8 ? selcolor : unselcolor, [7]);
 	}
-	if (!me._channels[1].xyg) {
+	if (!me._maindelayed) {
 		DrawChannel(0);
 		DrawChannel(1);
 		context.stroke();
@@ -476,7 +528,7 @@ visir.AgilentOscilloscope.prototype._DrawPlot = function($elem)
 	} else {
 		context.strokeStyle = "#ffff00";
 		context.beginPath();
-		DrawXY(0,1);
+		DrawXY(me._maindelayed_x,me._maindelayed_y);
 		context.stroke();
 	}
 };
@@ -1137,6 +1189,88 @@ function CreateChannelMenu(osc, ch, $menu)
 		},
 		HideMenu: function() {
 			$menu.find(".menu_selection.sel_ch_" + (ch+1)).removeClass("visible");
+		}
+	};
+}
+
+function CreateMainDelayedMenu(osc, $menu)
+{
+	var timer = null;
+	if (osc._maindelayed) {
+		$(".menubox.mainx").show();
+		$(".menubox.mainy").show();
+	} else {
+		$(".menubox.mainx").hide();
+		$(".menubox.mainy").hide();		
+	}
+	return {
+		GetName: function() { return "Main Delayed Menu"; },
+		ButtonPressed: function(nr) {
+			switch(nr) {
+				case 1:
+					if (!this.ShowMenu("sel_m_d")) return;
+					osc._maindelayed = !osc._maindelayed;
+					if (osc._maindelayed) { osc._maindelayedstr = "X - Y"} else { osc._maindelayedstr = "Main"}
+					this.Redraw();
+					osc._UpdateDisplay();
+					break;
+				case 2:
+					if (!osc._maindelayed) return;
+					if (!this.ShowMenu("sel_m_dx")) return;
+					osc._maindelayed_x++;
+					if (osc._maindelayed_x > 2) { osc._maindelayed_x = 0 };
+					osc.maindelayed_xstr = osc._maindelayed_x + 1;
+					if (osc._maindelayed_x == 2) { osc.maindelayed_xstr = "1-2"};
+					this.Redraw();
+					osc._UpdateDisplay();
+					break;
+				break;
+				case 3:
+					if (!osc._maindelayed) return;
+					if (!this.ShowMenu("sel_m_dy")) return;
+					osc._maindelayed_y++;
+					if (osc._maindelayed_y > 2) { osc._maindelayed_y = 0 };
+					osc.maindelayed_ystr = osc._maindelayed_y + 1;
+					if (osc._maindelayed_y == 2) { osc.maindelayed_ystr = "1-2"};
+					this.Redraw();
+					osc._UpdateDisplay();
+					break;
+				break;
+			}
+			this.Redraw();
+		},
+		Redraw: function() {
+			if (osc._maindelayed) {
+				$(".menubox.mainx").show();
+				$(".menubox.mainy").show();
+			} else {
+				$(".menubox.mainx").hide();
+				$(".menubox.mainy").hide();		
+			}
+			$menu.find(".selection").removeClass("selected");
+			$menu.find(".sel_m_" + (+osc._maindelayed)).addClass("selected");
+			$menu.find(".sel_dx" + osc._maindelayed_x).addClass("selected");
+			$menu.find(".sel_dy" + osc._maindelayed_y).addClass("selected");
+			$menu.find(".value.mode").text(osc._maindelayedstr);
+			$menu.find(".value.dx").text(osc.maindelayed_xstr);
+			$menu.find(".value.dy").text(osc.maindelayed_ystr);
+		},
+		ShowMenu: function(name) {
+			this.Redraw();
+			this.HideMenu();
+			$menu.find(".menu_selection." + name).addClass("visible");
+			var menu = this;
+			if (!timer) {
+				timer = setTimeout(function() { timer=null; menu.HideMenu(); }, 1000);
+				return false;
+			} else {
+				clearInterval(timer);
+				timer = setTimeout(function() { timer=null; menu.HideMenu(); }, 1000);
+				return true;
+			}
+		},
+		HideMenu: function() {
+			$menu.find(".menu_selection").removeClass("visible");
 		}
 	};
 }

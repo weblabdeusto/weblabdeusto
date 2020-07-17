@@ -22,6 +22,9 @@
 	<div class="button saverecall">
 		<img class="up active" src="%img%/osc_save_recall_up.png" alt="save / recall" /><img class="down" src="%img%/osc_save_recall_down.png" alt="save / recall" />
 	</div>
+	<div class="button maindelayed">
+		<img class="up active" src="%img%/osc_main_delayed_up.png" alt="main / delayed" /><img class="down" src="%img%/osc_main_delayed_down.png" alt="main / delayed" />
+	</div>
 	<div class="button multibutton channel_1">
 		<div class="state dark visible">
 			<img class="up active" src="%img%/osc_vert_off_up_enable_1.png" alt="display button" /><img class="down" src="%img%/osc_vert_off_down_enable_1.png" alt="display button" />
@@ -181,9 +184,43 @@
 						<span class="title">Invert</span>
 						<div class="invert checkbox" />
 					</div>
+				</div>
+
+				<div class="menu menu_main_delayed">
 					<div class="menubox">
-						<span class="title">X - Y</span>
-						<div class="xyg checkbox" />
+						<!--div class="menubox_icon arrowup" /-->
+						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Mode</span>
+						<span class="value mode">Main</span>
+					</div>
+					<div class="menu_selection sel_m_d">
+						<div class="title">Mode</div>
+						<hr />
+						<div class="selection sel_m_0 selected"><div class="checkmark_holder"><div class="checkmark" /></div><span>Main</span></div>
+						<div class="selection sel_m_1"><div class="checkmark_holder"><div class="checkmark" /></div><span>X - Y</span></div>
+					</div>
+					<div class="menubox mainx">
+						<!--div class="menubox_icon arrowup" /-->
+						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>X</span>
+						<span class="value dx">1</span>
+					</div>
+					<div class="menu_selection sel_m_dx">
+						<div class="title">X</div>
+						<hr />
+						<div class="selection sel_dx0 selected"><div class="checkmark_holder"><div class="checkmark" /></div><span>1</span></div>
+						<div class="selection sel_dx1"><div class="checkmark_holder"><div class="checkmark" /></div><span>2</span></div>
+						<div class="selection sel_dx2"><div class="checkmark_holder"><div class="checkmark" /></div><span>1-2</span></div>
+					</div>
+					<div class="menubox mainy">
+						<!--div class="menubox_icon arrowup" /-->
+						<span class="title"><img class="menuicon" src="%img%/menu_arrow_up.png" alt="arrow"/>Y</span>
+						<span class="value dy">2</span>
+					</div>
+					<div class="menu_selection sel_m_dy">
+						<div class="title">Y</div>
+						<hr />
+						<div class="selection sel_dy0 selected"><div class="checkmark_holder"><div class="checkmark" /></div><span>1</span></div>
+						<div class="selection sel_dy1"><div class="checkmark_holder"><div class="checkmark" /></div><span>2</span></div>
+						<div class="selection sel_dy2"><div class="checkmark_holder"><div class="checkmark" /></div><span>1-2</span></div>
 					</div>
 				</div>
 
