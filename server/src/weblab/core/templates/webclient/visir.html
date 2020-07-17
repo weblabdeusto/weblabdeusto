@@ -195,6 +195,16 @@
             dcPower6 = true;
         }
 
+        var vppInFuncgen;
+        if (weblab.config['vppInFuncgen'] !== undefined) {
+            vppInFuncgen = weblab.config['vppInFuncgen'];
+        } else if (configObj.vppInFuncgen !== undefined) {
+            vppInFuncgen = configObj.vppInFuncgen;
+        } else {
+            vppInFuncgen = true;
+        }
+
+
         var config = {
             teacherMode: teacherMode,
             instrReg: null,
@@ -208,6 +218,7 @@
             dcPower25: dcPower25,
             dcPowerM25: dcPowerM25,
             dcPower6: dcPower6,
+            vppInFuncgen: vppInFuncgen,
 	    cacheBuster: window.visirCacheBuster
         };
 
