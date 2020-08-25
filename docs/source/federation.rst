@@ -80,5 +80,6 @@ Other WebLab-Deusto deployments (in addition to the one in `University of Deusto
 * `UFH <https://www.ufh.ac.za>`_: https://weblab.ufh.ac.za/weblab/
 * `UMich <https://www.umich.edu>`_: https://weblab.eecs.umich.edu/weblab/
 * `Université Abdelhamid Ibn Badis Mostaganem <http://www.univ-mosta.dz>`_: https://weblabdeusto.leog.univ-mosta.dz/weblab/
+* `PSUT <https://www.psut.edu.jo>`_: https://weblab.psut.edu.jo/weblab/
 
 If you wish us to host a new deployment, contact us at weblab@deusto.es.
