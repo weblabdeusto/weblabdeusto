@@ -20,7 +20,7 @@ install:
     - pip install -r server/src/requirements.txt -r server/src/requirements_recommended.txt -r server/src/requirements_suggested.txt -r server/src/requirements_testing.txt
     - python server/src/develop.py --deploy-test-db --db-engine=mysql --db-create-db --db-admin-user=root --db-admin-passwd=""
     #- npm install -g mocha
-    - cd experiments/unmanaged/http/nodejs; npm install; cd ../../../../;
+    #- cd experiments/unmanaged/http/nodejs; npm install; cd ../../../../;
 script:
     - cd server/src; python develop.py -o -v
-    - cd ../../experiments/unmanaged/http/nodejs/; mocha --exit
+    # - cd ../../experiments/unmanaged/http/nodejs/; mocha --exit
