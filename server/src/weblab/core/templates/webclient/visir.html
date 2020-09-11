@@ -91,6 +91,9 @@
 
 	function init()
 	{
+        // Reinitialize language configuration
+        visir.Lang = new visir.Language();
+
 		function MakeMeasurement()
 		{
 			reg.MakeRequest(transport);
@@ -219,7 +222,7 @@
             dcPowerM25: dcPowerM25,
             dcPower6: dcPower6,
             vppInFuncgen: vppInFuncgen,
-	    cacheBuster: window.visirCacheBuster
+	        cacheBuster: window.visirCacheBuster
         };
 
         if (configObj.savedata != undefined && configObj.savedata != null && configObj.savedata.length > 0) {
