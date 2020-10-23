@@ -78,7 +78,8 @@ Other WebLab-Deusto deployments (in addition to the one in `University of Deusto
 * `UNAD <https://www.unad.edu.co/>`_:  https://lab-remoto-etr.unad.edu.co/weblab/ 
 * `UNIFESP <http://www.unifesp.br>`_: https://weblab.unifesp.br/weblab/
 * `UFH <https://www.ufh.ac.za>`_: https://weblab.ufh.ac.za/weblab/
-* `UMich <https://www.umich.edu>`_: https://weblab.eecs.umich.edu/weblab/
+* `University of Michigan <https://www.umich.edu>`_: https://weblab.eecs.umich.edu/weblab/
+* `University of Washington <https://www.uw.edu>`_: https://weblab.ece.umich.edu/weblab/
 * `Université Abdelhamid Ibn Badis Mostaganem <http://www.univ-mosta.dz>`_: https://weblabdeusto.leog.univ-mosta.dz/weblab/
 * `PSUT <https://www.psut.edu.jo>`_: https://weblab.psut.edu.jo/weblab/
 
