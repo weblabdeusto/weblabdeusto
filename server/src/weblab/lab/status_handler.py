@@ -43,7 +43,7 @@ class AbstractLightweightIsUpAndRunningHandler(object):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, times = None):
+    def __init__(self, times = None, *args, **kwargs):
         if times is not None:
             self.times = times
         else:
@@ -99,9 +99,9 @@ class WebcamIsUpAndRunningHandler(AbstractLightweightIsUpAndRunningHandler):
     DEFAULT_TIMES = 3
 
     def __init__(self, img_url, *args, **kwargs):
+        self.timeout = kwargs.pop('timeout', 10)
         super(WebcamIsUpAndRunningHandler, self).__init__(*args, **kwargs)
         self.img_url = img_url
-        self.timeout = kwargs.get('timeout', 10)
 
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
@@ -124,9 +124,9 @@ class WebHandler(AbstractLightweightIsUpAndRunningHandler):
     DEFAULT_TIMES = 3
 
     def __init__(self, url, *args, **kwargs):
+        self.timeout = kwargs.pop('timeout', 10)
         super(WebHandler, self).__init__(*args, **kwargs)
         self.url = url
-        self.timeout = kwargs.get('timeout', 10)
 
     @Override(AbstractLightweightIsUpAndRunningHandler)
     def run(self):
