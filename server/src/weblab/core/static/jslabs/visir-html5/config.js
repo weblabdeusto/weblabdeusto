@@ -15,6 +15,7 @@ visir.ConfigClass = function()
 	this._displayManuals = true;
 	this._cacheBuster = null;
 	this._vppInFuncgen = true;
+	this._disableLoadSave = true;
 
 	var base = "";
 	if (visir.BaseLocation) base = visir.BaseLocation;
@@ -64,6 +65,7 @@ visir.ConfigClass.prototype.ReadConfig = function(config)
 	this._cacheBuster = (config.cacheBuster !== undefined)?config.cacheBuster:null;
 	this._unrFormat = (config.unrFormat !== undefined)?config.unrFormat:false;
 	this._vppInFuncgen = (config.vppInFuncgen !== undefined)?config.vppInFuncgen:true;
+	this._disableLoadSave = (config.disableLoadSave !== undefined)?config.disableLoadSave:false;
 }
 
 visir.ConfigClass.prototype.Get = function(name)
@@ -84,6 +86,7 @@ visir.ConfigClass.prototype.Get = function(name)
 		case "cacheBuster": return this._cacheBuster;
 		case "unrFormat": return this._unrFormat;
 		case "vppInFuncgen": return this._vppInFuncgen;
+		case "disableLoadSave": return this._disableLoadSave;
 	}
 
 	return undefined;
@@ -137,6 +140,10 @@ visir.ConfigClass.prototype.Set = function(name, value)
 		case "vppInFuncgen":
 			this._vppInFuncgen = value;
 			break;
+		case "disableLoadSave":
+			this._disableLoadSave = value;
+			break;
+
 	}
 }
 

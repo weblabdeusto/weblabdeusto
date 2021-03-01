@@ -53,6 +53,12 @@ visir.InstrumentFrame = function(instreg, transport, $container)
 
 	$container.append($tpl);
 
+	var $loadsave = $container.find(".loadsave");
+	if (visir.Config.Get("disableLoadSave")) {
+		$loadsave.remove();
+		$('.shelf').css({'margin-left': '10px'});
+	}
+
 	var teacher_mode = (visir.Config) ? visir.Config.Get("teacher") : true;
 	if (teacher_mode) {
 		this._$container.find("div.shelf").addClass("show");

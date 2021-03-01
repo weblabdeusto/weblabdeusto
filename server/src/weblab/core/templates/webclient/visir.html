@@ -207,6 +207,14 @@
             vppInFuncgen = true;
         }
 
+        var disableLoadSave;
+        if (weblab.config['disableLoadSave'] !== undefined) {
+            disableLoadSave = weblab.config['disableLoadSave'];
+        } else if (configObj.disableLoadSave !== undefined) {
+            disableLoadSave = configObj.disableLoadSave;
+        } else {
+            disableLoadSave = false;
+        }
 
         var config = {
             teacherMode: teacherMode,
@@ -222,6 +230,7 @@
             dcPowerM25: dcPowerM25,
             dcPower6: dcPower6,
             vppInFuncgen: vppInFuncgen,
+            disableLoadSave: disableLoadSave,
 	        cacheBuster: window.visirCacheBuster
         };
 
