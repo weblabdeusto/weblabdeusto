@@ -893,6 +893,7 @@ def populate_weblab_tests(engine, tests):
         "demo.available": True,
         "admin.email": "weblab@deusto.es",
         "google.analytics.tracking.code": "UA-1234567-8",
+        "google.tag.manager.code": "",
         "host.entity.link": "http://www.deusto.es/",
     }
     

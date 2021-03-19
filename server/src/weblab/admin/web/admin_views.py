@@ -2163,6 +2163,7 @@ class SystemPropertiesForm(Form):
     contact_email = EmailField(lazy_gettext("Contact e-mail:"), validators=[Email()])
     admin_emails = TextField(lazy_gettext("Admin e-mails:"), description=lazy_gettext("Separated by commas"))
     google_analytics = TextField(lazy_gettext("Google Analytics Account:"))
+    google_tag_manager = TextField(lazy_gettext("Google Tag Manager:"))
 
     # base.location: "/w/whatever": generated at client_config.py
 
@@ -2191,6 +2192,7 @@ class SystemPropertiesForm(Form):
             'description': lazy_gettext("Tracking identification"),
             'values': [
                 ClientField(field='google_analytics', key='google.analytics.tracking.code'),
+                ClientField(field='google_tag_manager', key='google.tag.manager.code'),
             ]
         },
     ]
