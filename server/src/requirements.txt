@@ -59,7 +59,7 @@ Flask-BabelEx==0.9.3
 # 
 # PyYAML is used for parsing the main configuration file
 # 
-PyYAML==5.1
+PyYAML==5.4
 
 # 
 # requests is used in all the HTTP communications as a client
