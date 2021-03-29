@@ -553,6 +553,7 @@ class PriorityQueueScheduler(Scheduler):
                         'request.username.unique'                          : username_unique,
                         'request.full_name'                                : username,
                         'request.locale'                                   : locale,
+                        'weblab_reservation_id'                            : filled_reservation_id.split('_', 1)[1],
                         # TODO: add the username and user full name here
                     }
                 server_initial_data = json.dumps(deserialized_server_initial_data)

@@ -538,6 +538,7 @@ class PriorityQueueScheduler(Scheduler):
                                 'request.username.unique'                          : username_unique,
                                 'request.full_name'                                : username,
                                 'request.locale'                                   : locale,
+                                'weblab_reservation_id'                            : first_waiting_reservation.reservation_id,
                             }
                         server_initial_data = json.dumps(deserialized_server_initial_data)
                         # server_initial_data will contain information such as "what was the last experiment used?".
