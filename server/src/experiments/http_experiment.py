@@ -22,6 +22,13 @@ import urllib2
 import traceback
 import threading
 
+import ssl
+
+# In some places, the certificate is invalid and they're fine with it :-(
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
+
 import weblab.configuration_doc as configuration_doc
 from weblab.experiment.experiment import Experiment
 from weblab.experiment.concurrent_experiment import ConcurrentExperiment
