@@ -21,13 +21,7 @@ import urllib
 import urllib2
 import traceback
 import threading
-
 import ssl
-
-# In some places, the certificate is invalid and they're fine with it :-(
-ctx = ssl.create_default_context()
-ctx.check_hostname = False
-ctx.verify_mode = ssl.CERT_NONE
 
 import weblab.configuration_doc as configuration_doc
 from weblab.experiment.experiment import Experiment
@@ -84,6 +78,10 @@ class HttpExperiment(Experiment):
         return "%s/weblab/sessions/%s" % (self.base_url, path)
 
     def _request(self, path, data = None):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         request = urllib2.Request(self._build_url(path))
 
         if self.username and self.password:
@@ -94,11 +92,11 @@ class HttpExperiment(Experiment):
                 request.add_header('Content-Type', 'application/json')
 
         if data is None:
-            return urllib2.urlopen(request).read()
+            return urllib2.urlopen(request, context=ctx).read()
         elif self.request_format == 'json':
-            return urllib2.urlopen(request, json.dumps(data)).read()
+            return urllib2.urlopen(request, json.dumps(data), context=ctx).read()
         elif self.request_format == 'form':
-            return urllib2.urlopen(request, urllib.urlencode(data)).read()
+            return urllib2.urlopen(request, urllib.urlencode(data), context=ctx).read()
         else:
             raise Exception("Unsupported format: %r" % fmt)
 
@@ -341,6 +339,10 @@ class ConcurrentHttpExperiment(Experiment):
         return "%s/weblab/sessions/%s" % (self.base_url, path)
 
     def _request(self, path, data = None):
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
         request = urllib2.Request(self._build_url(path))
 
         if self.username and self.password:
@@ -351,11 +353,11 @@ class ConcurrentHttpExperiment(Experiment):
                 request.add_header('Content-Type', 'application/json')
 
         if data is None:
-            return urllib2.urlopen(request).read()
+            return urllib2.urlopen(request, context=ctx).read()
         elif self.request_format == 'json':
-            return urllib2.urlopen(request, json.dumps(data)).read()
+            return urllib2.urlopen(request, json.dumps(data), context=ctx).read()
         elif self.request_format == 'form':
-            return urllib2.urlopen(request, urllib.urlencode(data)).read()
+            return urllib2.urlopen(request, urllib.urlencode(data), context=ctx).read()
         else:
             raise Exception("Unsupported format: %r" % fmt)
 
