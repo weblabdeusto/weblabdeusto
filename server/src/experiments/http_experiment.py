@@ -83,6 +83,7 @@ class HttpExperiment(Experiment):
         ctx.verify_mode = ssl.CERT_NONE
 
         request = urllib2.Request(self._build_url(path))
+        request.add_header('Accept', 'application/json,text/html')
 
         if self.username and self.password:
             request.add_header("Authorization", "Basic %s" % self.encoded)
@@ -344,6 +345,7 @@ class ConcurrentHttpExperiment(Experiment):
         ctx.verify_mode = ssl.CERT_NONE
 
         request = urllib2.Request(self._build_url(path))
+        request.add_header('Accept', 'application/json,text/html')
 
         if self.username and self.password:
             request.add_header("Authorization", "Basic %s" % self.encoded)
