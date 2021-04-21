@@ -256,7 +256,7 @@ class UsersPanel(AdministratorModelView):
     inline_models = (UserAuthForm(model.DbUserAuth),)
 
     column_formatters = dict(
-        role=lambda v, c, u, p: show_link(v, UsersPanel, {('Role', 'name'): u.role.name}, SAME_DATA),
+        role=lambda v, c, u, p: show_link(v, UsersPanel, {('Role', 'name'): u.role.name if u.role is not None else ''}, SAME_DATA),
         groups=lambda v, c, u, p: show_link(v, GroupsPanel, {'login': u.login}),
         logs=lambda v, c, u, p: show_link(v, UserUsedExperimentPanel, {'login': u.login}),
         permissions=lambda v, c, u, p: show_link(v, UserPermissionPanel, {'login': u.login}),
