@@ -736,8 +736,9 @@ class UserProcessingServer(object):
                 sys.stdout.flush()
                 print("Starting core server... %s" % time.asctime(), file=sys.stderr)
                 sys.stderr.flush()
-            self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
-            self._location_retriever.start()
+            # self._location_retriever = LocationRetriever(cfg_manager, self._db_manager)
+            # self._location_retriever.start()
+            self._location_retriever = None
         else:
             self._location_retriever = None
         #
