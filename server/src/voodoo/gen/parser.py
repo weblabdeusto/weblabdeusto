@@ -79,7 +79,7 @@ class GlobalConfig(dict):
             raise LoadingError(u"Error loading component: %r for server %s: %s" % (component_config.component_class, coord_address, e))
         locator = Locator(self, coord_address)
         instance = ComponentClass(coord_address, locator, config)
-        server = _create_server(instance, coord_address, component_config)
+        server = _create_server(instance, coord_address, component_config, config)
         return ComponentHandler(server, instance)
 
     def create_process(self, host, process):
@@ -179,11 +179,15 @@ class ComponentConfig(object):
         return 'ComponentConfig(%r, %r, %r, %r, %r)' % (self.config_files, self.config_values, self.component_type, self.component_class, self.protocols)
 
 class ProtocolsConfig(dict):
-    def __init__(self, port = None, path = None, auth = None):
+    def __init__(self, port = None, path = None, auth = None, bind = None):
         super(ProtocolsConfig, self).__init__()
         self.port = port
         self.path = path
         self.auth = auth
+        self.bind = bind
+
+    def __repr__(self):
+        return "ProtocolsConfig(%r, %r, %r, %r) with dict(%s)" % (self.port, self.path, self.auth, self.bind, dict.__repr__(self))
 
 
 ############################################
@@ -283,7 +287,8 @@ def _load_contents(contents, directory):
 
                     path = protocols.pop('path', None)
                     auth = protocols.pop('auth', None)
-                    protocols_config = ProtocolsConfig(port, path, auth)
+                    bind = protocols.pop('bind', None)
+                    protocols_config = ProtocolsConfig(port, path, auth, bind)
                     supports = protocols.get('supports', PROTOCOL_PRIORITIES)
                     if isinstance(supports, basestring):
                         if ',' in supports:

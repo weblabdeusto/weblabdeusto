@@ -124,7 +124,7 @@ class DirectServer(Server):
     pass
 
 class InternalFlaskServer(Server):
-    def __init__(self, application, port, instance):
+    def __init__(self, application, port, bind, instance):
         super(InternalFlaskServer, self).__init__(instance)
         self.application = application
         self.port = port
@@ -140,7 +140,7 @@ class InternalFlaskServer(Server):
                 else:
                     return "Shutdown not available"
 
-        self._thread = threading.Thread(target = self.application.run, kwargs = {'port' : self.port, 'debug' : False, 'host' : '', 'threaded' : True})
+        self._thread = threading.Thread(target = self.application.run, kwargs = {'port' : self.port, 'debug' : False, 'host' : bind or '', 'threaded' : True})
         self._thread.setDaemon(True)
         self._thread.setName(next_counter('InternalFlaskServer'))
 
@@ -159,7 +159,7 @@ def _critical_debug(message):
     """Useful to make sure it's printed in the screen but not in tests"""
     print(message)
 
-def _create_server(instance, coord_address, component_config):
+def _create_server(instance, coord_address, component_config, cfg_manager):
     """ Creates a server that manages the communications server_instance: an instance of a class which contains the defined methods """
     component_type = component_config.component_type
     
@@ -195,7 +195,7 @@ def _create_server(instance, coord_address, component_config):
 
         path = protocols.path or ''
         app.register_blueprint(_methods, url_prefix = path)
-        return InternalFlaskServer(app, protocols.port, instance)
+        return InternalFlaskServer(app, protocols.port, protocols.bind, instance)
     else:
         # This server does nothing
         return DirectServer(instance)
