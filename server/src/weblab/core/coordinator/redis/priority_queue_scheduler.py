@@ -96,10 +96,11 @@ TIME_ANTI_RACE_CONDITIONS = 0.1
 
 class PriorityQueueScheduler(Scheduler):
 
-    def __init__(self, generic_scheduler_arguments, randomize_instances = True, **kwargs):
+    def __init__(self, generic_scheduler_arguments, randomize_instances = True, preserve_reservations_on_health_failure = False, **kwargs):
         super(PriorityQueueScheduler, self).__init__(generic_scheduler_arguments, **kwargs)
 
         self.randomize_instances = randomize_instances
+        self.preserve_reservations_on_health_failure = preserve_reservations_on_health_failure
 
         self._synchronizer = SchedulerTransactionsSynchronizer(self)
         self._synchronizer.start()
@@ -117,6 +118,11 @@ class PriorityQueueScheduler(Scheduler):
     @Override(Scheduler)
     @typecheck(typecheck.ANY, typecheck.ANY, Resource)
     def removing_current_resource_slot(self, client, resource):
+        # Health gates new admissions, not ownership of an existing lab session.
+        # Requeueing here loses that session without disposing it; its eventual
+        # cleanup can then reset hardware already assigned to another session.
+        if self.preserve_reservations_on_health_failure:
+            return False
         weblab_resource_instance_reservations = WEBLAB_RESOURCE_PQUEUE_INSTANCE_RESERVATIONS % (resource.resource_type, resource.resource_instance)
 
         current_reservation_ids = client.smembers(weblab_resource_instance_reservations)
@@ -304,7 +310,8 @@ class PriorityQueueScheduler(Scheduler):
         resource_instance_str = pqueue_reservation_data.get(RESOURCE_INSTANCE)
         if resource_instance_str is not None:
             resource_instance = Resource.parse(resource_instance_str)
-            if not self.resources_manager.check_working(resource_instance):
+            if (not self.preserve_reservations_on_health_failure and
+                    not self.resources_manager.check_working(resource_instance)):
                 # TODO: if the experiment is broken and the student is ACTIVE_STATUS, something should be done
                 # 
                 return
